@@ -22,6 +22,7 @@ import { useBreadcrumb } from "hooks/useBreadcrumb";
 import { IProvince, IWard, IConfiguredDevice } from "typings";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
+import SVG from "designs/SVG";
 
 const EmergencyBroadcastDialog = lazy(
   () => import("./EmergencyBroadcastDialog"),
@@ -37,9 +38,9 @@ const VolumeDialog = lazy(() => import("./VolumeDialog"));
 
 const LOAD_DATA = "LOAD_DATA";
 
-interface IDistrictProps extends RouteComponentProps {}
+interface IWardDeviceProps extends RouteComponentProps {}
 
-const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
+const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
@@ -60,8 +61,8 @@ const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
       href: "#",
     },
     {
-      name: "Đã cấu hình",
-      href: PATH.DEVICE.CONFIGURED,
+      name: "Cấp Phường/Xã/Thị Trấn",
+      href: PATH.DEVICE.WARD,
     },
   ]);
 
@@ -72,7 +73,7 @@ const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
     return (
       <ActionButtons
         buttons={{
-          edit: {
+          config: {
             DialogContent: props => (
               <Redirect
                 to={{
@@ -123,21 +124,34 @@ const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
         text: "Tên thiết bị",
         dataField: "name",
         headerStyle: () => ({
-          width: "26%",
+          width: "18%",
         }),
       },
       {
         text: "Mã thiết bị",
         dataField: "deviceId",
         headerStyle: () => ({
-          width: "26%",
+          width: "18%",
         }),
       },
       {
         text: "Âm lượng",
         dataField: "volume",
         headerStyle: () => ({
-          width: "20%",
+          width: "18%",
+        }),
+      },
+      {
+        text: "Kết nối",
+        dataField: "type",
+        formatter: (type: number) => {
+          if (type === 1) return <SVG name="device/ethernet" />;
+          if (type === 2) return <SVG name="device/4g" />;
+          if (type === 3) return <SVG name="device/wifi" />;
+          return <SVG name="device/wifi-off" />;
+        },
+        headerStyle: () => ({
+          width: "18%",
         }),
       },
       {
@@ -177,19 +191,13 @@ const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Thiết bị đã cấu hình"
+      title="Thiết bị cấp Phường/Xã/Thị Trấn"
       buttonMenu={
         <div className="flex flex-col gap-2 items-end w-full phone:w-auto overflow-x-auto max-w-full pretty-scroll pb-">
           <div className="flex flex-row gap-2 w-full phone:w-auto">
             <CSVLink data={listDevice} filename="danh-sach-thiet-bi.csv">
-              <TopButton variant="secondary">Xuất báo cáo</TopButton>
+              <TopButton>Xuất báo cáo</TopButton>
             </CSVLink>
-            <Link
-              to={PATH.DEVICE.CREATE_DEVICE}
-              className="w-full phone:w-auto"
-            >
-              <TopButton>Thêm thiết bị</TopButton>
-            </Link>
           </div>
           <div className="flex flex-row gap-2 w-full phone:w-auto">
             <EmergencyBroadcastDialog
@@ -266,7 +274,7 @@ const ConfigureDevice: React.FC<IDistrictProps> = ({ location }) => {
   );
 };
 
-export default ConfigureDevice;
+export default WardDevice;
 
 export const listDevice: any[] = [
   {
@@ -275,6 +283,7 @@ export const listDevice: any[] = [
     deviceId: "1",
     volume: "100",
     status: true,
+    type: 1,
   },
   {
     id: "2",
@@ -282,6 +291,7 @@ export const listDevice: any[] = [
     deviceId: "1",
     volume: "100",
     status: false,
+    type: 2,
   },
   {
     id: "3",
@@ -289,6 +299,7 @@ export const listDevice: any[] = [
     deviceId: "1",
     volume: "100",
     status: true,
+    type: 3,
   },
   {
     id: "4",
@@ -296,6 +307,7 @@ export const listDevice: any[] = [
     deviceId: "1",
     volume: "100",
     status: true,
+    type: 4,
   },
 ];
 

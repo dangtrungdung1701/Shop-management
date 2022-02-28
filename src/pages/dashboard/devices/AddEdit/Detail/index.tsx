@@ -34,9 +34,7 @@ import Select from "designs/Select";
 
 import { IDistrict, IProvince, IWard } from "typings";
 import { Formik, FormikProps, FormikValues } from "formik";
-import RestartDialog from "../../Configured/RestartDialog";
-import { listDevice } from "../../Configured";
-import AlertDialogV2 from "components/AlertDialogV2";
+import { listDevice } from "../../Province";
 import AlertDialog from "components/AlertDialog";
 
 interface IFormValue {
@@ -97,8 +95,8 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
       href: "#",
     },
     {
-      name: "Thêm thiết bị",
-      href: PATH.DEVICE.CREATE_DEVICE,
+      name: "Cấu hình",
+      href: PATH.DEVICE.EDIT_DEVICE,
     },
   ]);
 
@@ -155,7 +153,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   };
 
   const handleBack = () => {
-    history.push(PATH.DEVICE.CONFIGURED);
+    history.goBack();
   };
 
   const handleReset = () => {};
@@ -193,7 +191,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
     }
   };
   return (
-    <TableLayout title={id ? "Chỉnh sửa thiết bị" : "Thêm thiết bị"}>
+    <TableLayout>
       <Title>Cấu hình thiết bị</Title>
       <TopWrapper>
         <VolumnSlider

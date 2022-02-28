@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
-import Input from "designs/Input";
+import MultipleSelect from "designs/MultipleSelect";
 
-import { IProvince, IProvinceInput } from "typings";
+import { IConfiguredDevice, IRestartInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -18,7 +18,6 @@ import {
 } from "./styles";
 
 type IDialogProps = {
-  editField?: IProvince;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -33,12 +32,11 @@ type IDialogProps = {
 );
 
 interface IFormValue {
-  name?: string;
+  device?: string;
 }
 
-const ProvinceDialog: React.FC<IDialogProps> = ({
+const RestartDialog: React.FC<IDialogProps> = ({
   open = false,
-  editField,
   ButtonMenu,
   onClose,
   onSuccess,
@@ -46,35 +44,31 @@ const ProvinceDialog: React.FC<IDialogProps> = ({
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [initialValues, setInitialValues] = useState<IFormValue>({
-    name: "",
-  });
+  const [listDeviceSelected, setListDeviceSelected] = useState<
+    IConfiguredDevice[]
+  >([]);
 
-  useEffect(() => {
-    if (editField) {
-      setInitialValues({
-        name: editField?.name,
-      });
-    }
-  }, []);
+  const [initialValues, setInitialValues] = useState<IFormValue>({
+    device: "",
+  });
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên tỉnh/ thành phố"),
+      device: yup.string().required("Vui lòng chọn thiết bị!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IProvinceInput = {
-      name: value?.name,
+    const input: IRestartInput = {
+      device: listDeviceSelected?.map(device => device?.id || ""),
     };
     console.log(input);
     handleCloseDialog();
     // try {
-    //   if (editField) {
+    //   if () {
     //     setLoading(true);
-    //     const payload: IUpdateProvince = {
-    //       id: editField?._id!,
+    //     const payload: IUpdateDistrict = {
+    //       id: ?._id!,
     //       categoryInput: input,
     //     };
     //     await updateCategoryAPI(payload);
@@ -84,7 +78,7 @@ const ProvinceDialog: React.FC<IDialogProps> = ({
     //     return;
     //   }
     //   setLoading(true);
-    //   const payload: ICreateProvince = {
+    //   const payload: ICreateDistrict = {
     //     categoryInput: input,
     //   };
     //   await createCategoryAPI(payload);
@@ -109,13 +103,7 @@ const ProvinceDialog: React.FC<IDialogProps> = ({
       </ElementWrapper>
       <Dialog open={isOpen} onClose={handleCloseDialog} size="md">
         <UserDialogContainer>
-          <DialogHeader
-            title={
-              editField
-                ? "Chỉnh sửa thông tin tỉnh/ thành phố"
-                : "Thêm tỉnh/ thành phố"
-            }
-          />
+          <DialogHeader title="Khởi động lại" />
           <Formik
             initialValues={initialValues}
             enableReinitialize
@@ -125,11 +113,14 @@ const ProvinceDialog: React.FC<IDialogProps> = ({
             {formik => {
               return (
                 <Form onSubmit={formik.handleSubmit}>
-                  <Input
-                    name="name"
-                    label="Tên tỉnh/ thành phố"
-                    placeholder="Nhập tên tỉnh/thành phố"
-                    type="text"
+                  <MultipleSelect
+                    name="device"
+                    label="Thiết bị"
+                    listOptionsSelected={listDeviceSelected}
+                    options={optionDevice}
+                    onSelect={value => setListDeviceSelected(value)}
+                    className="border rounded border-neutral-4"
+                    placeholder="Chọn thiết bị"
                     required
                   />
                   <ButtonWrapper>
@@ -154,4 +145,19 @@ const ProvinceDialog: React.FC<IDialogProps> = ({
   );
 };
 
-export default ProvinceDialog;
+export default RestartDialog;
+
+const optionDevice: IConfiguredDevice[] = [
+  {
+    id: "1",
+    name: "device 1",
+  },
+  {
+    id: "2",
+    name: "device 2",
+  },
+  {
+    id: "3",
+    name: "device 3",
+  },
+];

@@ -3,9 +3,7 @@ import { IRoute, IRoutes } from "typings";
 import { rootRoute, authRoutes, notFoundRoute } from "./components/publics";
 import { dashboardRoute } from "./components/dashboard";
 import { usersRoute } from "./components/user";
-import { locationRoute } from "./components/location";
 import { sourceManagementRoute } from "./components/sourceManagement";
-import { blogRoute } from "./components/blog";
 import { devicesRoute } from "./components/device";
 
 const flattenRoutes = (routes: IRoutes[]): IRoute[] => {
@@ -22,11 +20,9 @@ const flattenRoutes = (routes: IRoutes[]): IRoute[] => {
 
 const dashboardRoutes: IRoutes[] = [
   dashboardRoute,
-  usersRoute,
   devicesRoute,
   sourceManagementRoute,
-  blogRoute,
-  locationRoute,
+  usersRoute,
 ];
 
 const otherRoutes: IRoutes[] = [rootRoute, authRoutes, notFoundRoute];

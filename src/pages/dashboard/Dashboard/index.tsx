@@ -17,7 +17,7 @@ const Overview: React.FC = () => {
   return (
     <DashboardContainer>
       <NonBreadcrumb>Xin chào</NonBreadcrumb>
-      <DashboardTitle>EBC DFM Admin</DashboardTitle>
+      <DashboardTitle>Username</DashboardTitle>
       <ListStatistics>
         {statisticData.map((item, index) => (
           <StatisticsItem.Container key={index}>

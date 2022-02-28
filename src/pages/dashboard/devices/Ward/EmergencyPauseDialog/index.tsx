@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
-import Input from "designs/Input";
+import MultipleSelect from "designs/MultipleSelect";
 
-import { IDistrict, IProvince, IWard, IWardInput } from "typings";
+import { IConfiguredDevice, IEmergencyPauseInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -16,10 +16,8 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import Select from "designs/Select";
 
 type IDialogProps = {
-  editField?: IWard;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -34,14 +32,11 @@ type IDialogProps = {
 );
 
 interface IFormValue {
-  district?: string;
-  province?: string;
-  name?: string;
+  device?: string;
 }
 
-const WardDialog: React.FC<IDialogProps> = ({
+const EmergencyPauseDialog: React.FC<IDialogProps> = ({
   open = false,
-  editField,
   ButtonMenu,
   onClose,
   onSuccess,
@@ -49,48 +44,31 @@ const WardDialog: React.FC<IDialogProps> = ({
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(
-    null,
-  );
-  const [selectedDistrict, setSelectedDistrict] = useState<IDistrict | null>(
-    null,
-  );
+  const [listDeviceSelected, setListDeviceSelected] = useState<
+    IConfiguredDevice[]
+  >([]);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    name: "",
+    device: "",
   });
-
-  useEffect(() => {
-    if (editField) {
-      setInitialValues({
-        name: editField?.name,
-      });
-      setSelectedProvince(editField?.province || null);
-      setSelectedDistrict(editField?.district || null);
-    }
-  }, []);
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên phường/ xã/ thị trấn"),
-      province: yup.string().required("Vui lòng chọn tỉnh/ thành phố"),
-      district: yup.string().required("Vui lòng chọn quận/ huyện/ thị xã"),
+      device: yup.string().required("Vui lòng chọn thiết bị!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IWardInput = {
-      name: value?.name,
-      province: selectedProvince?.id || "",
-      district: selectedDistrict?.id || "",
+    const input: IEmergencyPauseInput = {
+      device: listDeviceSelected?.map(device => device?.id || ""),
     };
     console.log(input);
     handleCloseDialog();
     // try {
-    //   if (editField) {
+    //   if () {
     //     setLoading(true);
     //     const payload: IUpdateDistrict = {
-    //       id: editField?._id!,
+    //       id: ?._id!,
     //       categoryInput: input,
     //     };
     //     await updateCategoryAPI(payload);
@@ -115,8 +93,6 @@ const WardDialog: React.FC<IDialogProps> = ({
 
   const handleCloseDialog = () => {
     setOpen(false);
-    setSelectedProvince(null);
-    setSelectedDistrict(null);
     onClose?.();
   };
 
@@ -127,13 +103,7 @@ const WardDialog: React.FC<IDialogProps> = ({
       </ElementWrapper>
       <Dialog open={isOpen} onClose={handleCloseDialog} size="md">
         <UserDialogContainer>
-          <DialogHeader
-            title={
-              editField
-                ? "Chỉnh sửa thông tin tỉnh/ thành phố"
-                : "Thêm tỉnh/ thành phố"
-            }
-          />
+          <DialogHeader title="Dừng khẩn cấp" />
           <Formik
             initialValues={initialValues}
             enableReinitialize
@@ -143,32 +113,14 @@ const WardDialog: React.FC<IDialogProps> = ({
             {formik => {
               return (
                 <Form onSubmit={formik.handleSubmit}>
-                  <Select
-                    name="province"
-                    label="Tên tỉnh/ thành phố"
-                    optionSelected={selectedProvince}
-                    options={optionProvince}
-                    onSelect={value => setSelectedProvince(value)}
+                  <MultipleSelect
+                    name="device"
+                    label="Thiết bị"
+                    listOptionsSelected={listDeviceSelected}
+                    options={optionDevice}
+                    onSelect={value => setListDeviceSelected(value)}
                     className="border rounded border-neutral-4"
-                    placeholder="Chọn tỉnh/thành phố"
-                    required
-                  />
-                  <Select
-                    name="district"
-                    label="Tên quận/ huyện/ thị xã"
-                    optionSelected={selectedDistrict}
-                    options={optionDistrict}
-                    onSelect={value => setSelectedDistrict(value)}
-                    className="border rounded border-neutral-4"
-                    placeholder="Chọn quận/ huyện/ thị xã"
-                    disabled={selectedProvince ? false : true}
-                    required
-                  />
-                  <Input
-                    name="name"
-                    label="Tên phường/ xã/ thị trấn"
-                    placeholder="Nhập tên phường/ xã/ thị trấn"
-                    type="text"
+                    placeholder="Chọn thiết bị"
                     required
                   />
                   <ButtonWrapper>
@@ -193,34 +145,19 @@ const WardDialog: React.FC<IDialogProps> = ({
   );
 };
 
-export default WardDialog;
+export default EmergencyPauseDialog;
 
-const optionProvince: IProvince[] = [
+const optionDevice: IConfiguredDevice[] = [
   {
     id: "1",
-    name: "TP HCM",
+    name: "device 1",
   },
   {
     id: "2",
-    name: "TP HN",
+    name: "device 2",
   },
   {
     id: "3",
-    name: "TP HP",
-  },
-];
-
-const optionDistrict: IDistrict[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
+    name: "device 3",
   },
 ];

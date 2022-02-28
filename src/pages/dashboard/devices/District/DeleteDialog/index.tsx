@@ -109,7 +109,7 @@ const DeleteDialog: React.FC<IDialogProps> = ({
         <UserDialogContainer>
           <DialogHeader title="Xóa thiết bị" />
           <div className="text-neutral-2 mb-2">
-            Bạn có chắc chắn muốn xóa thiết bị này này?
+            Bạn có chắc chắn muốn xóa thiết bị này?
           </div>
           <Formik
             initialValues={initialValues}

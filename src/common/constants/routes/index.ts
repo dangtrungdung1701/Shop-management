@@ -8,9 +8,9 @@ export const PATH = {
   USER: "/user",
   DEVICE: {
     SELF: "/device",
-    CONFIGURED: "/device/configured",
-    NOT_CONFIGURED: "/device/not-configured",
-    CREATE_DEVICE: "/device/create",
+    PROVINCE: "/device/province",
+    DISTRICT: "/device/district",
+    WARD: "/device/ward",
     EDIT_DEVICE: "/device/edit/:id",
   },
   BLOG: "/blog",

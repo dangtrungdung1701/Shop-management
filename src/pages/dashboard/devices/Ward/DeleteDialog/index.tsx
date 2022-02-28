@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 
@@ -7,7 +7,7 @@ import Dialog from "components/Dialog";
 
 import Input from "designs/Input";
 
-import { IDistrict, IDistrictInput, IProvince } from "typings";
+import { IConfiguredDevice, IDeleteDeviceInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -16,10 +16,9 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import Select from "designs/Select";
 
 type IDialogProps = {
-  editField?: IDistrict;
+  editField?: IConfiguredDevice;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -34,55 +33,46 @@ type IDialogProps = {
 );
 
 interface IFormValue {
-  province?: string;
-  name?: string;
+  password?: string;
 }
 
-const DistrictDialog: React.FC<IDialogProps> = ({
+const DeleteDialog: React.FC<IDialogProps> = ({
   open = false,
-  editField,
   ButtonMenu,
   onClose,
   onSuccess,
 }) => {
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
-  const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(
-    null,
-  );
+
+  const [listDeviceSelected, setListDeviceSelected] = useState<
+    IConfiguredDevice[]
+  >([]);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    name: "",
+    password: "",
   });
-
-  useEffect(() => {
-    if (editField) {
-      setInitialValues({
-        name: editField?.name,
-      });
-      setSelectedProvince(editField?.province || null);
-    }
-  }, []);
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên quận/ huyện/ thị xã"),
-      province: yup.string().required("Vui lòng chọn tỉnh/ thành phố"),
+      password: yup
+        .string()
+        .required("Vui lòng nhập mật khẩu!")
+        .min(6, "Mật khẩu tối thiểu 6 ký tự!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IDistrictInput = {
-      name: value?.name,
-      province: selectedProvince?.id || "",
+    const input: IDeleteDeviceInput = {
+      password: value?.password,
     };
     console.log(input);
     handleCloseDialog();
     // try {
-    //   if (editField) {
+    //   if () {
     //     setLoading(true);
     //     const payload: IUpdateDistrict = {
-    //       id: editField?._id!,
+    //       id: ?._id!,
     //       categoryInput: input,
     //     };
     //     await updateCategoryAPI(payload);
@@ -107,7 +97,6 @@ const DistrictDialog: React.FC<IDialogProps> = ({
 
   const handleCloseDialog = () => {
     setOpen(false);
-    setSelectedProvince(null);
     onClose?.();
   };
 
@@ -118,13 +107,10 @@ const DistrictDialog: React.FC<IDialogProps> = ({
       </ElementWrapper>
       <Dialog open={isOpen} onClose={handleCloseDialog} size="md">
         <UserDialogContainer>
-          <DialogHeader
-            title={
-              editField
-                ? "Chỉnh sửa thông tin tỉnh/ thành phố"
-                : "Thêm tỉnh/ thành phố"
-            }
-          />
+          <DialogHeader title="Xóa thiết bị" />
+          <div className="text-neutral-2 mb-2">
+            Bạn có chắc chắn muốn xóa thiết bị này?
+          </div>
           <Formik
             initialValues={initialValues}
             enableReinitialize
@@ -134,21 +120,11 @@ const DistrictDialog: React.FC<IDialogProps> = ({
             {formik => {
               return (
                 <Form onSubmit={formik.handleSubmit}>
-                  <Select
-                    name="province"
-                    label="Tên tỉnh/ thành phố"
-                    optionSelected={selectedProvince}
-                    options={optionProvince}
-                    onSelect={value => setSelectedProvince(value)}
-                    className="border rounded border-neutral-4"
-                    placeholder="Chọn tỉnh/thành phố"
-                    required
-                  />
                   <Input
-                    name="name"
-                    label="Tên quận/ huyện/ thị xã"
-                    placeholder="Nhập tên quận/ huyện/ thị xã"
-                    type="text"
+                    name="password"
+                    label="Mật khẩu"
+                    placeholder="Nhập mật khẩu"
+                    type="password"
                     required
                   />
                   <ButtonWrapper>
@@ -173,19 +149,4 @@ const DistrictDialog: React.FC<IDialogProps> = ({
   );
 };
 
-export default DistrictDialog;
-
-const optionProvince: IProvince[] = [
-  {
-    id: "1",
-    name: "TP HCM",
-  },
-  {
-    id: "2",
-    name: "TP HN",
-  },
-  {
-    id: "3",
-    name: "TP HP",
-  },
-];
+export default DeleteDialog;

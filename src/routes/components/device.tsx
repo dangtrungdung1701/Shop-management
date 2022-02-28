@@ -5,10 +5,10 @@ import { PATH } from "common/constants/routes";
 
 import ChallengeIcon from "icons/Dashboard/Challenge";
 
-const Configured = lazy(() => import("pages/dashboard/devices/Configured"));
-const NotConfigured = lazy(
-  () => import("pages/dashboard/devices/NotConfigured"),
-);
+const Province = lazy(() => import("pages/dashboard/devices/Province"));
+const District = lazy(() => import("pages/dashboard/devices/District"));
+const Ward = lazy(() => import("pages/dashboard/devices/Ward"));
+
 const ConfiguredDevice = lazy(() => import("pages/dashboard/devices/AddEdit"));
 
 export const devicesRoute: IRoutes = {
@@ -19,26 +19,25 @@ export const devicesRoute: IRoutes = {
   Icon: <ChallengeIcon />,
   children: [
     {
-      name: "Đã cấu hình",
-      path: PATH.DEVICE.CONFIGURED,
+      name: "Cấp Tỉnh/TP",
+      path: PATH.DEVICE.PROVINCE,
       exact: true,
-      Component: Configured,
+      Component: Province,
       isPrivate: true,
     },
     {
-      name: "Chưa cấu hình",
-      path: PATH.DEVICE.NOT_CONFIGURED,
+      name: "Cấp Quận/Huyện/Thị Xã",
+      path: PATH.DEVICE.DISTRICT,
       exact: true,
-      Component: NotConfigured,
+      Component: District,
       isPrivate: true,
     },
     {
-      name: "Thêm thiết bị",
-      path: PATH.DEVICE.CREATE_DEVICE,
+      name: "Cấp Phường/Xã/Thị Trấn",
+      path: PATH.DEVICE.WARD,
       exact: true,
-      Component: ConfiguredDevice,
+      Component: Ward,
       isPrivate: true,
-      hiddenRoute: true,
     },
     {
       name: "Cấu hình thiết bị",

@@ -4,7 +4,7 @@ import { Form as _Form } from "formik";
 import _Button from "designs/Button";
 
 export const ElementWrapper = styled.div`
-  ${tw`cursor-pointer`}
+  ${tw`cursor-pointer w-full phone:w-auto`}
 `;
 
 export const UserDialogContainer = styled.div`

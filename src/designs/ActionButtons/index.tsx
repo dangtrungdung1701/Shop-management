@@ -13,7 +13,8 @@ type IActionType =
   | "update"
   | "switch"
   | "restart"
-  | "volume";
+  | "volume"
+  | "config";
 
 interface IActionButtonsProps {
   buttons: {
@@ -24,6 +25,9 @@ interface IActionButtonsProps {
       onDelete?: () => Promise<void>;
     };
     edit?: {
+      DialogContent: React.FC<{ onClose: () => void }>; // An dialog
+    };
+    config?: {
       DialogContent: React.FC<{ onClose: () => void }>; // An dialog
     };
     info?: {
@@ -62,6 +66,11 @@ const options: {
     type: "edit",
     iconName: "actions/edit",
     name: "Chỉnh sửa",
+  },
+  config: {
+    type: "config",
+    iconName: "actions/config",
+    name: "Cấu hình",
   },
   delete: {
     type: "delete",
@@ -198,6 +207,9 @@ const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
       )}
       {optionSelected?.type === "edit" && buttons.edit && (
         <buttons.edit.DialogContent onClose={handleClose} />
+      )}
+      {optionSelected?.type === "config" && buttons.config && (
+        <buttons.config.DialogContent onClose={handleClose} />
       )}
       {optionSelected?.type === "volume" && buttons.volume && (
         <buttons.volume.DialogContent onClose={handleClose} />
