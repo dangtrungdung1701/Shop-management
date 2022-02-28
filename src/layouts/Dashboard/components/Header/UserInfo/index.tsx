@@ -16,10 +16,13 @@ import {
   MenuButton,
   Name,
   UserNavContainer,
+  Link,
 } from "./styles";
 
 import UserDialog from "components/UserProfileDialog";
-import PasswordDiaglog from "components/ChangePasswordDialog";
+import PasswordDialog from "components/ChangePasswordDialog";
+import OptionDialog from "./OptionDialog";
+import ArrowIcon from "designs/icons/Arrow";
 
 interface IUserNavProps {}
 
@@ -47,6 +50,7 @@ const UserInfo: React.FC<IUserNavProps> = props => {
           <MenuButton>
             <Avatar src={AvatarSkeleton} />
             <Name>Hi, {fullName}Thien An</Name>
+            <ArrowIcon direction="DOWN" />
           </MenuButton>
         }
         options={[
@@ -79,11 +83,34 @@ const UserInfo: React.FC<IUserNavProps> = props => {
           },
           {
             Component: (
-              <PasswordDiaglog
+              <PasswordDialog
                 ButtonMenu={
                   <DropdownItem>
                     <SVG name="dropdown/change" width={20} height={20} />
                     Đổi mật khẩu
+                  </DropdownItem>
+                }
+                onSuccess={() => {}}
+              />
+            ),
+          },
+          {
+            Component: (
+              <DropdownItem>
+                <Link href="https://www.google.com/" target="_blank">
+                  <SVG name="dropdown/question" width={20} height={20} />
+                  Hướng dẫn sử dụng
+                </Link>
+              </DropdownItem>
+            ),
+          },
+          {
+            Component: (
+              <OptionDialog
+                ButtonMenu={
+                  <DropdownItem>
+                    <SVG name="dropdown/option" width={20} height={20} />
+                    Tùy chọn
                   </DropdownItem>
                 }
                 onSuccess={() => {}}

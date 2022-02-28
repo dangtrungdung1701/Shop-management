@@ -100,7 +100,7 @@ const District: React.FC<IDistrictProps> = ({ location }) => {
         dataField: "activeDevice",
       },
       {
-        text: "đang nghỉ",
+        text: "Đang nghỉ",
         dataField: "inactiveDevice",
       },
       {

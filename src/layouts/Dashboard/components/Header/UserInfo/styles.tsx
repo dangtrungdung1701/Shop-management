@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import tw from "twin.macro";
 import BaseButton from "designs/BaseButton";
@@ -40,3 +39,7 @@ export const InfoContainer = {
     ${tw`text-neutral-2 text-md mt-0.5`}
   `,
 };
+
+export const Link = styled.a`
+  ${tw`flex gap-1 items-center`}
+`;

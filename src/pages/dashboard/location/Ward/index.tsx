@@ -103,7 +103,7 @@ const Ward: React.FC<IWardProps> = ({ location }) => {
         dataField: "activeDevice",
       },
       {
-        text: "đang nghỉ",
+        text: "Đang nghỉ",
         dataField: "inactiveDevice",
       },
       {

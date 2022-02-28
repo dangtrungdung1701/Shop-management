@@ -88,7 +88,7 @@ const Province: React.FC<IProvinceProps> = ({ location }) => {
         dataField: "activeDevice",
       },
       {
-        text: "đang nghỉ",
+        text: "Đang nghỉ",
         dataField: "inactiveDevice",
       },
       {

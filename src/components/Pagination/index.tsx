@@ -48,7 +48,7 @@ const Pagination: React.FC<IPaginationProps> = props => {
   return (
     <PaginationContainer>
       <SizePerPage.Container>
-        <SizePerPage.Text>Rows per page :</SizePerPage.Text>
+        <SizePerPage.Text>Số hàng mỗi trang :</SizePerPage.Text>
         <Select onSelect={option => handleSelect(option)} />
       </SizePerPage.Container>
       <SizeOnTotal.Container>
@@ -62,7 +62,7 @@ const Pagination: React.FC<IPaginationProps> = props => {
           />
         )}
         <SizeOnTotal.Text>
-          {sizeStart}-{sizeEnd} of {totalSize}
+          Hiển thị từ {sizeStart} đến {sizeEnd} của {totalSize}
         </SizeOnTotal.Text>
         {totalSize !== undefined && sizeEnd < totalSize && (
           <SVG
