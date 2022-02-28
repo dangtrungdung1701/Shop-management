@@ -14,9 +14,10 @@ import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 
 import { ButtonAdd, SearchBoxWrapper } from "./styles";
-import { IDistrict } from "typings";
+import { IDistrict, IProvince, IWard } from "typings";
+import SimpleSelect from "designs/SimpleSelect";
 
-const AdminDialog = lazy(() => import("./AdminDialog"));
+const NormalDialog = lazy(() => import("./UserDialog"));
 const UserProfileDialog = lazy(() => import("components/UserProfileDialog"));
 const ChangePasswordDialog = lazy(
   () => import("components/ChangePasswordDialog"),
@@ -26,13 +27,21 @@ const LOAD_DATA = "LOAD_DATA";
 
 interface IAdminProps extends RouteComponentProps {}
 
-const Admin: React.FC<IAdminProps> = ({ location }) => {
+const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
-  const [currentAccount, setCurrentAccount] = useState<Boolean>(true);
+  const [currentAccount, setCurrentAccount] = useState<boolean>(true);
 
   const [listCategories, setListCategories] = useState<IDistrict[]>([]);
+  const [provinceSelected, setProvinceSelected] = useState<IProvince | null>(
+    null,
+  );
+  const [districtSelected, setDistrictSelected] = useState<IDistrict | null>(
+    null,
+  );
+  const [wardSelected, setWardSelected] = useState<IWard | null>(null);
+
   const [totalCount, setTotalCount] = useState<number>(listDistrict.length);
   const { startLoading, stopLoading } = useLoading();
 
@@ -42,8 +51,8 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
       href: "#",
     },
     {
-      name: "Quản trị viên",
-      href: PATH.USER.ADMIN,
+      name: "Người dùng",
+      href: PATH.USER,
     },
   ]);
 
@@ -65,7 +74,7 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
                   {...props}
                 />
               ) : (
-                <AdminDialog
+                <NormalDialog
                   onSuccess={() => {
                     // invokeGetAllCategory();
                   }}
@@ -76,8 +85,8 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
               ),
           },
           delete: {
-            title: "Xóa quản trị viên",
-            message: `Bạn có chắc chắn muốn xóa quản trị viên này?`,
+            title: "Xóa người dùng",
+            message: `Bạn có chắc chắn muốn xóa người dùng này?`,
             onDelete: async () => {
               // await deleteBlogAPI({ id: record._id });
               // invokeGetAllBlogList();
@@ -107,12 +116,19 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
         text: "Tên tài khoản",
         dataField: "name",
         headerStyle: () => ({
-          width: "40%",
+          width: "30%",
         }),
       },
       {
         text: "Tên hiển thị",
         dataField: "id",
+        headerStyle: () => ({
+          width: "30%",
+        }),
+      },
+      {
+        text: "Phân cấp",
+        dataField: "class",
       },
       {
         text: "Hành động",
@@ -139,10 +155,10 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Quản trị viên"
+      title="Người dùng"
       buttonMenu={
-        <AdminDialog
-          ButtonMenu={<ButtonAdd>Thêm quản trị viên</ButtonAdd>}
+        <NormalDialog
+          ButtonMenu={<ButtonAdd>Thêm người dùng</ButtonAdd>}
           onSuccess={() => {}}
         />
       }
@@ -151,6 +167,38 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
         <SearchBoxTable
           onFetchData={handleFetchData}
           placeholder="Tìm kiếm theo tên tài khoản"
+          className="w-full phone:max-w-35"
+        />
+        <SimpleSelect
+          options={provinceList}
+          optionSelected={provinceSelected}
+          onSelect={value => {
+            setProvinceSelected(value);
+            setPage(1);
+          }}
+          placeholder="Tỉnh/TP"
+          className="w-full phone:max-w-35"
+        />
+        <SimpleSelect
+          options={districtList}
+          optionSelected={districtSelected}
+          onSelect={value => {
+            setDistrictSelected(value);
+            setPage(1);
+          }}
+          placeholder="Quận/Huyện/Thị Xã"
+          disabled={provinceSelected ? false : true}
+          className="w-full phone:max-w-35"
+        />
+        <SimpleSelect
+          options={wardList}
+          optionSelected={wardSelected}
+          onSelect={value => {
+            setWardSelected(value);
+            setPage(1);
+          }}
+          placeholder="Phường/Xã/Thị Trấn"
+          disabled={districtSelected ? false : true}
           className="w-full phone:max-w-35"
         />
       </SearchBoxWrapper>
@@ -168,19 +216,77 @@ const Admin: React.FC<IAdminProps> = ({ location }) => {
   );
 };
 
-export default Admin;
+export default NormalUsers;
 
-const listDistrict: IDistrict[] = [
+const listDistrict: any[] = [
   {
     name: "admin1",
-    id: "admin1",
+    id: "ADMIN",
+    class: "Tỉnh/TP",
   },
   {
     name: "admin1",
-    id: "admin2",
+    id: "ADMIN",
+    class: "Tỉnh/TP",
   },
   {
     name: "admin1",
-    id: "admin3",
+    id: "ADMIN",
+    class: "Tỉnh/TP",
+  },
+  {
+    name: "admin1",
+    id: "ADMIN",
+    class: "Tỉnh/TP",
+  },
+  {
+    name: "admin1",
+    id: "ADMIN",
+    class: "Tỉnh/TP",
+  },
+];
+
+const provinceList: IProvince[] = [
+  {
+    id: "1",
+    name: "TP HCM",
+  },
+  {
+    id: "2",
+    name: "TP HN",
+  },
+  {
+    id: "3",
+    name: "TP HP",
+  },
+];
+
+const districtList: IDistrict[] = [
+  {
+    id: "1",
+    name: "Quận 1",
+  },
+  {
+    id: "2",
+    name: "Quận 2",
+  },
+  {
+    id: "3",
+    name: "Quận 3",
+  },
+];
+
+const wardList: IWard[] = [
+  {
+    id: "1",
+    name: "Quận 1",
+  },
+  {
+    id: "2",
+    name: "Quận 2",
+  },
+  {
+    id: "3",
+    name: "Quận 3",
   },
 ];

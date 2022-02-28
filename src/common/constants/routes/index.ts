@@ -5,11 +5,7 @@ export const PATH = {
     SELF: "/auth",
     LOGIN: "/auth/login",
   },
-  USER: {
-    SELF: "/user",
-    ADMIN: "/user/admin",
-    NORMAL: "/user/normal",
-  },
+  USER: "/user",
   DEVICE: {
     SELF: "/device",
     CONFIGURED: "/device/configured",

@@ -270,7 +270,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           resetField();
                         }}
                         placeholder="Chọn phân cấp"
-                        required
+                        disabled={editField ? true : false}
                       />
                       {selectedClass.id === "1" && (
                         <Select
@@ -281,6 +281,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           onSelect={value => setSelectedProvince(value)}
                           placeholder="Chọn tỉnh/thành phố"
                           required
+                          disabled={editField ? true : false}
                         />
                       )}
                       {selectedClass.id === "2" && (
@@ -293,6 +294,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             onSelect={value => setSelectedProvince(value)}
                             placeholder="Chọn tỉnh/thành phố"
                             required
+                            disabled={editField ? true : false}
                           />
                           <Select
                             name="district"
@@ -301,7 +303,13 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             options={optionDistrict}
                             onSelect={value => setSelectedDistrict(value)}
                             placeholder="Chọn quận/ huyện/ thị xã"
-                            disabled={selectedProvince ? false : true}
+                            disabled={
+                              selectedProvince
+                                ? false
+                                : true || editField
+                                ? true
+                                : false
+                            }
                             required
                           />
                         </>
@@ -316,6 +324,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             onSelect={value => setSelectedProvince(value)}
                             placeholder="Chọn tỉnh/ thành phố"
                             required
+                            disabled={editField ? true : false}
                           />
                           <Select
                             name="district"
@@ -324,7 +333,13 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             options={optionDistrict}
                             onSelect={value => setSelectedDistrict(value)}
                             placeholder="Chọn quận/ huyện/ thị xã"
-                            disabled={selectedProvince ? false : true}
+                            disabled={
+                              selectedProvince
+                                ? false
+                                : true || editField
+                                ? true
+                                : false
+                            }
                             required
                           />
                           <Select
@@ -334,7 +349,13 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             options={optionWard}
                             onSelect={value => setSelectedWard(value)}
                             placeholder="Chọn phường/ xã/ thị trấn"
-                            disabled={selectedDistrict ? false : true}
+                            disabled={
+                              selectedDistrict
+                                ? false
+                                : true || editField
+                                ? true
+                                : false
+                            }
                             required
                           />
                         </>
