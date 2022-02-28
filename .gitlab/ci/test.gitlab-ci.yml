@@ -1,0 +1,11 @@
+
+test:
+  stage: test
+  environment:
+    name: test/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - ls
+    - echo "Testing FE Package"
+  only:
+    - develop

@@ -1,0 +1,10 @@
+
+review:
+  stage: review
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - echo "Reviewing"
+  only:
+    - develop

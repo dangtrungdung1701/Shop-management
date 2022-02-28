@@ -1,0 +1,17 @@
+$nice-dates-color-gray-dark: #333;
+$nice-dates-color-gray: #999;
+$nice-dates-color-gray-light: #ddd;
+$nice-dates-color-accent: $nice-dates-color-gray-dark;
+$nice-dates-font-size-small: 12px;
+$nice-dates-font-size-base: 12px;
+$nice-dates-font-size-big: 16px;
+
+@import "react-nice-dates/src/style.scss";
+
+.nice-dates {
+  @apply relative;
+}
+
+.nice-dates-popover {
+  min-width: 370px;
+}

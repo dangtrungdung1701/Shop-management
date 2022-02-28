@@ -1,0 +1,10 @@
+
+qa:
+  stage: qa
+  environment:
+    name: qa/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - echo "Quality Assurance"
+  only:
+    - develop

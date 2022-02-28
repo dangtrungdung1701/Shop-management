@@ -1,0 +1,10 @@
+
+fixtures:
+  stage: fixtures
+  environment:
+    name: fixtures/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - echo "fixtures"
+  only:
+    - develop

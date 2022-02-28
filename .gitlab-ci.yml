@@ -1,0 +1,40 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+stages:
+  - prepare
+  - build
+  - test
+  - qa
+  - fixtures
+  - review
+  - deploy
+  - release
+default:
+  image: node:16.4.2
+  interruptible: true
+variables:
+  NODE_ENV: test
+  GIT_DEPTH: "20"
+  GIT_SUBMODULE_STRATEGY: none
+  BUILD_ASSETS_IMAGE: "false"
+  CI_ENVIRONMENT_SLUG: https://admin-control-security.kingify.com
+  IP_SERVER: 18.136.241.27
+  PORT_SERVER: "2002"
+  USER_SERVER: frontenduser
+  BUILD_LINK: builds/usum.team.js/kingify-admin-frontend-reactjs
+  URL_SERVER: home/frontend/admin-control-security.kingify.com
+
+include:
+  - local: ".gitlab/ci/prepare.gitlab-ci.yml"
+  - local: ".gitlab/ci/build.gitlab-ci.yml"
+  - local: ".gitlab/ci/test.gitlab-ci.yml"
+  - local: ".gitlab/ci/qa.gitlab-ci.yml"
+  - local: ".gitlab/ci/fixtures.gitlab-ci.yml"
+  - local: ".gitlab/ci/review.gitlab-ci.yml"
+  - local: ".gitlab/ci/deploy.gitlab-ci.yml"
+  - local: ".gitlab/ci/release.gitlab-ci.yml"
+  - template: Security/Secret-Detection.gitlab-ci.yml

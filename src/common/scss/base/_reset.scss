@@ -1,0 +1,61 @@
+html,
+body {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  @media screen and (max-width: 600px) {
+    font-size: 65%;
+  }
+}
+
+body {
+  font-family: "Inter var", ui-sans-serif, system-ui, -apple-system,
+    "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial",
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  #root {
+    @apply h-full w-full text-neutral-1 text-lg;
+  }
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  display: inline;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  resize: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+input {
+  border: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

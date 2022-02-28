@@ -1,0 +1,56 @@
+
+## same as in .gitignore
+/build
+/locales/**/*.missing.json
+/node_modules
+/dist
+
+
+## extensions
+*.*
+Dockerfile
+LICENSE
+# !*.css
+!*.graphql
+!*.js
+!*.json
+!*.md
+!*.ts
+!*.tsx
+!*.yml
+!*.scss
+!*.storybook
+
+## same as in .gitignore
+/build
+/locales/**/*.missing.json
+/node_modules
+/dist
+/public
+
+# dependencies
+/node_modules
+/debug.log
+/.pnp
+.pnp.js
+/yarn.lock
+/package-lock.json
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+storybook-static
+storybook-static/
+

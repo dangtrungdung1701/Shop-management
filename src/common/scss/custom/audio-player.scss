@@ -1,0 +1,31 @@
+.custom-audio-player {
+  .MuiPaper-root {
+    margin: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: 1px solid #c4c4c4 !important;
+    border-radius: 4px !important;
+  }
+  .MuiSvgIcon-root,
+  .MuiSlider-root {
+    color: #33cccc !important;
+  }
+  .MuiTypography-root {
+    @apply font-sans text-neutral-1;
+  }
+  .MuiGrid-root {
+    align-items: center !important;
+  }
+  .MuiSlider-thumb {
+    top: 50% !important;
+    transform: translateY(-25%);
+  }
+  .MuiSlider-rail,
+  .MuiSlider-track {
+    top: 50% !important;
+    transform: translateY(75%);
+  }
+  .MuiSlider-thumb {
+    margin-top: 0;
+  }
+}

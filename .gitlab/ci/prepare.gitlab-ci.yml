@@ -1,0 +1,10 @@
+
+prepare:
+  stage: prepare
+  environment:
+    name: prepare/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - echo "Preparting"
+  only:
+    - develop

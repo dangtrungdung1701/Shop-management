@@ -1,0 +1,173 @@
+{
+  "New Tsx": {
+    "prefix":[ "~tsx", "!tsx"],
+    "body": [
+      "import { ${1:Component}Container } from \"./styles\";",
+      "",
+      "interface I${1:Component}Props {  }",
+      "",
+      "const ${1:Component}: React.FC<I${1:Component}Props> = (props) => {",
+      "",
+      "  return (",
+      "    <${1:Component}Container>",
+      "    ",
+      "    </${1:Component}Container>",
+      "  )",
+      "}",
+      "",
+      "export default ${1:Component};"
+    ],
+    "description": "Create a new Component"
+  },
+
+  "Add TSX": {
+    "prefix": [ "~atsx", "!atsx"],
+    "body": [
+      "const ${1:Component}: React.FC<{}> = (props) => {",
+      "",
+      "  return (",
+      "    <${1:Component}Container>",
+      "    ",
+      "    </${1:Component}Container>",
+      "  )",
+      "}"
+    ],
+    "description": "Create a new Component"
+  },
+  "New Icon": {
+    "prefix": [ "~icon", "!icon"],
+    "body": [
+      "/**",
+      " * @TODO",
+      " *  [ ] convert svg to jsx - Come here: https://magic.reactjs.net/htmltojsx.html",
+      " *  [ ] replace all fill=\"...\" to  fill=\"currentColor\" (except fill=none)",
+      " *  [ ] add {...props} to <svg >",
+      "*/",
+      "",
+      "import { IIconSVGProps } from \"typings\";",
+      "",
+      "const ${1:Component}Icon: React.FC<IIconSVGProps> = props => (",
+      "  ${2}",
+      ")",
+      "",
+      "export default ${1:Component}Icon;"
+    ],
+    "description": "Create a new Component"
+  },
+  "Create Styled Component": {
+    "prefix": [ "~style", "!style"],
+    "body": [
+      "import styled from 'styled-components';",
+      "import tw from \"twin.macro\";",
+      "",
+      "export const ${1:Comp}Container = styled.${2:div}`",
+      " ${tw`  `}",
+      "`;",
+      ""
+    ],
+    "description": "Create Styled Component"
+  },
+  "Add Styled Component": {
+    "prefix": [ "~astyle", "!astyle"],
+    "body": [
+      "export const ${1:Component} = styled.${2:div}`",
+      "  ${tw`  `}",
+      "`;",
+      ""
+    ],
+    "description": "Create Styled Component"
+  },
+  "Add Slices": {
+    "prefix": "~slice",
+    "body": [
+      "import { createSlice, PayloadAction } from \"@reduxjs/toolkit\";",
+      "",
+      "interface I${1}State {",
+      "  ",
+      "};",
+      "",
+      "const initialState: I${1}State = {",
+      "  ",
+      "};",
+      "",
+      "export const ${2}Slice = createSlice({",
+      "  name: \"${2}\",",
+      "  initialState,",
+      "  reducers: {",
+      "    ",
+      "  },",
+      "});",
+      "",
+      "// Actions",
+      "export const {} = ${2}Slice.actions;",
+      "",
+      "export default ${2}Slice.reducer;"
+    ]
+  },
+  "Add reducer": {
+    "prefix": "~areducer",
+    "body": [
+      "${1}: (state, action: PayloadAction<${2}>) => {",
+      "  ${3}",
+      "},"
+    ]
+  },
+  "Create service": {
+    "prefix": "~service",
+    "body": [
+      "import { gql } from \"apollo-boost\";",
+      "import { ApolloQueryResult } from \"@apollo/client\";",
+      "import { IGraphQLResponse } from \"typings\";",
+      "import { graphQLCommon } from \"common/utils/api\";",
+      "",
+      "const ${1} = gql`",
+      "",
+      "`;",
+      "",
+      "export const ${2}Service = async (variables: ${3:VariableInterface}): Promise<ApolloQueryResult<${4}>> => {",
+      "  const result = await graphQLCommon(${1}, variables);",
+      "  return result;",
+      "};",
+      "",
+      "export const ${2}API = async (",
+      "  variable: ${3:VariableInterface},",
+      "): Promise<${4}> => {",
+      "  const response: IGraphQLResponse = await ${2}Service(variable);",
+      "  // [ ⚠️ ⚠️ ⚠️ ] ALERT: Make sure ${2} is returned from API! - Delete if you done!",
+      "  //  -> Delete this command after you fixed it!",
+      "  const { ${2}: result = null } = response?.data || {};",
+      "  if (result) return result;",
+      "  else throw response.errors?.[0].message || \"\"",
+      "};"
+    ]
+  },
+  "Add new service": {
+    "prefix": "~aservice",
+    "body": [
+      "const $1 = gql`",
+      "",
+      "`;",
+      "",
+      "export const ${2}Service = async (variables: ${3:VariableInterface}): Promise<ApolloQueryResult<${4}>> => {",
+      "  const result = await graphQLCommon(${1}, variables);",
+      "  return result;",
+      "};",
+      "",
+      "export const ${2}API = async (",
+      "  variable: ${3:VariableInterface},",
+      "): Promise<${4}> => {",
+      "  const response: IGraphQLResponse = await ${2}Service(variable);",
+      "  // [ ⚠️ ⚠️ ⚠️ ] ALERT: Make sure ${2} is returned from API! - Delete if you done!",
+      "  //  -> Delete this command after you fixed it!",
+      "  const { ${2}: result = null } = response?.data || {};",
+      "  if (result) return result;",
+      "  else throw response.errors?.[0].message || \"\"",
+      "};"
+    ]
+  },
+  "Random id": {
+    "prefix": "~id",
+    "body": "$UUID",
+    "description": "Create a random uuid string"
+  }
+}

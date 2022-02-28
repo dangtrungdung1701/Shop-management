@@ -1,0 +1,69 @@
+{
+  "files.exclude": {
+    "node_modules": true
+  },
+  "editor.formatOnSave": true,
+  "[javascriptreact, typescript, typescriptreact, scss, css, json ]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact, json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs":"active",
+  "search.exclude": {
+    "**/package-lock.json": true,
+    "**/yarn.lock": true,
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.ignoreRegExpList": [
+    "mixins",
+    "ISEO",
+    "nprogress",
+    "tailwind",
+    "@tailwind",
+    "immer",
+    "headlessui",
+    "crossdomain",
+    "semibold",
+    "formik",
+    "Youtube",
+    "brainhubeu",
+    "embla",
+    "zalo",
+    "dropzone",
+    "Lightbox",
+    "Recaptcha",
+    "Scriptjs",
+    "Geocode",
+    "postbuild",
+    "ISVG",
+    "Kingify",
+    "csstype",
+    "languagedetector",
+    "reduxjs",
+    "persistor",
+    "IFAQ",
+    "toastify",
+    "attributors",
+    "deedmob",
+    "IURL"
+  ],
+
+  "editor.tabSize": 2,
+  "editor.autoClosingQuotes": "always",
+  "tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)", // tw`...`
+    "tw=\"([^\"]*)", // <div tw="..." />
+    "tw={\"([^\"}]*)", // <div tw={"..."} />
+    "innerClassName={\"([^\"}]*)", // <div tw={"..."} />
+    "tw\\.\\w+`([^`]*)", // tw.xxx`...`
+    "tw\\(.*?\\)`([^`]*)" // tw(Component)`...`
+  ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  }
+}

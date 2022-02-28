@@ -1,0 +1,17 @@
+
+install_dependencies:
+  stage: build
+  environment:
+    name: build/$CI_COMMIT_REF_NAME
+    url: $CI_ENVIRONMENT_SLUG
+  script:
+    - echo "Building ..."
+    - yarn install
+    - yarn build
+    - echo "Build Successful"
+
+  artifacts:
+    expire_in: 20 hour
+    paths:
+      - build
+
