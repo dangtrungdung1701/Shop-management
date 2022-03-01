@@ -1,16 +1,10 @@
 import { useField, useFormikContext } from "formik";
-import {
-  DetailedHTMLProps,
-  InputHTMLAttributes,
-  useEffect,
-  useState,
-} from "react";
-import { Container } from "./styles";
+import { DetailedHTMLProps, InputHTMLAttributes, useState } from "react";
+import { Container, StyledTimePicker } from "./styles";
 import FormControlLabel from "common/styles/FormControlLabel";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import TimePicker from "rc-time-picker";
-import "rc-time-picker/assets/index.css";
 import TimePickerIcon from "icons/TimePicker";
+import "rc-time-picker/assets/index.css";
 
 interface IInput
   extends DetailedHTMLProps<
@@ -52,8 +46,8 @@ const TimePickers: React.FC<IInput> = props => {
         {label}
       </FormControlLabel>
 
-      <TimePicker
-        className="w-full relative"
+      <StyledTimePicker
+        className={`w-full relative`}
         popupClassName={className}
         isError={isError}
         value={dispatchTime}
