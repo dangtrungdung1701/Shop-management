@@ -5,6 +5,11 @@ import { dashboardRoute } from "./components/dashboard";
 import { usersRoute } from "./components/user";
 import { sourceManagementRoute } from "./components/sourceManagement";
 import { devicesRoute } from "./components/device";
+import {
+  scheduleRoute,
+  createScheduleRoute,
+  editScheduleRoute,
+} from "./components/schedule";
 
 const flattenRoutes = (routes: IRoutes[]): IRoute[] => {
   let flatRoutes: IRoute[] = [];
@@ -22,7 +27,10 @@ const dashboardRoutes: IRoutes[] = [
   dashboardRoute,
   devicesRoute,
   sourceManagementRoute,
+  scheduleRoute,
   usersRoute,
+  createScheduleRoute,
+  editScheduleRoute,
 ];
 
 const otherRoutes: IRoutes[] = [rootRoute, authRoutes, notFoundRoute];

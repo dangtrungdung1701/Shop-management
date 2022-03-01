@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import en from "date-fns/locale/en-US";
+import vi from "date-fns/locale/vi";
 import { DatePicker as NiceDatePicker } from "react-nice-dates";
 import { Container, InputField, DateInputContainer } from "./styles";
 import SVG from "designs/SVG";
@@ -66,7 +66,7 @@ const DatePicker: React.FC<IInput> = props => {
       <NiceDatePicker
         date={date as Date}
         onDateChange={handleChange}
-        locale={en}
+        locale={vi}
         format="dd/MM/yyyy"
         maximumDate={maximumDate}
         minimumDate={minimumDate}
