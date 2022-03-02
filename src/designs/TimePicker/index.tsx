@@ -1,10 +1,15 @@
 import { useField, useFormikContext } from "formik";
-import { DetailedHTMLProps, InputHTMLAttributes, useState } from "react";
+import {
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  useState,
+  useEffect,
+} from "react";
 import { Container, StyledTimePicker } from "./styles";
 import FormControlLabel from "common/styles/FormControlLabel";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
 import TimePickerIcon from "icons/TimePicker";
-import moment from "moment";
+import moment, { Moment } from "moment";
 
 import "rc-time-picker/assets/index.css";
 import styled from "styled-components";
@@ -20,9 +25,10 @@ interface IInput
   label: string;
   disabled?: boolean;
   placeholder?: string;
-  onTimeChange?: (newTime: string) => void;
   required?: boolean;
   minTime?: string;
+  initValue?: Date;
+  onTimeChange?: (newTime: Date) => void;
 }
 
 const TimePickers: React.FC<IInput> = props => {
@@ -32,16 +38,25 @@ const TimePickers: React.FC<IInput> = props => {
     label,
     required = false,
     minTime = "",
+    initValue,
     onTimeChange,
     ...rest
   } = props;
   const [field, meta] = useField(props);
   const { setFieldValue } = useFormikContext();
-  const [dispatchTime, setDispatchTime] = useState("");
+  const [dispatchTime, setDispatchTime] = useState<Moment>();
   const isError: boolean = !!meta.touched && !!meta.error;
 
-  const handleChange = (value: any) => {
+  useEffect(() => {
+    if (initValue) {
+      setDispatchTime(moment(initValue));
+      setFieldValue(name, initValue);
+    }
+  }, []);
+
+  const handleChange = (value: Moment) => {
     setDispatchTime(value);
+    onTimeChange && onTimeChange(value.toDate());
     if (value) setFieldValue(name, value.format("HH:mm:ss"));
     else setFieldValue(name, "");
   };

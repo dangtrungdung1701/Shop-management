@@ -54,6 +54,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const [options, setOptions] = useState<IFileAudio[] | ILink[] | IFM[]>([]);
   const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<any[]>([]);
+  const [timeEnd, setTimeEnd] = useState<Date>();
+  const [timeStart, setTimeStart] = useState<Date>();
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
     name: "",
@@ -196,6 +198,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     name="startTime"
                     label="Thời gian bắt đầu"
                     placeholder="Chọn thời gian bắt đầu"
+                    onTimeChange={time => setTimeStart(time)}
                     required
                   />
                   <TimePicker
@@ -203,6 +206,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     label="Thời gian kết thúc"
                     placeholder="Chọn thời gian kết thúc"
                     minTime={formik.values.startTime}
+                    onTimeChange={time => setTimeEnd(time)}
                     required
                   />
                   <MultipleSelect
