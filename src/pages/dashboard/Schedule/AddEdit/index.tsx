@@ -202,6 +202,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     name="endTime"
                     label="Thời gian kết thúc"
                     placeholder="Chọn thời gian kết thúc"
+                    minTime={formik.values.startTime}
                     required
                   />
                   <MultipleSelect

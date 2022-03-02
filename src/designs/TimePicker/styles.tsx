@@ -11,9 +11,11 @@ export const StyledTimePicker = styled(TimePicker)<{
 }>`
   & .rc-time-picker-panel-select,
   & .rc-time-picker-input {
-    ${tw` cursor-pointer px-1.5 border-[#e0e0e0] py-2.5 text-md placeholder-neutral-3`}
+    ${tw` cursor-pointer font-medium text-neutral-1 px-1.5 border-[#e0e0e0] py-2.5 text-md placeholder-neutral-3`}
     ${({ isError }) => isError && tw`border border-solid border-sematic-1`}
+
+    ::placeholder {
+      font-weight: normal;
+    }
   }
 `;
-
-export default StyledTimePicker;

@@ -18,4 +18,7 @@ export const DateInputContainer = styled.label<{
 
 export const InputField = styled.input`
   ${tw`p-0 font-medium text-neutral-1 text-md placeholder-neutral-3 focus:outline-none focus:ring-transparent`}
+  ::placeholder {
+    font-weight: normal;
+  }
 `;
