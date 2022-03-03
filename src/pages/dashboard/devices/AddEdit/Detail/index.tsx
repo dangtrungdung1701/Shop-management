@@ -74,7 +74,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   const [selectedClass, setSelectedClass] = useState<any | null>({});
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    iMei: "",
+    iMei: "abc",
     name: "",
     long: "",
     lat: "",

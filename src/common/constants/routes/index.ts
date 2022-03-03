@@ -6,6 +6,7 @@ export const PATH = {
     LOGIN: "/auth/login",
   },
   USER: "/user",
+  MAP: "/map",
   SCHEDULE: {
     SELF: "/schedule",
     CREATE: "/schedule/create",

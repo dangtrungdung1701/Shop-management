@@ -5,6 +5,7 @@ import { dashboardRoute } from "./components/dashboard";
 import { usersRoute } from "./components/user";
 import { sourceManagementRoute } from "./components/sourceManagement";
 import { devicesRoute } from "./components/device";
+import { mapRoute } from "./components/map";
 import {
   scheduleRoute,
   createScheduleRoute,
@@ -25,6 +26,7 @@ const flattenRoutes = (routes: IRoutes[]): IRoute[] => {
 
 const dashboardRoutes: IRoutes[] = [
   dashboardRoute,
+  mapRoute,
   devicesRoute,
   sourceManagementRoute,
   scheduleRoute,

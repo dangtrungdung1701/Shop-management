@@ -98,7 +98,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       startTime: yup.string().required("Vui lòng chọn thời gian bắt đầu"),
       endTime: yup.string().required("Vui lòng chọn thời gian kết thúc"),
       weekDay: yup.string().required("Vui lòng chọn thứ trong tuần"),
-      repeateTime: yup.string().required("Vui lòng chọn số lần lặp"),
+      repeateTime: yup.number().required("Vui lòng chọn số lần lặp"),
     });
 
   useEffect(() => {
@@ -121,8 +121,6 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const handleSubmit = async (value: FormikValues) => {
     const input: any = {
       ...value,
-      // province: selectedProvince?.id || "",
-      // district: selectedDistrict?.id || "",
     };
     console.log(input);
   };
