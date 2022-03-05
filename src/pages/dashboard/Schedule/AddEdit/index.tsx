@@ -33,13 +33,13 @@ interface IFormValue {
   name?: string;
   devices?: string;
   sources?: string;
-  link?: string;
+  file?: string;
   startDay?: string;
   endDay?: string;
   startTime?: string;
   endTime?: string;
   weekDay?: string;
-  repeateTime?: string;
+  repeatTime?: string;
 }
 
 const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
@@ -61,13 +61,13 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     name: "",
     devices: "",
     sources: "",
-    link: "",
+    file: "",
     startDay: "",
     endDay: "",
     startTime: "",
     endTime: "",
     weekDay: "",
-    repeateTime: "",
+    repeatTime: "",
   });
 
   useBreadcrumb([
@@ -87,7 +87,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       name: yup.string().required("Vui lòng nhập tên lịch phát"),
       devices: yup.string().required("Vui lòng chọn thiết bị phát"),
       sources: yup.string().required("Vui lòng chọn nguồn phát"),
-      link: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
+      file: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
       startDay: yup.date().required("Vui lòng chọn ngày bắt đầu"),
       endDay: yup
         .date()
@@ -98,7 +98,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       startTime: yup.string().required("Vui lòng chọn thời gian bắt đầu"),
       endTime: yup.string().required("Vui lòng chọn thời gian kết thúc"),
       weekDay: yup.string().required("Vui lòng chọn thứ trong tuần"),
-      repeateTime: yup.number().required("Vui lòng chọn số lần lặp"),
+      repeatTime: yup.number().required("Vui lòng chọn số lần lặp"),
     });
 
   useEffect(() => {
@@ -218,7 +218,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     required
                   />
                   <Input
-                    name="repeateTime"
+                    name="repeatTime"
                     label="Số lần lặp"
                     placeholder="Nhập số lần lặp (tệp tin)"
                     type="number"
