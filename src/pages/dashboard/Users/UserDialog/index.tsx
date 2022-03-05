@@ -121,7 +121,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
   }, [selectedPermission]);
 
   const resetField = () => {
-    setSelectedClass(null);
+    // setSelectedClass(null);
     setSelectedPermission([]);
     setSelectedProvince(null);
     setSelectedDistrict(null);
@@ -272,7 +272,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         placeholder="Chọn phân cấp"
                         disabled={editField ? true : false}
                       />
-                      {selectedClass.id === "1" && (
+                      {selectedClass?.id === "1" && (
                         <Select
                           name="province"
                           label="Tên tỉnh/ thành phố"
@@ -284,7 +284,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           disabled={editField ? true : false}
                         />
                       )}
-                      {selectedClass.id === "2" && (
+                      {selectedClass?.id === "2" && (
                         <>
                           <Select
                             name="province"
@@ -314,7 +314,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           />
                         </>
                       )}
-                      {selectedClass.id === "3" && (
+                      {selectedClass?.id === "3" && (
                         <>
                           <Select
                             name="province"
