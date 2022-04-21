@@ -27,7 +27,7 @@ const Map: React.FC = () => {
     <>
       <Title>Bản đồ thiết bị</Title>
       <MapContainer
-        className="w-full h-60"
+        className="w-full h-60 z-10"
         center={[positon.lat, positon.long]}
         scrollWheelZoom
         zoom={10}

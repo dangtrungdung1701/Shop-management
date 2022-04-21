@@ -1,69 +1,54 @@
-import { DocumentNode } from "@apollo/client";
-import axios, { AxiosRequestConfig } from "axios";
-import { getToken } from "./auth";
-import { propertyApi } from "common/config/graphql";
-import { toast } from "react-toastify";
+import axios, { AxiosResponse } from "axios";
+import queryString from "query-string";
 
-export const getErrorMessage = (error: any): string => {
-  let errorMessage = error?.networkError?.result?.errors?.[0]?.message;
-  if (!errorMessage) {
-    errorMessage = error?.message;
-  }
-  return errorMessage;
-};
+import { REFRESH_TOKEN_URL } from "common/constants/auth";
 
-const printErrorOfGraphQLFromServer = (error: any, query?: any) => {
-  console.log(
-    `%c ⚠️ [GraphQL Error] ${query?.definitions[0]?.selectionSet?.selections[0]?.name?.value}`,
-    "color: #d4395b; font-weight: 700; ; font-size: 13px;",
-  );
-  console.log(
-    "%c " +
-      getErrorMessage(error)
-        ?.split(";")
-        .join("\n------ ***\n")
-        .replace(/\{[\s\S].*\}/g, contents => "\n" + contents),
-    "color: #d4395b",
-  );
-};
-console.log({
-  Authorization: `Bearer ${getToken()}`,
+import { getLocalStorage, updateLocalStorage } from "./auth";
+
+const axiosClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+  headers: {
+    "content-type": "application/json",
+  },
+  paramsSerializer: params => queryString.stringify(params),
 });
 
-const graphQLCommon = async (query: DocumentNode, variables: any) => {
-  try {
-    const response = await propertyApi.query({
-      query,
-      variables,
-      context: {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      },
-    });
-    const { errors = [] } = response;
-    if (errors.length > 0) {
-      console.error(errors);
-      printErrorOfGraphQLFromServer(errors[0], query);
-      console.log("DEBUG: ", { variables, response });
+axiosClient.interceptors.request.use(async config => {
+  const token = getLocalStorage()?.token;
+  config.headers.Authorization = token ? `Bearer ${token}` : "";
+  return config;
+});
 
-      const { message = "" } = errors[0] || {};
-      toast.error(message);
+axiosClient.interceptors.response.use(
+  (response: AxiosResponse<string>) => {
+    if (response && response.data) {
+      return response.data;
     }
     return response;
-  } catch (error: any) {
-    console.error(error);
-    printErrorOfGraphQLFromServer(error, query);
-    console.log("DEBUG: ", { variables });
-    toast.error(error.message);
-    return error;
-  }
-};
+  },
+  async error => {
+    const originalConfig = error.config;
+    const isAutoLogin = getLocalStorage()?.autoLogin;
+    if (
+      error.response.status === 401 &&
+      !originalConfig._retry &&
+      isAutoLogin
+    ) {
+      originalConfig._retry = true;
+      try {
+        const payload = {
+          token: getLocalStorage()?.token,
+          refreshToken: getLocalStorage()?.refreshToken,
+        };
+        const rs: any = await axiosClient.post(REFRESH_TOKEN_URL, payload);
+        updateLocalStorage(rs);
+        return axiosClient(originalConfig);
+      } catch (_error) {
+        return Promise.reject(_error);
+      }
+    }
+    throw error;
+  },
+);
 
-const axiosJSON = (options: AxiosRequestConfig) => {
-  return axios(options)
-    .then(res => res)
-    .catch(error => error);
-};
-
-export { graphQLCommon, axiosJSON };
+export default axiosClient;

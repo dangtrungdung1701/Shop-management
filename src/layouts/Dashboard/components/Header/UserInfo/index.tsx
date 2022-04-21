@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
-
 import AvatarSkeleton from "assets/images/avatar.png";
+
+import UserDialog from "components/UserProfileDialog";
+import PasswordDialog from "components/ChangePasswordDialog";
 
 import SVG from "designs/SVG";
 import ActionsTable from "designs/ActionsTable";
+import ArrowIcon from "designs/icons/Arrow";
 
-import { useLoading } from "hooks/useLoading";
 import useAuth from "hooks/useAuth";
+
+import useStore from "zustand/store";
 
 import {
   Avatar,
@@ -19,24 +22,13 @@ import {
   Link,
 } from "./styles";
 
-import UserDialog from "components/UserProfileDialog";
-import PasswordDialog from "components/ChangePasswordDialog";
 import OptionDialog from "./OptionDialog";
-import ArrowIcon from "designs/icons/Arrow";
 
 interface IUserNavProps {}
 
-const LOAD_DATA = "LOAD_DATA";
-
 const UserInfo: React.FC<IUserNavProps> = props => {
-  const { startLoading, stopLoading } = useLoading();
   const { logout } = useAuth();
-  const { accountInfo } = useAuth();
-  const { userInfo } = accountInfo || {};
-
-  const [user, setUser] = useState<any>(userInfo);
-
-  const { fullName = "", email = "" } = user || {};
+  const { currentUser } = useStore();
 
   const handleLogOut = () => {
     logout();
@@ -49,7 +41,7 @@ const UserInfo: React.FC<IUserNavProps> = props => {
         ButtonAction={
           <MenuButton>
             <Avatar src={AvatarSkeleton} />
-            <Name>Hi, {fullName}Thien An</Name>
+            <Name>Xin chào, {currentUser?.userInfo?.displayName}</Name>
             <ArrowIcon direction="DOWN" />
           </MenuButton>
         }
@@ -59,9 +51,11 @@ const UserInfo: React.FC<IUserNavProps> = props => {
               <DropdownInfoItem>
                 <Avatar src={AvatarSkeleton} isLg />
                 <InfoContainer.Container>
-                  <InfoContainer.Name>{fullName}Thien An</InfoContainer.Name>
+                  <InfoContainer.Name>
+                    {currentUser?.userInfo?.displayName}
+                  </InfoContainer.Name>
                   <InfoContainer.Email>
-                    {email}dangthanhthienan
+                    {currentUser?.userInfo?.userName}
                   </InfoContainer.Email>
                 </InfoContainer.Container>
               </DropdownInfoItem>
@@ -70,7 +64,7 @@ const UserInfo: React.FC<IUserNavProps> = props => {
           {
             Component: (
               <UserDialog
-                editField={user}
+                editField={currentUser?.userInfo}
                 ButtonMenu={
                   <DropdownItem>
                     <SVG name="dropdown/user" width={20} height={20} />
@@ -84,6 +78,7 @@ const UserInfo: React.FC<IUserNavProps> = props => {
           {
             Component: (
               <PasswordDialog
+                editField={currentUser?.userInfo}
                 ButtonMenu={
                   <DropdownItem>
                     <SVG name="dropdown/change" width={20} height={20} />

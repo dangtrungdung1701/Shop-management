@@ -1,20 +1,30 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useStore from "zustand/store";
+import { useRedirect } from "./useRedirect";
 
 import { PATH } from "common/constants/routes";
-import { getLoggedInAccount, isAuthenticated } from "common/utils/auth";
-
-import { useRedirect } from "./useRedirect";
+import { isAuthenticated } from "common/utils/auth";
 
 const useAuth = () => {
   const redirect = useRedirect();
   const [isAuth, setIsAuth] = useState<boolean>(isAuthenticated());
-  const [accountInfo, setAccountInfo] = useState<any>(getLoggedInAccount());
+
+  const { isLogoutAction, removeCurrentUser, removePermission } = useStore();
+
+  useEffect(() => {
+    if (isLogoutAction) {
+      return setIsAuth(false);
+    }
+    setIsAuth(isAuthenticated());
+  }, [isLogoutAction]);
 
   const logout = useCallback(() => {
+    removeCurrentUser();
+    removePermission();
     redirect(PATH.AUTH.LOGIN);
   }, []);
 
-  return { isAuth, accountInfo, logout };
+  return { isAuth, logout };
 };
 
 export default useAuth;

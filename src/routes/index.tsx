@@ -53,11 +53,10 @@ const Routers: React.FC = props => {
                 {privateRoutes.map(route => {
                   return (
                     route.Component && (
-                      <Route
+                      <PrivateRoute
                         key={route.path}
                         exact={route.exact}
-                        path={route.path}
-                        component={route.Component}
+                        {...route}
                       />
                     )
                   );

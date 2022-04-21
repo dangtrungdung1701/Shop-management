@@ -1,37 +1,51 @@
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 import { Formik } from "formik";
+import { toast } from "react-toastify";
 
-import { Form, ErrorMessage } from "./styles";
-import { isEmail } from "common/functions";
 import { PATH } from "common/constants/routes";
+import axiosClient from "common/utils/api";
 
 import Input from "designs/Input";
 import Button from "designs/Button";
+import Checkbox from "designs/Checkbox";
 
 import { useRedirect } from "hooks/useRedirect";
 import useAuth from "hooks/useAuth";
-import Checkbox from "designs/Checkbox";
+import useLogin from "hooks/useLogin";
+
+import { Form } from "./styles";
+import { AUTH_KEY } from "common/constants/auth";
+import { getLocalStorage } from "common/utils/auth";
 
 interface IFormValue {
   username: string;
   password: string;
 }
-
+const URL = "/Login";
 const LoginPage: React.FC = () => {
   const redirect = useRedirect();
   const { isAuth } = useAuth();
+  const { login, setError, error } = useLogin();
+
   const [initialValues] = useState<IFormValue>({
     username: "",
     password: "",
   });
   const [isAutoLogin, setIsAutoLogin] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isAuth) {
       redirect(PATH.DASHBOARD);
     }
   }, []);
+
+  useEffect(() => {
+    const prevData = getLocalStorage();
+    const newData = { ...prevData, autoLogin: isAutoLogin };
+    localStorage.setItem(AUTH_KEY, JSON.stringify(newData));
+  }, [isAutoLogin]);
 
   const validationSchema = yup
     .object()
@@ -46,19 +60,37 @@ const LoginPage: React.FC = () => {
         .min(6, "Mật khẩu tối thiểu 6 ký tự!"),
     });
 
-  const handleSubmit = (values: IFormValue) => {
+  useEffect(() => {
+    if (error) {
+      setError("");
+      toast.dark(error, {
+        type: toast.TYPE.ERROR,
+      });
+    }
+  }, [error]);
+
+  const handleSubmit = async (values: IFormValue) => {
     const payload: any = {
-      user: {
-        email: values?.username,
-        password: values?.password,
-      },
+      userName: values?.username,
+      password: values?.password,
     };
-    console.log(payload);
+    try {
+      setLoading(true);
+      const res = await axiosClient.post(URL, payload);
+      login(res);
+    } catch (error: any) {
+      if (error.response.data === "User is not found") {
+        setError("Tài khoản hoặc mật khẩu không chính xác, vui lòng thử lại!");
+      } else {
+        setError("Lỗi hệ thống, vui lòng thử lại sau!");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -72,7 +104,6 @@ const LoginPage: React.FC = () => {
             label="Tên tài khoản"
             placeholder="Nhập tên tài khoản"
             autoComplete="username"
-            // onFocus={handleFocus}
           />
           <Input
             type="password"
@@ -86,7 +117,7 @@ const LoginPage: React.FC = () => {
             className="justify-center"
             type="submit"
             size="lg"
-            // loading={loading}
+            loading={isLoading}
           >
             Đăng nhập
           </Button>

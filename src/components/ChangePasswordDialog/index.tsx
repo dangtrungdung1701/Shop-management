@@ -14,6 +14,8 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
+import axiosClient from "common/utils/api";
+import { PASSWORD } from "common/constants/validation";
 interface IUserDialogProps {
   ButtonMenu?: React.ReactElement;
   editField?: any;
@@ -36,9 +38,9 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
   const [loading, setLoading] = useState(false);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    oldPass: undefined,
-    newPass: undefined,
-    confirmPass: undefined,
+    oldPass: "",
+    newPass: "",
+    confirmPass: "",
   });
 
   const validationSchema = yup
@@ -51,7 +53,11 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
       newPass: yup
         .string()
         .required("Vui lòng nhập mật khẩu mới")
-        .min(6, "Mật khẩu mới phải tối thiểu 6 ký tự"),
+        .min(6, "Mật khẩu mới phải tối thiểu 6 ký tự")
+        .matches(
+          PASSWORD,
+          "Mật khẩu phải có số, chữ cái thường, chữ cái hoa và ký tự đặc biệt",
+        ),
       confirmPass: yup
         .string()
         .required("Vui lòng nhập lại mật khẩu")
@@ -62,25 +68,31 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
     });
 
   const handleSubmit = async (values: FormikValues) => {
-    const input: any = {
-      ...values,
-      password: values?.password || undefined,
-    };
-
     try {
       setLoading(true);
 
       const payload: any = {
-        id: editField?._id,
-        updateUserInput: input,
+        oldPassword: values?.oldPass,
+        newPassword: values?.newPass,
       };
 
-      console.log(payload);
+      const response = await axiosClient.put(
+        `/User/${editField?.id}/Password`,
+        payload,
+      );
 
-      onSuccess?.();
+      if (response) {
+        toast.dark("Cập nhật mật khẩu thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      } else {
+        toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại !", {
+          type: toast.TYPE.ERROR,
+        });
+      }
     } catch (err) {
       console.error(err);
-      toast.dark("Update fail !", {
+      toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại !", {
         type: toast.TYPE.ERROR,
       });
     } finally {
