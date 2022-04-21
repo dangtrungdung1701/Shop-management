@@ -5,6 +5,7 @@ import { configurePersist } from "zustand-persist";
 import authSlice from "./slice/authSlice";
 import commonSlice from "./slice/commonSlice";
 import configSlice from "./slice/configSlice";
+import userSlice from "./slice/userSlice";
 
 const { persist, purge } = configurePersist({
   storage: localStorage, // use `AsyncStorage` in react native
@@ -15,6 +16,7 @@ const combinedStore = (set: any, get: any) => ({
   ...authSlice(set, get),
   ...commonSlice(set, get),
   ...configSlice(set, get),
+  ...userSlice(set, get),
 });
 
 const useStore = createStore(
@@ -22,7 +24,12 @@ const useStore = createStore(
     persist(
       {
         key: "auth",
-        allowlist: ["accountProfile", "currentUser", "isLogoutAction"],
+        allowlist: [
+          "accountProfile",
+          "currentUser",
+          "isLogoutAction",
+          "permission",
+        ],
       },
       combinedStore,
     ),

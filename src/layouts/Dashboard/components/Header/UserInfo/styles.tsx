@@ -3,7 +3,7 @@ import tw from "twin.macro";
 import BaseButton from "designs/BaseButton";
 
 export const UserNavContainer = styled.div`
-  ${tw`w-28 z-[1000]`}
+  ${tw`w-28`}
 `;
 
 export const MenuButton = styled(BaseButton)`

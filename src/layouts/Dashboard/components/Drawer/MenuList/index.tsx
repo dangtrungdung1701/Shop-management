@@ -18,6 +18,7 @@ import DotIcon from "icons/Dot";
 import NestedMenu from "components/NestedMenu";
 import { renderItemsForNestedMenu } from "common/functions";
 import { PATH } from "common/constants/routes";
+import useStore from "zustand/store";
 
 interface IMenuListProps extends RouteComponentProps {}
 
@@ -25,6 +26,7 @@ const dashboardItemsOfNestedMenu = renderItemsForNestedMenu(dashboardRoutes);
 
 const MenuList: React.FC<IMenuListProps> = ({ location }) => {
   const [currentPath, setCurrentPath] = useState("");
+  const { toggleExtendDrawer } = useStore();
 
   useLayoutEffect(() => {
     setCurrentPath(location.pathname);
@@ -65,7 +67,12 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
                 const path = hasChildren ? "#" : data.path;
                 if (level === 0) {
                   return (
-                    <ItemButton active={active} selected={active} to={path}>
+                    <ItemButton
+                      active={active}
+                      selected={active}
+                      to={path}
+                      onClick={() => !hasChildren && toggleExtendDrawer()}
+                    >
                       {data.Icon}
                       {data.name}
                       {hasChildren && (
@@ -81,6 +88,7 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
                     active={active}
                     style={{ paddingLeft: `${level * 50}px` }}
                     className={active ? "drawer-sub-item-active" : ""}
+                    onClick={() => toggleExtendDrawer()}
                   >
                     <DotIcon />
                     {data.name}

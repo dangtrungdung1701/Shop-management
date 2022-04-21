@@ -3,9 +3,13 @@ import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 
-import Input from "designs/Input";
+import axiosClient from "common/utils/api";
+
 import Dialog from "components/Dialog";
 import DialogHeader from "components/Dialog/Header";
+import Input from "designs/Input";
+
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -24,77 +28,62 @@ interface IUserDialogProps {
 }
 
 interface IFormValue {
-  username?: string;
-  fullName?: string;
+  userName?: string;
+  displayName?: string;
 }
 
 const UserDialog: React.FC<IUserDialogProps> = props => {
   const { editField, ButtonMenu, onClose, onSuccess, open = false } = props;
-
+  const { currentUser, setCurrentUser } = useStore();
   const [isOpen, setIsOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
   const [enabled, setEnabled] = useState<boolean | undefined>(false);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    username: "abc",
-    fullName: "",
+    userName: "",
+    displayName: "",
   });
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      username: yup.string(),
-      fullName: yup.string().required("Vui lòng nhập tên hiển thị"),
+      userName: yup.string(),
+      displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
     });
 
   useEffect(() => {
     if (editField) {
       setInitialValues({
-        // username: editField.username,
-        fullName: editField.fullName,
+        userName: editField?.userName,
+        displayName: editField?.displayName,
       });
     }
   }, [editField]);
 
   const handleSubmit = async (values: FormikValues) => {
-    const input: any = {
-      ...values,
-      password: values?.password || undefined,
-    };
-
-    // Check field change
-    if (input.username === initialValues.username) {
-      delete input.email;
-    } else {
-      const result = true;
-
-      if (result) {
-        toast.dark("Your email address already exists, please try again!", {
-          type: toast.TYPE.ERROR,
-        });
-        return;
-      }
-    }
-
     try {
       setLoading(true);
 
       const payload: any = {
-        id: editField?._id,
-        updateUserInput: input,
+        displayName: values?.displayName,
       };
-
-      console.log(payload);
-
-      if (enabled !== editField?.enabled) {
-        console.log(enabled);
+      const response = await axiosClient.put(`/User/${editField?.id}`, payload);
+      if (response) {
+        const newCurrentUser = { ...currentUser, userInfo: response };
+        setCurrentUser(newCurrentUser);
+        toast.dark("Cập nhật tên hiển thị thành công!", {
+          type: toast.TYPE.SUCCESS,
+        });
+        onSuccess && onSuccess();
+      } else {
+        toast.dark("Xảy ra lỗi khi cập nhật !", {
+          type: toast.TYPE.ERROR,
+        });
       }
-
-      onSuccess?.();
     } catch (err) {
       console.error(err);
-      toast.dark("Update fail !", {
+      toast.dark("Xảy ra lỗi khi cập nhật !", {
         type: toast.TYPE.ERROR,
       });
     } finally {
@@ -120,18 +109,19 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
+            enableReinitialize
           >
             {formik => {
               return (
                 <Form onSubmit={formik.handleSubmit}>
                   <Input
-                    name="username"
+                    name="userName"
                     label="Tài khoản"
                     type="text"
                     disabled
                   />
                   <Input
-                    name="fullName"
+                    name="displayName"
                     type="text"
                     label="Tên hiển thị"
                     placeholder="Nhập tên hiển thị"
