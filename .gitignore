@@ -29,9 +29,6 @@ chrome-user-data
 *.swo
 npm-debug.log
 .eslintcache
-yarn.lock
-.yarn.lock
-/yarn.lock
 package-lock.json
 
 packages/react-devtools-core/dist
