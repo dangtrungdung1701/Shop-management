@@ -14,15 +14,13 @@ interface ILeftSidebar {
 }
 
 const Drawer: React.FC<ILeftSidebar> = props => {
-  const { isExtendDrawer, setExtendDrawer } = useStore();
-
-  const [isMobile, setIsMobile] = useState(false);
+  const { isExtendDrawer, setExtendDrawer, isMobile, setMobile } = useStore();
 
   useEventListener(
     "resize",
     () => {
       const isMobile = window.innerWidth < Number(AUTO_CLOSE_POINT);
-      setIsMobile(isMobile);
+      setMobile(isMobile);
 
       if (isMobile && isExtendDrawer) {
         setExtendDrawer(false);

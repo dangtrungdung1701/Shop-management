@@ -1,5 +1,6 @@
 import SVG from "designs/SVG";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useStore from "zustand/store";
 
 import {
   DashboardContainer,
@@ -13,11 +14,12 @@ import {
 } from "./styles";
 
 const Overview: React.FC = () => {
+  const { currentUser } = useStore();
   useBreadcrumb([]);
   return (
     <DashboardContainer>
       <NonBreadcrumb>Xin chào</NonBreadcrumb>
-      <DashboardTitle>Username</DashboardTitle>
+      <DashboardTitle>{currentUser?.userInfo?.displayName}</DashboardTitle>
       <ListStatistics>
         {statisticData.map((item, index) => (
           <StatisticsItem.Container key={index}>

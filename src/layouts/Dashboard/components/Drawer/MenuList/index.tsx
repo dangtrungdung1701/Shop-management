@@ -26,7 +26,7 @@ const dashboardItemsOfNestedMenu = renderItemsForNestedMenu(dashboardRoutes);
 
 const MenuList: React.FC<IMenuListProps> = ({ location }) => {
   const [currentPath, setCurrentPath] = useState("");
-  const { toggleExtendDrawer } = useStore();
+  const { toggleExtendDrawer, isMobile } = useStore();
 
   useLayoutEffect(() => {
     setCurrentPath(location.pathname);
@@ -71,7 +71,9 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
                       active={active}
                       selected={active}
                       to={path}
-                      onClick={() => !hasChildren && toggleExtendDrawer()}
+                      onClick={() =>
+                        !hasChildren && isMobile && toggleExtendDrawer()
+                      }
                     >
                       {data.Icon}
                       {data.name}
@@ -88,7 +90,7 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
                     active={active}
                     style={{ paddingLeft: `${level * 50}px` }}
                     className={active ? "drawer-sub-item-active" : ""}
-                    onClick={() => toggleExtendDrawer()}
+                    onClick={() => isMobile && toggleExtendDrawer()}
                   >
                     <DotIcon />
                     {data.name}

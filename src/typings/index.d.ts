@@ -4,3 +4,4 @@ export * from "./SourceManagement";
 export * from "./Image";
 export * from "./Blog";
 export * from "./DeviceManagement";
+export * from "./User";

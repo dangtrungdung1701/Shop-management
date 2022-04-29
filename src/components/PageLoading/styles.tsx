@@ -2,20 +2,19 @@ import styled from "styled-components";
 import tw from "twin.macro";
 
 export const PageLoadingContainer = styled.div`
-  ${tw`z-[110] fixed inset-0 bg-b-1 opacity-60 flex items-center justify-center`}
+  ${tw`z-[110] fixed bg-b-1 opacity-60 flex items-center justify-center`}
 `;
 
 export const SpinnerContainer = styled.div`
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   .spinner {
-    animation: rotate 2s linear infinite;
-    z-index: 2;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: -25px 0 0 -25px;
     width: 50px;
     height: 50px;
-
+    animation: rotate 2s infinite;
     & .path {
       stroke: #272727;
       stroke-linecap: round;

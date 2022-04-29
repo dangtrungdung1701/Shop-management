@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
 import { Formik, FormikProps, FormikValues } from "formik";
 import * as yup from "yup";
+import { toast } from "react-toastify";
+
+import {
+  CLASS_LIST_OF_DISTRICT,
+  CLASS_LIST_OF_PROVINCE,
+  CLASS_LIST,
+  CLASS_LIST_OF_WARD,
+} from "common/constants/user";
+import axiosClient from "common/utils/api";
+import { filterPermission } from "common/functions";
+import { PASSWORD } from "common/constants/validation";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
 import Input from "designs/Input";
+import MultipleSelect from "designs/MultipleSelect";
+import Select from "designs/Select";
 
-import { IDistrict, IDistrictInput, IProvince, IWard } from "typings";
+import { IPermissionV2Id, IProvince, IUser, IUserInput } from "typings";
+
+import useGetLocation from "hooks/useGetLocation";
+
+import { IPermissionV2 } from "typings";
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -19,11 +37,9 @@ import {
   FormRightWrapper,
   FormTopWrapper,
 } from "./styles";
-import MultipleSelect from "designs/MultipleSelect";
-import Select from "designs/Select";
 
 type IDialogProps = {
-  editField?: IDistrict;
+  editField?: IUser;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -43,10 +59,10 @@ interface IFormValue {
   password?: string;
   confirmPass?: string;
   permission: string;
-  district?: string;
-  province?: string;
-  ward?: string;
-  class?: string;
+  level: string;
+  province: string;
+  ward: string;
+  district: string;
 }
 
 const NormalDialog: React.FC<IDialogProps> = ({
@@ -56,123 +72,245 @@ const NormalDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { permission, currentUser } = useStore();
+
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [selectedPermission, setSelectedPermission] = useState<any[]>([]);
+  const [provinceList, setProvinceList] = useState<IProvince[]>([]);
+  const [districtList, setDistrictList] = useState<IProvince[]>([]);
+  const [wardList, setWardList] = useState<IProvince[]>([]);
+
+  const [selectedPermission, setSelectedPermission] = useState<IPermissionV2[]>(
+    [],
+  );
   const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(
     null,
   );
-  const [selectedDistrict, setSelectedDistrict] = useState<IDistrict | null>(
+  const [selectedDistrict, setSelectedDistrict] = useState<IProvince | null>(
     null,
   );
-  const [selectedWard, setSelectedWard] = useState<IWard | null>(null);
-  const [selectedClass, setSelectedClass] = useState<any | null>({});
+  const [selectedWard, setSelectedWard] = useState<IProvince | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<any | null>({});
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
     userName: "",
     displayName: "",
-    password: undefined,
-    confirmPass: undefined,
+    password: "",
+    confirmPass: "",
     permission: "",
     province: "",
     district: "",
     ward: "",
-    class: "",
+    level: "",
   });
 
-  // useEffect(() => {
-  //   if (editField) {
-  //     setInitialValues({
-  //       name: editField?.name,
-  //     });
-  //     setSelectedProvince(editField?.province || null);
-  //   }
-  // }, []);
-
-  const validationSchema = yup
-    .object()
-    .shape<{ [key in keyof IFormValue]: any }>({
-      userName: yup
-        .string()
-        .required("Vui lòng nhập tên tài khoản")
-        .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
-      displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
-      password: yup
-        .string()
-        .required("Vui lòng nhập mật khẩu")
-        .min(6, "Mật khẩu phải tối thiểu 6 ký tự"),
-      confirmPass: yup
-        .string()
-        .required("Vui lòng nhập lại mật khẩu")
-        .oneOf(
-          [yup.ref("password"), null],
-          "Mật khẩu phải trùng với mật khẩu đã nhập",
-        ),
-      class: yup.string().required("Vui lòng chọn phân cấp"),
-      permission: yup.string().required("Vui lòng chọn quyền hạn"),
-      province: yup.string().required("Vui lòng chọn tỉnh/ thành phố"),
-      district: yup.string().required("Vui lòng chọn quận/ huyện/ thị xã"),
-      ward: yup.string().required("Vui lòng chọn phường/ xã/ thị trấn"),
-    });
-
   useEffect(() => {
-    console.log(selectedPermission);
-  }, [selectedPermission]);
+    getProvinceListService();
+    currentUser?.userInfo?.region?.provinceId !== -1 &&
+      getDistrictListService(currentUser?.userInfo?.region?.provinceId);
+    currentUser?.userInfo?.region?.districtId !== -1 &&
+      getWardListService(currentUser?.userInfo?.region?.districtId);
+    if (editField) {
+      setInitialValues({
+        ...initialValues,
+        userName: editField?.userName || "",
+        displayName: editField?.displayName || "",
+        permission: "SELECTED",
+        province: "SELECTED",
+        district: "SELECTED",
+        ward: "SELECTED",
+        level: "SELECTED",
+      });
+      setSelectedPermission(
+        filterPermission(editField?.roles || [], permission),
+      );
+      setSelectedLevel(
+        CLASS_LIST.filter(item => item.id === editField?.region?.levelId)[0],
+      );
+      if (editField?.region?.levelId === 3) {
+        getDistrictListService(editField?.region?.provinceId!);
+      }
+      if (editField?.region?.levelId === 4) {
+        getDistrictListService(editField?.region?.provinceId!);
+        getWardListService(editField?.region?.districtId!);
+      }
+    }
+  }, []);
 
-  const resetField = () => {
-    // setSelectedClass(null);
-    setSelectedPermission([]);
-    setSelectedProvince(null);
-    setSelectedDistrict(null);
-    setSelectedWard(null);
+  const getProvinceListService = async () => {
+    try {
+      const res: any = await axiosClient.get("Region", {
+        params: { level: 2 },
+      });
+      if (res) {
+        setProvinceList(res.regions);
+        setSelectedProvince(
+          useGetLocation(editField?.region?.provinceId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+        setSelectedDistrict(
+          useGetLocation(editField?.region?.districtId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+        setSelectedWard(
+          useGetLocation(editField?.region?.wardId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const validationSchema = yup.lazy(value => {
+    if (!editField) {
+      return yup.object().shape<{ [key in keyof IFormValue]: any }>({
+        userName: yup
+          .string()
+          .required("Vui lòng nhập tên tài khoản")
+          .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
+        password: yup
+          .string()
+          .required("Vui lòng nhập mật khẩu")
+          .min(6, "Mật khẩu phải tối thiểu 6 ký tự")
+          .matches(
+            PASSWORD,
+            "Mật khẩu phải có số, chữ cái thường, chữ cái hoa và ký tự đặc biệt",
+          ),
+        confirmPass: yup
+          .string()
+          .required("Vui lòng nhập lại mật khẩu")
+          .oneOf(
+            [yup.ref("password"), null],
+            "Mật khẩu phải trùng với mật khẩu đã nhập",
+          ),
+        province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
+        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị Xã"),
+        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị Trấn"),
+        permission: yup.string().required("Vui lòng chọn quyền hạn"),
+        level: yup.string().required("Vui lòng chọn phân cấp"),
+      });
+    } else {
+      return yup.object().shape<{ [key in keyof IFormValue]: any }>({
+        userName: yup
+          .string()
+          .required("Vui lòng nhập tên tài khoản")
+          .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
+        password: yup
+          .string()
+          .min(6, "Mật khẩu phải tối thiểu 6 ký tự")
+          .matches(
+            PASSWORD,
+            "Mật khẩu phải có số, chữ cái thường, chữ cái hoa và ký tự đặc biệt",
+          ),
+        confirmPass: yup.string().when("password", {
+          is: (password: any) => password?.length > 0,
+          then: yup
+            .string()
+            .required("Vui lòng nhập lại mật khẩu")
+            .oneOf(
+              [yup.ref("password"), null],
+              "Mật khẩu phải trùng với mật khẩu đã nhập",
+            ),
+        }),
+        province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
+        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị Xã"),
+        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị Trấn"),
+        permission: yup.string().required("Vui lòng chọn quyền hạn"),
+        level: yup.string().required("Vui lòng chọn phân cấp"),
+      });
+    }
+  });
+
   const handleSubmit = async (value: FormikValues) => {
-    const input: any = {
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : undefined;
+    const input: IUserInput = {
       userName: value?.userName || "",
       displayName: value?.displayName,
       password: value?.password || "",
-      province: selectedProvince?.id || "",
-      district: selectedDistrict?.id || "",
-      ward: selectedWard?.id || "",
-      class: selectedClass?.id || "",
-      listPermission: selectedPermission.map(
-        permission => permission?.id || "",
-      ),
+      regionId: regionId,
+      regionLevelId: parseInt(selectedLevel?.id),
+      roles: selectedPermission?.map(permission => permission?.id || ""),
     };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if (editField) {
-    //     setLoading(true);
-    //     const payload: IUpdateDistrict = {
-    //       id: editField?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateDistrict = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    if (!input.password) {
+      delete input.password;
+    }
+    try {
+      setLoading(true);
+
+      if (editField) {
+        setLoading(true);
+        const payload: IUserInput = {
+          ...input,
+        };
+        const res = await axiosClient.put(`User/${editField?.id}`, payload);
+        if (res) {
+          onSuccess?.();
+          handleCloseDialog();
+          toast.dark("Cập nhật người dùng thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
+        }
+        return;
+      }
+      const payload: any = {
+        ...input,
+      };
+      const res = await axiosClient.post("User", payload);
+      if (res) {
+        onSuccess?.();
+        handleCloseDialog();
+        toast.dark("Tạo người dùng thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err) {
+      handleCloseDialog();
+      if (editField) {
+        toast.dark("Cập nhật người dùng không thành công !", {
+          type: toast.TYPE.ERROR,
+        });
+      } else {
+        toast.dark("Tạo người dùng không thành công !", {
+          type: toast.TYPE.ERROR,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDialog = () => {
     setOpen(false);
-    setSelectedClass(null);
+    setSelectedLevel(null);
     setSelectedPermission([]);
     setSelectedProvince(null);
     setSelectedDistrict(null);
@@ -181,30 +319,64 @@ const NormalDialog: React.FC<IDialogProps> = ({
   };
 
   const setFieldValue = (value: any, formik: FormikProps<IFormValue>) => {
+    const province = provinceList.filter(
+      item => item.id === currentUser?.userInfo?.region?.provinceId,
+    )[0];
+    const district = districtList.filter(
+      item => item.id === currentUser?.userInfo?.region?.districtId,
+    )[0];
+    const ward = wardList.filter(
+      item => item.id === currentUser?.userInfo?.region?.wardId,
+    )[0];
     switch (value?.id) {
-      case "0":
+      case 2:
+        setSelectedProvince(province);
         formik.setFieldValue("province", "SELECTED");
         formik.setFieldValue("district", "SELECTED");
         formik.setFieldValue("ward", "SELECTED");
         break;
-      case "1":
-        formik.setFieldValue("province", "");
+      case 3:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        !district && getDistrictListService(province?.id!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        formik.setFieldValue("ward", "SELECTED");
+        break;
+      case 4:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        setSelectedWard(ward);
+        !district && getDistrictListService(province?.id!);
+        !ward && district
+          ? getWardListService(district?.id!)
+          : getWardListService(editField?.region?.districtId!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        ward
+          ? formik.setFieldValue("ward", "SELECT")
+          : formik.setFieldValue("ward", "");
+        break;
+      default:
+        formik.setFieldValue("province", "SELECTED");
         formik.setFieldValue("district", "SELECTED");
         formik.setFieldValue("ward", "SELECTED");
         break;
-      case "2":
-        formik.setFieldValue("province", "");
-        formik.setFieldValue("district", "");
-        formik.setFieldValue("ward", "SELECTED");
-        break;
-      case "3":
-        formik.setFieldValue("province", "");
-        formik.setFieldValue("district", "");
-        formik.setFieldValue("ward", "");
-        break;
-      default:
-        break;
     }
+  };
+
+  const checkPermission = () => {
+    let isUserManager = false;
+    currentUser?.userInfo?.roles.forEach((item: IPermissionV2Id) => {
+      if (item === "UserManager") {
+        isUserManager = true;
+      }
+    });
+    return isUserManager;
   };
 
   return (
@@ -242,121 +414,162 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         placeholder="Nhập tên hiển thị"
                         type="text"
                         required
+                        disabled={checkPermission() ? false : true}
                       />
-                      <Input
-                        name="password"
-                        label="Mật khẩu"
-                        type="password"
-                        placeholder="Nhập mật khẩu"
-                        required
-                      />
-                      <Input
-                        name="confirmPass"
-                        label="Nhập lại mật khẩu"
-                        type="password"
-                        placeholder="Nhập lại mật khẩu"
-                        required
-                      />
+                      {checkPermission() && (
+                        <>
+                          <Input
+                            name="password"
+                            label="Mật khẩu"
+                            type="password"
+                            placeholder="Nhập mật khẩu"
+                            required={editField ? false : true}
+                          />
+                          <Input
+                            name="confirmPass"
+                            label="Nhập lại mật khẩu"
+                            type="password"
+                            placeholder="Nhập lại mật khẩu"
+                            required={editField ? false : true}
+                          />
+                        </>
+                      )}
                     </FormLeftWrapper>
                     <FormRightWrapper>
                       <Select
-                        name="class"
+                        name="level"
                         label="Phân cấp"
-                        optionSelected={selectedClass}
-                        options={classList}
+                        optionSelected={selectedLevel}
+                        options={
+                          currentUser?.userInfo?.region?.levelId === 2
+                            ? CLASS_LIST
+                            : currentUser?.userInfo?.region?.levelId === 3
+                            ? CLASS_LIST_OF_DISTRICT
+                            : CLASS_LIST_OF_WARD
+                        }
                         onSelect={value => {
-                          setSelectedClass(value);
                           setFieldValue(value, formik);
-                          resetField();
+                          setSelectedLevel(value);
                         }}
                         placeholder="Chọn phân cấp"
-                        disabled={editField ? true : false}
+                        required
+                        disabled={checkPermission() ? false : true}
                       />
-                      {selectedClass?.id === "1" && (
+
+                      {selectedLevel?.id === 2 && (
                         <Select
                           name="province"
                           label="Tên tỉnh/ thành phố"
                           optionSelected={selectedProvince}
-                          options={optionProvince}
+                          options={provinceList}
                           onSelect={value => setSelectedProvince(value)}
                           placeholder="Chọn tỉnh/thành phố"
                           required
-                          disabled={editField ? true : false}
+                          optionTarget="displayName"
+                          disabled
                         />
                       )}
-                      {selectedClass?.id === "2" && (
+                      {selectedLevel?.id === 3 && (
                         <>
                           <Select
                             name="province"
                             label="Tên tỉnh/ thành phố"
                             optionSelected={selectedProvince}
-                            options={optionProvince}
-                            onSelect={value => setSelectedProvince(value)}
+                            options={provinceList}
+                            onSelect={value => {
+                              getDistrictListService(value?.id!);
+                              setSelectedDistrict(null);
+                              setSelectedProvince(value);
+                            }}
                             placeholder="Chọn tỉnh/thành phố"
                             required
-                            disabled={editField ? true : false}
+                            optionTarget="displayName"
+                            disabled
                           />
                           <Select
                             name="district"
                             label="Tên quận/ huyện/ thị xã"
                             optionSelected={selectedDistrict}
-                            options={optionDistrict}
-                            onSelect={value => setSelectedDistrict(value)}
+                            options={districtList}
+                            onSelect={value => {
+                              setSelectedDistrict(value);
+                            }}
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
-                              selectedProvince
-                                ? false
-                                : true || editField
-                                ? true
-                                : false
+                              currentUser?.userInfo?.region?.districtId === -1
+                                ? checkPermission()
+                                  ? false
+                                  : true
+                                : true
                             }
                             required
+                            optionTarget="displayName"
                           />
                         </>
                       )}
-                      {selectedClass?.id === "3" && (
+                      {selectedLevel?.id === 4 && (
                         <>
                           <Select
                             name="province"
                             label="Tên tỉnh/ thành phố"
                             optionSelected={selectedProvince}
-                            options={optionProvince}
-                            onSelect={value => setSelectedProvince(value)}
+                            options={provinceList}
+                            onSelect={value => {
+                              getDistrictListService(value?.id!);
+                              setSelectedDistrict(null);
+                              setSelectedWard(null);
+                              setSelectedProvince(value);
+                            }}
                             placeholder="Chọn tỉnh/ thành phố"
                             required
-                            disabled={editField ? true : false}
+                            optionTarget="displayName"
+                            disabled
                           />
                           <Select
                             name="district"
                             label="Tên quận/ huyện/ thị xã"
                             optionSelected={selectedDistrict}
-                            options={optionDistrict}
-                            onSelect={value => setSelectedDistrict(value)}
+                            options={districtList}
+                            onSelect={value => {
+                              getWardListService(value?.id!);
+                              setSelectedWard(null);
+                              setSelectedDistrict(value);
+                            }}
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
-                              selectedProvince
-                                ? false
-                                : true || editField
-                                ? true
-                                : false
+                              currentUser?.userInfo?.region?.districtId === -1
+                                ? checkPermission()
+                                  ? false
+                                  : true
+                                : true
                             }
                             required
+                            optionTarget="displayName"
                           />
                           <Select
                             name="ward"
                             label="Tên phường/ xã/ thị trấn"
                             optionSelected={selectedWard}
-                            options={optionWard}
+                            options={wardList}
                             onSelect={value => setSelectedWard(value)}
                             placeholder="Chọn phường/ xã/ thị trấn"
-                            disabled={
-                              selectedDistrict
-                                ? false
-                                : true || editField
-                                ? true
-                                : false
-                            }
+                            disabled={(() => {
+                              if (!checkPermission()) {
+                                return true;
+                              }
+                              if (
+                                currentUser?.userInfo?.region?.wardId !== -1
+                              ) {
+                                return true;
+                              } else {
+                                if (!selectedDistrict) {
+                                  return true;
+                                }
+                              }
+                              return false;
+                            })()}
                             required
+                            optionTarget="displayName"
                           />
                         </>
                       )}
@@ -365,10 +578,11 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         name="permission"
                         label="Quyền hạn"
                         listOptionsSelected={selectedPermission}
-                        options={optionPermission}
+                        options={permission}
                         onSelect={value => setSelectedPermission(value)}
                         placeholder="Chọn quyền hạn"
                         required
+                        disabled={checkPermission() ? false : true}
                       />
                     </FormRightWrapper>
                   </FormTopWrapper>
@@ -380,9 +594,11 @@ const NormalDialog: React.FC<IDialogProps> = ({
                     >
                       Hủy
                     </Button>
-                    <Button loading={loading} type="submit">
-                      Lưu
-                    </Button>
+                    {checkPermission() && (
+                      <Button loading={loading} type="submit">
+                        Lưu
+                      </Button>
+                    )}
                   </ButtonWrapper>
                 </Form>
               );
@@ -395,78 +611,3 @@ const NormalDialog: React.FC<IDialogProps> = ({
 };
 
 export default NormalDialog;
-
-const classList: any = [
-  {
-    id: "1",
-    name: "Tỉnh/Thành phố",
-  },
-  {
-    id: "2",
-    name: "Quận/Huyện/Thị Xã",
-  },
-  {
-    id: "3",
-    name: "Phường/Xã/Thị Trấn",
-  },
-];
-
-const optionPermission: any = [
-  {
-    id: "1",
-    name: "Quản lý tài khoản",
-  },
-  {
-    id: "2",
-    name: "Quản lý tệp tin",
-  },
-  {
-    id: "3",
-    name: "Quản lý nguồn phát",
-  },
-];
-
-const optionProvince: IProvince[] = [
-  {
-    id: "1",
-    name: "TP HCM",
-  },
-  {
-    id: "2",
-    name: "TP HN",
-  },
-  {
-    id: "3",
-    name: "TP HP",
-  },
-];
-
-const optionDistrict: IDistrict[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
-  },
-];
-
-const optionWard: IWard[] = [
-  {
-    id: "1",
-    name: "Cao Thắng",
-  },
-  {
-    id: "2",
-    name: "Võ Văn Tần",
-  },
-  {
-    id: "3",
-    name: "Ngô Quyền",
-  },
-];

@@ -400,16 +400,16 @@ const classList: any = [
 
 const optionProvince: IProvince[] = [
   {
-    id: "1",
-    name: "TP HCM",
+    id: 1,
+    displayName: "TP HCM",
   },
   {
-    id: "2",
-    name: "TP HN",
+    id: 2,
+    displayName: "TP HN",
   },
   {
-    id: "3",
-    name: "TP HP",
+    id: 3,
+    displayName: "TP HP",
   },
 ];
 

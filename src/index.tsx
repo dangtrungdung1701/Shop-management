@@ -17,7 +17,7 @@ ReactDOM.render(
     }}
   >
     <Toast>
-      <PageLoading />
+      {/* <PageLoading /> */}
       <App />
     </Toast>
   </PersistGate>,

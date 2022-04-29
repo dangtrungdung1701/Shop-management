@@ -15,6 +15,7 @@ import {
   ContentWrap,
 } from "./styles";
 import useAuth from "hooks/useAuth";
+import PageLoading from "components/PageLoading";
 
 const AdminLayout: React.FC = props => {
   const { children } = props;
@@ -53,6 +54,8 @@ const AdminLayout: React.FC = props => {
           </ContentWrap>
         </div>
         <ContentWrap>
+          <PageLoading />
+
           <MainContent>
             <Breadcrumb />
             {children}
