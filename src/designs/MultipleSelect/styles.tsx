@@ -16,7 +16,7 @@ export const ListboxButton = styled(Listbox.Button)`
 `;
 
 export const ListboxOptionsContainer = styled(Listbox.Options)`
-  ${tw`absolute z-30 w-full py-1 mt-1 overflow-auto border border-solid rounded-lg shadow-md border-neutral-4 bg-primary-3 max-h-60 focus:outline-none `}
+  ${tw`absolute z-30 w-full py-1 mt-1 overflow-auto border border-solid rounded-lg shadow-md border-neutral-4 bg-primary-3 max-h-25 focus:outline-none `}
 `;
 
 export const MenuButton = styled.div<{ isError: boolean; disabled: boolean }>`

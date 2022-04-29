@@ -1,15 +1,21 @@
 import { useLoading } from "hooks/useLoading";
+import useStore from "zustand/store";
 import { PageLoadingContainer, SpinnerContainer } from "./styles";
 
 interface IPageLoadingProps {}
 
 const PageLoading: React.FC<IPageLoadingProps> = props => {
   const { isLoading } = useLoading();
+  const { isMobile, isExtendDrawer } = useStore();
 
   if (!isLoading) return null;
 
   return (
-    <PageLoadingContainer>
+    <PageLoadingContainer
+      className={`inset-0 ${
+        isMobile ? "left-0" : isExtendDrawer ? "left-30" : "left-0"
+      } top-6`}
+    >
       <Spinner />
     </PageLoadingContainer>
   );

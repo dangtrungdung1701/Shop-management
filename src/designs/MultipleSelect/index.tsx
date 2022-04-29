@@ -27,6 +27,7 @@ import { IIconSVGProps } from "typings";
 import DropdownArrowIcon from "icons/Arrows/SelectArrow";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
 import FormControlLabel from "common/styles/FormControlLabel";
+import SearchBoxTable from "components/SearchBoxTable";
 
 interface IMultipleSelectProps<T> {
   name: string;
@@ -37,6 +38,7 @@ interface IMultipleSelectProps<T> {
   onSelect: (option: T[]) => void;
   disabled?: boolean;
   placeholder?: string;
+  isSearchBox?: boolean;
   /**
    * @description targetForm is key of optionSelected. When form is submitted,
    * value of name will be optionSelected[targetForm]
@@ -61,37 +63,31 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
     listOptionsSelected = [],
     placeholder = "",
     disabled = false,
-    formTarget = "_id",
+    formTarget = "id",
     optionTarget = "name",
     required = false,
     splitSign = "|",
     onSelect,
+    isSearchBox = true,
   } = props;
   const { setFieldValue } = useFormikContext();
   const [field, meta] = useField(name);
   const isError = Boolean(!!meta.error && !!meta.touched);
   const [displayOptions, setDisplayOptions] = useState<T[]>(options);
   const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    removeAllOptionSelectedOutOfListOptions();
-  }, [options, listOptionsSelected]);
+    if (!isOpen) {
+      setSearchText("");
+    }
+  }, [isOpen]);
 
-  // useEffect(() => {
-  //   const id = setTimeout(() => {
-  //     const value = (listOptionsSelected || [])
-  //       .map(item => (item as any)[formTarget])
-  //       .join(splitSign);
-  //     const newOption = value;
-  //     // setFieldValue cannot set immediately after first render
-  //     setFieldValue(name, newOption);
-  //   }, 300);
-  //   return () => {
-  //     clearTimeout(id);
-  //   };
-  // }, [listOptionsSelected]);
+  useEffect(() => {
+    removeAllOptionSelectedOutOfListOptions();
+  }, [options, listOptionsSelected, searchText]);
 
   const handleSelect = (option: any) => {
     setFieldValue(name, "SELECTED");
@@ -116,10 +112,18 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
       const filteredOptions = options?.filter((option: any) => {
         return !alreadySelect?.includes(option?.[optionTarget]);
       });
-      setDisplayOptions(filteredOptions);
+      setDisplayOptions(
+        filteredOptions.filter(item =>
+          (item as any)?.[optionTarget]?.toLowerCase().match(searchText),
+        ),
+      );
     } else {
       setFieldValue(name, "");
-      setDisplayOptions(options);
+      setDisplayOptions(
+        options.filter(item =>
+          (item as any)?.[optionTarget]?.toLowerCase().match(searchText),
+        ),
+      );
     }
   };
 
@@ -127,7 +131,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
     if (!listOptionsSelected?.length) return;
     const newListOptionsSelected = listOptionsSelected.filter(
       item =>
-        (item as any)?.[optionTarget] !== (removedItem as any)?.[optionTarget],
+        (item as any)?.[formTarget] !== (removedItem as any)?.[formTarget],
     );
     setDisplayOptions([...displayOptions, removedItem]);
     onSelect && onSelect(newListOptionsSelected);
@@ -156,39 +160,39 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
           onChange={handleSelect as any}
           disabled={disabled}
         >
-          <div
-            className={`relative border rounded  text-neutral-1 ${
-              isError ? "border-sematic-1 text-sematic-1" : "border-neutral-4"
-            } ${className}`}
-          >
-            <ListboxButton>
-              <MenuButton
-                isError={isError}
-                disabled={disabled}
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                {listOptionsSelected?.length > 0 ? (
-                  <TagContainer>
-                    {listOptionsSelected.map((option: any, index) => (
-                      <Tag key={index}>
-                        <TagText>{option?.[optionTarget]}</TagText>
-                        <RemoveIcon
-                          onClick={e => {
-                            e.stopPropagation();
-                            removeItem(option);
-                          }}
-                        />
-                      </Tag>
-                    ))}
-                  </TagContainer>
-                ) : (
-                  <Placeholder>{placeholder}</Placeholder>
-                )}
-                <DropdownArrowIcon />
-              </MenuButton>
-            </ListboxButton>
+          <div ref={wrapperRef}>
+            <div
+              className={`relative border rounded  text-neutral-1 ${
+                isError ? "border-sematic-1 text-sematic-1" : "border-neutral-4"
+              } ${className}`}
+            >
+              <ListboxButton>
+                <MenuButton
+                  isError={isError}
+                  disabled={disabled}
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  {listOptionsSelected?.length > 0 ? (
+                    <TagContainer>
+                      {listOptionsSelected.map((option: any, index) => (
+                        <Tag key={index}>
+                          <TagText>{option?.[optionTarget]}</TagText>
+                          <RemoveIcon
+                            onClick={e => {
+                              e.stopPropagation();
+                              removeItem(option);
+                            }}
+                          />
+                        </Tag>
+                      ))}
+                    </TagContainer>
+                  ) : (
+                    <Placeholder>{placeholder}</Placeholder>
+                  )}
+                  <DropdownArrowIcon />
+                </MenuButton>
+              </ListboxButton>
 
-            <div ref={wrapperRef}>
               <Transition
                 show={isOpen}
                 as={Fragment}
@@ -196,8 +200,32 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <ListboxOptionsContainer>
-                  {displayOptions.length ? (
+                <ListboxOptionsContainer
+                  as="ul"
+                  onKeyUp={(e: React.KeyboardEvent) => {
+                    if (
+                      e.keyCode === 32 ||
+                      e.keyCode === 13 ||
+                      e.keyCode === 27
+                    ) {
+                      e.stopPropagation();
+                    }
+                  }}
+                >
+                  {isSearchBox && listOptionsSelected.length < options.length && (
+                    <li className="sticky bg-primary-3">
+                      <MenuItem>
+                        <SearchBoxTable
+                          onFetchData={value => {
+                            setSearchText(value.trim());
+                          }}
+                          placeholder="Tìm kiếm theo tên tài khoản"
+                          className="w-full phone:max-w-35"
+                        />
+                      </MenuItem>
+                    </li>
+                  )}
+                  {displayOptions.length > 0 ? (
                     <Listbox.Option key={-1} value="SELECT ALL">
                       {({ selected, active }) => (
                         <MenuItem
@@ -208,7 +236,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                         </MenuItem>
                       )}
                     </Listbox.Option>
-                  ) : (
+                  ) : listOptionsSelected.length > 0 ? (
                     <Listbox.Option key={-1} value="CANCEL ALL">
                       {({ selected, active }) => (
                         <MenuItem
@@ -219,8 +247,8 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                         </MenuItem>
                       )}
                     </Listbox.Option>
-                  )}
-                  {options.length ? (
+                  ) : null}
+                  {listOptionsSelected.length < options.length ? (
                     displayOptions.length ? (
                       displayOptions.map((option: any, index) => (
                         <Listbox.Option key={index} value={option}>
@@ -231,7 +259,9 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                           )}
                         </Listbox.Option>
                       ))
-                    ) : null
+                    ) : (
+                      <EmptyData>kết quả tìm kiếm không có</EmptyData>
+                    )
                   ) : (
                     <EmptyData>(Empty Data)</EmptyData>
                   )}

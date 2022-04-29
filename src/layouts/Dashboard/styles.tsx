@@ -15,7 +15,7 @@ export const Viewpoint = styled.div<{ isExtendDrawer: boolean }>`
 `;
 
 export const ContentWrap = styled.div`
-  ${tw`m-auto max-w-[1130px] px-1.5`}
+  ${tw`m-auto max-w-[1130px] px-1.5 relative`}
 `;
 
 export const MainContent = styled.main`

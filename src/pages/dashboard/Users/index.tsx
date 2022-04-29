@@ -1,4 +1,4 @@
-import React, { useMemo, useState, lazy, useCallback } from "react";
+import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
 import { RouteComponentProps } from "react-router";
 
 import { usePage } from "hooks/usePage";
@@ -14,8 +14,19 @@ import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 
 import { ButtonAdd, SearchBoxWrapper } from "./styles";
-import { IDistrict, IProvince, IWard } from "typings";
+import {
+  IDistrict,
+  IPermissionV2,
+  IPermissionV2Id,
+  IProvince,
+  IRegion,
+  IUser,
+  IWard,
+} from "typings";
 import SimpleSelect from "designs/SimpleSelect";
+import axiosClient from "common/utils/api";
+import useStore from "zustand/store";
+import { toast } from "react-toastify";
 
 const NormalDialog = lazy(() => import("./UserDialog"));
 const UserProfileDialog = lazy(() => import("components/UserProfileDialog"));
@@ -24,26 +35,34 @@ const ChangePasswordDialog = lazy(
 );
 
 const LOAD_DATA = "LOAD_DATA";
+const DELETE_DATA = "DELETE_DATA";
 
 interface IAdminProps extends RouteComponentProps {}
 
 const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
+  const { currentUser } = useStore();
+
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
   const [currentAccount, setCurrentAccount] = useState<boolean>(true);
 
-  const [listCategories, setListCategories] = useState<IDistrict[]>([]);
+  const [listUsers, setListUsers] = useState<IUser[]>([]);
+  const [provinceList, setProvinceList] = useState<IProvince[]>([]);
+  const [districtList, setDistrictList] = useState<IProvince[]>([]);
+  const [wardList, setWardList] = useState<IProvince[]>([]);
+
   const [provinceSelected, setProvinceSelected] = useState<IProvince | null>(
     null,
   );
-  const [districtSelected, setDistrictSelected] = useState<IDistrict | null>(
+  const [districtSelected, setDistrictSelected] = useState<IProvince | null>(
     null,
   );
-  const [wardSelected, setWardSelected] = useState<IWard | null>(null);
+  const [wardSelected, setWardSelected] = useState<IProvince | null>(null);
 
-  const [totalCount, setTotalCount] = useState<number>(listDistrict.length);
+  const [totalCount, setTotalCount] = useState<number>(listUsers.length);
   const { startLoading, stopLoading } = useLoading();
+  const [regionId, setRegionId] = useState(0);
 
   useBreadcrumb([
     {
@@ -56,27 +75,99 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
     },
   ]);
 
-  // useEffect(() => {
-  // }, [page, sizePerPage, searchText, provinceSelected]);
+  useEffect(() => {
+    getAllUserService();
+  }, [page, sizePerPage, searchText, regionId]);
 
-  const renderAction = (record: IDistrict) => {
+  useEffect(() => {
+    const newRegionId = wardSelected
+      ? wardSelected?.id
+      : districtSelected
+      ? districtSelected?.id
+      : provinceSelected
+      ? provinceSelected?.id
+      : 0;
+    setRegionId(newRegionId || 0);
+  }, [provinceSelected, districtSelected, wardSelected]);
+
+  useEffect(() => {
+    if (currentUser?.userInfo?.region?.levelId === 2) {
+      const provinceId = currentUser?.userInfo?.region?.provinceId;
+      getDistrictListService(provinceId);
+    }
+    if (currentUser?.userInfo?.region?.levelId === 3) {
+      const districtId = currentUser?.userInfo?.region?.districtId;
+      getWardListService(districtId);
+    }
+  }, []);
+
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAllUserService = async () => {
+    try {
+      startLoading(LOAD_DATA);
+      const payload: any = {
+        page,
+        size: sizePerPage,
+        searchString: searchText,
+        excludeAdmin: true,
+        regionId: regionId ? regionId : currentUser?.userInfo?.region?.id,
+      };
+      const response: any = await axiosClient.get("/User", {
+        params: payload,
+      });
+
+      if (response) {
+        setListUsers(response.users);
+        setTotalCount(response.totalCount);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      stopLoading(LOAD_DATA);
+    }
+  };
+
+  const renderAction = (record: IUser) => {
+    const isCurrentAccount = currentUser?.userInfo?.id === record?.id;
     return (
       <ActionButtons
         buttons={{
           edit: {
             DialogContent: props =>
-              // record.userId === currentAccount.id ?
-              currentAccount ? (
+              isCurrentAccount ? (
                 <UserProfileDialog
                   editField={record}
-                  onSuccess={() => {}}
+                  onSuccess={() => {
+                    getAllUserService();
+                  }}
                   open
                   {...props}
                 />
               ) : (
                 <NormalDialog
                   onSuccess={() => {
-                    // invokeGetAllCategory();
+                    getAllUserService();
                   }}
                   open
                   editField={record}
@@ -84,18 +175,32 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
                 />
               ),
           },
-          delete: {
-            title: "Xóa người dùng",
-            message: `Bạn có chắc chắn muốn xóa người dùng này?`,
-            onDelete: async () => {
-              // await deleteBlogAPI({ id: record._id });
-              // invokeGetAllBlogList();
+          ...(!isCurrentAccount && {
+            delete: {
+              title: "Xóa người dùng",
+              message: `Bạn có chắc chắn muốn xóa người dùng này?`,
+              onDelete: async () => {
+                try {
+                  startLoading(DELETE_DATA);
+                  const res = await axiosClient.delete(`/User/${record?.id}`);
+                  toast.dark("Xóa quản trị viên thành công !", {
+                    type: toast.TYPE.SUCCESS,
+                  });
+                  getAllUserService();
+                } catch (error) {
+                  console.log(error);
+                  toast.dark("Xóa quản trị viên không thành công !", {
+                    type: toast.TYPE.ERROR,
+                  });
+                } finally {
+                  stopLoading(DELETE_DATA);
+                }
+              },
             },
-          },
-          ...(currentAccount && {
+          }),
+          ...(isCurrentAccount && {
             update: {
               DialogContent: props => (
-                // record.userId === currentAccount.id ?
                 <ChangePasswordDialog
                   editField={record}
                   onSuccess={() => {}}
@@ -114,29 +219,45 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
     () => [
       {
         text: "Tên tài khoản",
-        dataField: "name",
+        dataField: "userName",
         headerStyle: () => ({
           width: "30%",
         }),
       },
       {
         text: "Tên hiển thị",
-        dataField: "id",
+        dataField: "displayName",
         headerStyle: () => ({
           width: "30%",
         }),
       },
       {
         text: "Phân cấp",
-        dataField: "class",
+        dataField: "region",
+        formatter: (region: IRegion) => {
+          switch (region.levelId) {
+            case 2:
+              return <div>Cấp Tỉnh/Thành phố</div>;
+              break;
+            case 3:
+              return <div>Cấp Quận/Huyện/Thị Xã</div>;
+              break;
+            case 4:
+              return <div>Cấp Phường/Xã/Thị Trấn</div>;
+              break;
+            default:
+              return <></>;
+              break;
+          }
+        },
       },
       {
         text: "Hành động",
         dataField: "actions",
-        formatter: (_: string, record: IDistrict) => renderAction(record),
+        formatter: (_: string, record: IUser) => renderAction(record),
       },
     ],
-    [page],
+    [page, searchText, regionId, sizePerPage],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {
@@ -153,13 +274,27 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
     setPage(1);
   };
 
+  const checkPermission = () => {
+    let isUserManager = false;
+    currentUser?.userInfo?.roles.forEach((item: IPermissionV2Id) => {
+      if (item === "UserManager") {
+        isUserManager = true;
+      }
+    });
+    return isUserManager;
+  };
+
   return (
     <TableLayout
       title="Người dùng"
       buttonMenu={
         <NormalDialog
-          ButtonMenu={<ButtonAdd>Thêm người dùng</ButtonAdd>}
-          onSuccess={() => {}}
+          ButtonMenu={
+            checkPermission() ? <ButtonAdd>Thêm người dùng</ButtonAdd> : <></>
+          }
+          onSuccess={() => {
+            getAllUserService();
+          }}
         />
       }
     >
@@ -169,42 +304,54 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
           placeholder="Tìm kiếm theo tên tài khoản"
           className="w-full phone:max-w-35"
         />
-        <SimpleSelect
-          options={provinceList}
-          optionSelected={provinceSelected}
-          onSelect={value => {
-            setProvinceSelected(value);
-            setPage(1);
-          }}
-          placeholder="Tỉnh/TP"
-          className="w-full phone:max-w-35"
-        />
-        <SimpleSelect
-          options={districtList}
-          optionSelected={districtSelected}
-          onSelect={value => {
-            setDistrictSelected(value);
-            setPage(1);
-          }}
-          placeholder="Quận/Huyện/Thị Xã"
-          disabled={provinceSelected ? false : true}
-          className="w-full phone:max-w-35"
-        />
-        <SimpleSelect
-          options={wardList}
-          optionSelected={wardSelected}
-          onSelect={value => {
-            setWardSelected(value);
-            setPage(1);
-          }}
-          placeholder="Phường/Xã/Thị Trấn"
-          disabled={districtSelected ? false : true}
-          className="w-full phone:max-w-35"
-        />
+        {currentUser?.userInfo?.region?.levelId === 2 && (
+          <>
+            <SimpleSelect
+              options={districtList}
+              optionSelected={districtSelected}
+              onSelect={value => {
+                setWardSelected(null);
+                if (value) {
+                  getWardListService(value?.id!);
+                }
+                setDistrictSelected(value);
+                setPage(1);
+              }}
+              placeholder="Quận/Huyện/Thị Xã"
+              className="w-full phone:max-w-35"
+              optionTarget="displayName"
+            />
+            <SimpleSelect
+              options={wardList}
+              optionSelected={wardSelected}
+              onSelect={value => {
+                setWardSelected(value);
+                setPage(1);
+              }}
+              placeholder="Phường/Xã/Thị Trấn"
+              disabled={districtSelected ? false : true}
+              className="w-full phone:max-w-35"
+              optionTarget="displayName"
+            />
+          </>
+        )}
+        {currentUser?.userInfo?.region?.levelId === 3 && (
+          <SimpleSelect
+            options={wardList}
+            optionSelected={wardSelected}
+            onSelect={value => {
+              setWardSelected(value);
+              setPage(1);
+            }}
+            placeholder="Phường/Xã/Thị Trấn"
+            className="w-full phone:max-w-35"
+            optionTarget="displayName"
+          />
+        )}
       </SearchBoxWrapper>
 
       <Table
-        data={listDistrict}
+        data={listUsers}
         columns={columns}
         page={page}
         totalSize={totalCount}
@@ -217,76 +364,3 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
 };
 
 export default NormalUsers;
-
-const listDistrict: any[] = [
-  {
-    name: "admin1",
-    id: "ADMIN",
-    class: "Tỉnh/TP",
-  },
-  {
-    name: "admin1",
-    id: "ADMIN",
-    class: "Tỉnh/TP",
-  },
-  {
-    name: "admin1",
-    id: "ADMIN",
-    class: "Tỉnh/TP",
-  },
-  {
-    name: "admin1",
-    id: "ADMIN",
-    class: "Tỉnh/TP",
-  },
-  {
-    name: "admin1",
-    id: "ADMIN",
-    class: "Tỉnh/TP",
-  },
-];
-
-const provinceList: IProvince[] = [
-  {
-    id: "1",
-    name: "TP HCM",
-  },
-  {
-    id: "2",
-    name: "TP HN",
-  },
-  {
-    id: "3",
-    name: "TP HP",
-  },
-];
-
-const districtList: IDistrict[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
-  },
-];
-
-const wardList: IWard[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
-  },
-];

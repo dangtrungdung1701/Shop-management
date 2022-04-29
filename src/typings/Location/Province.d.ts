@@ -1,6 +1,11 @@
 export interface IProvince {
-  id?: string;
-  name?: string;
+  id?: number;
+  parentId?: number;
+  provinceId?: number;
+  districtId?: number;
+  wardId?: number;
+  levelId?: number;
+  displayName?: string;
   connectDevice?: number;
   disconnectDevice?: number;
   activeDevice?: number;

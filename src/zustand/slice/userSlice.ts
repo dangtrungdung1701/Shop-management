@@ -1,9 +1,5 @@
 import { removeLocalStorage } from "common/utils/auth";
-
-export interface IPermissionV2 {
-  id?: string;
-  name?: string;
-}
+import { IPermissionV2 } from "typings";
 
 export interface IUserStore {
   permission: IPermissionV2[];
