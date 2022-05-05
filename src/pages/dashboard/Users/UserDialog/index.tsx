@@ -37,6 +37,7 @@ import {
   FormRightWrapper,
   FormTopWrapper,
 } from "./styles";
+import useCheckPermission from "hooks/useCheckPermission";
 
 type IDialogProps = {
   editField?: IUser;
@@ -72,7 +73,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { permission, currentUser } = useStore();
+  const { permission, currentUser, setCurrentUser } = useStore();
+  const isPermission = useCheckPermission("UserManager", currentUser);
 
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
@@ -137,6 +139,23 @@ const NormalDialog: React.FC<IDialogProps> = ({
       }
     }
   }, []);
+
+  useEffect(() => {
+    getUserInfoService();
+  }, [isOpen]);
+
+  const getUserInfoService = async () => {
+    try {
+      const res: any = await axiosClient.get(
+        `User/${currentUser?.userInfo?.id}`,
+      );
+      if (res) {
+        setCurrentUser({ ...currentUser, userInfo: res });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getProvinceListService = async () => {
     try {
@@ -369,16 +388,6 @@ const NormalDialog: React.FC<IDialogProps> = ({
     }
   };
 
-  const checkPermission = () => {
-    let isUserManager = false;
-    currentUser?.userInfo?.roles.forEach((item: IPermissionV2Id) => {
-      if (item === "UserManager") {
-        isUserManager = true;
-      }
-    });
-    return isUserManager;
-  };
-
   return (
     <>
       <ElementWrapper onClick={() => setOpen(true)}>
@@ -414,9 +423,9 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         placeholder="Nhập tên hiển thị"
                         type="text"
                         required
-                        disabled={checkPermission() ? false : true}
+                        disabled={isPermission ? false : true}
                       />
-                      {checkPermission() && (
+                      {isPermission && (
                         <>
                           <Input
                             name="password"
@@ -453,7 +462,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         }}
                         placeholder="Chọn phân cấp"
                         required
-                        disabled={checkPermission() ? false : true}
+                        disabled={isPermission ? false : true}
                       />
 
                       {selectedLevel?.id === 2 && (
@@ -497,7 +506,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
                               currentUser?.userInfo?.region?.districtId === -1
-                                ? checkPermission()
+                                ? isPermission
                                   ? false
                                   : true
                                 : true
@@ -538,7 +547,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
                               currentUser?.userInfo?.region?.districtId === -1
-                                ? checkPermission()
+                                ? isPermission
                                   ? false
                                   : true
                                 : true
@@ -554,7 +563,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             onSelect={value => setSelectedWard(value)}
                             placeholder="Chọn phường/ xã/ thị trấn"
                             disabled={(() => {
-                              if (!checkPermission()) {
+                              if (!isPermission) {
                                 return true;
                               }
                               if (
@@ -582,7 +591,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         onSelect={value => setSelectedPermission(value)}
                         placeholder="Chọn quyền hạn"
                         required
-                        disabled={checkPermission() ? false : true}
+                        disabled={isPermission ? false : true}
                       />
                     </FormRightWrapper>
                   </FormTopWrapper>
@@ -594,7 +603,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                     >
                       Hủy
                     </Button>
-                    {checkPermission() && (
+                    {isPermission && (
                       <Button loading={loading} type="submit">
                         Lưu
                       </Button>

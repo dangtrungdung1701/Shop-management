@@ -1,7 +1,7 @@
-import { IPermissionV2 } from "typings";
+import { IPermissionV2, IPermissionV2Id } from "typings";
 
 export const filterPermission = (
-  editField: IPermissionV2[],
+  editField: IPermissionV2Id[],
   permission: IPermissionV2[],
 ) => {
   return editField.map((item: any) => {
