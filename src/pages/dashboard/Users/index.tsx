@@ -27,6 +27,8 @@ import SimpleSelect from "designs/SimpleSelect";
 import axiosClient from "common/utils/api";
 import useStore from "zustand/store";
 import { toast } from "react-toastify";
+import { userInfo } from "os";
+import useCheckPermission from "hooks/useCheckPermission";
 
 const NormalDialog = lazy(() => import("./UserDialog"));
 const UserProfileDialog = lazy(() => import("components/UserProfileDialog"));
@@ -40,7 +42,7 @@ const DELETE_DATA = "DELETE_DATA";
 interface IAdminProps extends RouteComponentProps {}
 
 const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
-  const { currentUser } = useStore();
+  const { currentUser, setCurrentUser } = useStore();
 
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
@@ -91,6 +93,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
   }, [provinceSelected, districtSelected, wardSelected]);
 
   useEffect(() => {
+    getUserInfoService();
     if (currentUser?.userInfo?.region?.levelId === 2) {
       const provinceId = currentUser?.userInfo?.region?.provinceId;
       getDistrictListService(provinceId);
@@ -100,6 +103,19 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
       getWardListService(districtId);
     }
   }, []);
+
+  const getUserInfoService = async () => {
+    try {
+      const res: any = await axiosClient.get(
+        `User/${currentUser?.userInfo?.id}`,
+      );
+      if (res) {
+        setCurrentUser({ ...currentUser, userInfo: res });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getDistrictListService = async (id: number) => {
     try {
@@ -274,23 +290,17 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
     setPage(1);
   };
 
-  const checkPermission = () => {
-    let isUserManager = false;
-    currentUser?.userInfo?.roles.forEach((item: IPermissionV2Id) => {
-      if (item === "UserManager") {
-        isUserManager = true;
-      }
-    });
-    return isUserManager;
-  };
-
   return (
     <TableLayout
       title="Người dùng"
       buttonMenu={
         <NormalDialog
           ButtonMenu={
-            checkPermission() ? <ButtonAdd>Thêm người dùng</ButtonAdd> : <></>
+            useCheckPermission("UserManager", currentUser) ? (
+              <ButtonAdd>Thêm người dùng</ButtonAdd>
+            ) : (
+              <></>
+            )
           }
           onSuccess={() => {
             getAllUserService();

@@ -27,7 +27,7 @@ export interface IUser {
   id?: string;
   userName?: string;
   displayName?: string;
-  roles?: IPermissionV2[];
+  roles?: IPermissionV2Id[];
   region?: IRegion;
 }
 
