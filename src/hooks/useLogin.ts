@@ -19,8 +19,8 @@ const useLogin = () => {
   const login = (data: any) => {
     if (data) {
       if (
-        data.userInfo.regionLevelId === 1 ||
-        data.userInfo.regionLevelId === 0
+        data.userInfo.region.levelId === 1 ||
+        data.userInfo.region.levelId === 0
       ) {
         setError("Tài khoản không có quyền truy cập vào hệ thống !");
         return;
