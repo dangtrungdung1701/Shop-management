@@ -14,6 +14,7 @@ export interface IRestartInput {
 }
 
 export interface IDeleteDeviceInput {
+  userId?: string;
   password?: string;
 }
 

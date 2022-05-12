@@ -32,9 +32,8 @@ import TextArea from "designs/TextArea";
 import DatePicker from "designs/DatePicker";
 import Select from "designs/Select";
 
-import { IDistrict, IProvince, IWard } from "typings";
+import { IRegion } from "typings";
 import { Formik, FormikProps, FormikValues } from "formik";
-import { listDevice } from "../../Province";
 import AlertDialog from "components/AlertDialog";
 
 interface IFormValue {
@@ -64,13 +63,13 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   const [volume, setVolume] = useState<number | number[]>(100);
   const [isFixed, setIsFixed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(
+  const [selectedProvince, setSelectedProvince] = useState<IRegion | null>(
     null,
   );
-  const [selectedDistrict, setSelectedDistrict] = useState<IDistrict | null>(
+  const [selectedDistrict, setSelectedDistrict] = useState<IRegion | null>(
     null,
   );
-  const [selectedWard, setSelectedWard] = useState<IWard | null>(null);
+  const [selectedWard, setSelectedWard] = useState<IRegion | null>(null);
   const [selectedClass, setSelectedClass] = useState<any | null>({});
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
@@ -379,6 +378,41 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
 
 export default Details;
 
+export const listDevice: any[] = [
+  {
+    id: "1",
+    name: "admin1",
+    deviceId: "1",
+    volume: "100",
+    status: true,
+    type: 1,
+  },
+  {
+    id: "2",
+    name: "admin1",
+    deviceId: "1",
+    volume: "100",
+    status: false,
+    type: 2,
+  },
+  {
+    id: "3",
+    name: "admin1",
+    deviceId: "1",
+    volume: "100",
+    status: true,
+    type: 3,
+  },
+  {
+    id: "4",
+    name: "admin1",
+    deviceId: "1",
+    volume: "100",
+    status: true,
+    type: 4,
+  },
+];
+
 const classList: any = [
   {
     id: "0",
@@ -398,7 +432,7 @@ const classList: any = [
   },
 ];
 
-const optionProvince: IProvince[] = [
+const optionProvince: IRegion[] = [
   {
     id: 1,
     displayName: "TP HCM",
@@ -413,32 +447,32 @@ const optionProvince: IProvince[] = [
   },
 ];
 
-const optionDistrict: IDistrict[] = [
+const optionDistrict: IRegion[] = [
   {
-    id: "1",
+    id: 1,
     name: "Quận 1",
   },
   {
-    id: "2",
+    id: 2,
     name: "Quận 2",
   },
   {
-    id: "3",
+    id: 3,
     name: "Quận 3",
   },
 ];
 
-const optionWard: IWard[] = [
+const optionWard: IRegion[] = [
   {
-    id: "1",
+    id: 1,
     name: "Cao Thắng",
   },
   {
-    id: "2",
+    id: 2,
     name: "Võ Văn Tần",
   },
   {
-    id: "3",
+    id: 3,
     name: "Ngô Quyền",
   },
 ];

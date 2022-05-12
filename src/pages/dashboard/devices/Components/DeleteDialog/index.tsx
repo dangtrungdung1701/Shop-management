@@ -7,7 +7,7 @@ import Dialog from "components/Dialog";
 
 import Input from "designs/Input";
 
-import { IConfiguredDevice, IDeleteDeviceInput } from "typings";
+import { IDevice, IDeleteDeviceInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -16,9 +16,12 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
+import axiosClient from "common/utils/api";
+import useStore from "zustand/store";
+import { toast } from "react-toastify";
 
 type IDialogProps = {
-  editField?: IConfiguredDevice;
+  editField?: IDevice;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -41,13 +44,13 @@ const DeleteDialog: React.FC<IDialogProps> = ({
   ButtonMenu,
   onClose,
   onSuccess,
+  editField,
 }) => {
+  const { currentUser } = useStore();
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [listDeviceSelected, setListDeviceSelected] = useState<
-    IConfiguredDevice[]
-  >([]);
+  const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
     password: "",
@@ -64,35 +67,29 @@ const DeleteDialog: React.FC<IDialogProps> = ({
 
   const handleSubmit = async (value: FormikValues) => {
     const input: IDeleteDeviceInput = {
+      userId: currentUser?.userInfo?.id,
       password: value?.password,
     };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if () {
-    //     setLoading(true);
-    //     const payload: IUpdateDistrict = {
-    //       id: ?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateDistrict = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    try {
+      const payload: any = {
+        ...input,
+      };
+      const res = await axiosClient.delete(`/Device/${editField?.id}`, payload);
+      if (res) {
+        onSuccess?.();
+        setLoading(false);
+        handleCloseDialog();
+        toast.dark("Xóa thiết bị thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      handleCloseDialog();
+      toast.dark("Xóa thiết bị không thành công !", {
+        type: toast.TYPE.ERROR,
+      });
+    }
   };
 
   const handleCloseDialog = () => {

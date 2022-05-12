@@ -8,7 +8,7 @@ interface ISliderProps {
   title?: string;
   initValue: number | number[];
   className?: string;
-  onChange?: (value: number | number[]) => void;
+  onChange?: (value: number) => void;
 }
 
 const CustomSlider = withStyles({
@@ -23,7 +23,7 @@ const VolumeSlider: React.FC<ISliderProps> = props => {
 
   const handleChange = (event: Event, newValue: number | number[]) => {
     setValue(newValue as number);
-    onChange && onChange(newValue);
+    onChange && onChange(newValue as number);
   };
 
   return (

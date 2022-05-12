@@ -1,59 +1,90 @@
-import React, { useMemo, useState, lazy, useCallback } from "react";
+import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
 import { CSVLink } from "react-csv";
 
 import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
+import { PROVINCE_ID, WARD_ID } from "common/constants/region";
+import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
+import axiosClient from "common/utils/api";
 
 import SearchBoxTable from "components/SearchBoxTable";
+import StatusTag from "components/StatusTag";
 
 import Table, { IColumns } from "designs/Table";
 import ActionButtons from "designs/ActionButtons";
 import SimpleSelect from "designs/SimpleSelect";
-import StatusTag from "components/StatusTag";
-import Link from "designs/Link";
+import SVG from "designs/SVG";
 
 import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
+import useGetLocation from "hooks/useGetLocation";
 
-import { IProvince, IWard, IConfiguredDevice } from "typings";
+import { IRegion, IDevice, IConnectionStatus, IMediaStatus } from "typings";
+
+import useStore from "zustand/store";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
-import SVG from "designs/SVG";
 
 const EmergencyBroadcastDialog = lazy(
-  () => import("./EmergencyBroadcastDialog"),
+  () => import("../Components/EmergencyBroadcastDialog"),
 );
 
-const EmergencyPauseDialog = lazy(() => import("./EmergencyPauseDialog"));
+const EmergencyPauseDialog = lazy(
+  () => import("../Components/EmergencyPauseDialog"),
+);
 
-const RestartDialog = lazy(() => import("./RestartDialog"));
+const RestartDialog = lazy(() => import("../Components/RestartDialog"));
 
-const DeleteDialog = lazy(() => import("./DeleteDialog"));
+const DeleteDialog = lazy(() => import("../Components/DeleteDialog"));
 
-const VolumeDialog = lazy(() => import("./VolumeDialog"));
+const VolumeDialog = lazy(() => import("../Components/VolumeDialog"));
 
 const LOAD_DATA = "LOAD_DATA";
 
-interface IWardDeviceProps extends RouteComponentProps {}
+interface IRegionDeviceProps extends RouteComponentProps {}
 
-const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
+const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
+  const { currentUser, setCurrentUser } = useStore();
+
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
-  const [provinceSelected, setProvinceSelected] = useState<IProvince | null>(
+
+  const [districtList, setDistrictList] = useState<IRegion[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
+
+  const [districtSelected, setDistrictSelected] = useState<IRegion | null>(
     null,
   );
-  const [districtSelected, setDistrictSelected] =
-    useState<IConfiguredDevice | null>(null);
-  const [wardSelected, setWardSelected] = useState<IWard | null>(null);
+  const [wardSelected, setWardSelected] = useState<IRegion | null>(null);
 
-  const [listCategories, setListCategories] = useState<IConfiguredDevice[]>([]);
+  const [listDevice, setListDevice] = useState<IDevice[]>([]);
   const [totalCount, setTotalCount] = useState<number>(listDevice.length);
+
   const { startLoading, stopLoading } = useLoading();
+
+  const getDefaultRegionId = (): number => {
+    const provinceId = currentUser?.userInfo?.region?.provinceId;
+    const districtId = currentUser?.userInfo?.region?.districtId;
+    const wardId = currentUser?.userInfo?.region?.wardId;
+
+    if (wardId !== -1) {
+      return wardId;
+    }
+    if (districtId !== -1) {
+      return districtId;
+    }
+    return provinceId;
+  };
+
+  const [regionId, setRegionId] = useState(getDefaultRegionId());
+
+  const [CSVData, setCSVData] = useState<any[]>([]);
 
   useBreadcrumb([
     {
@@ -66,10 +97,126 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
     },
   ]);
 
-  // useEffect(() => {
-  // }, [page, sizePerPage, searchText, provinceSelected]);
+  useEffect(() => {
+    getAllWardDevices();
+  }, [page, sizePerPage, searchText, regionId]);
 
-  const renderAction = (record: IConfiguredDevice) => {
+  useEffect(() => {
+    const provinceId: number = currentUser?.userInfo?.region?.provinceId;
+    if (districtList.length || wardList?.length) {
+      const newRegionId = wardSelected
+        ? wardSelected?.id
+        : districtSelected
+        ? districtSelected?.id
+        : provinceId;
+      setRegionId(newRegionId!);
+    }
+  }, [districtSelected, wardSelected]);
+
+  useEffect(() => {
+    getUserInfoService();
+    const provinceId = currentUser?.userInfo?.region?.provinceId;
+    const districtId = currentUser?.userInfo?.region?.districtId;
+    getDistrictListService(provinceId);
+    districtId && getWardListService(districtId);
+  }, []);
+
+  const getUserInfoService = async () => {
+    try {
+      const res: any = await axiosClient.get(
+        `User/${currentUser?.userInfo?.id}`,
+      );
+      if (res) {
+        setCurrentUser({ ...currentUser, userInfo: res });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+        setDistrictSelected(
+          useGetLocation(
+            currentUser?.userInfo?.region?.districtId!,
+            res.regions,
+          ),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+        setWardSelected(
+          useGetLocation(
+            currentUser?.userInfo?.region?.districtId!,
+            res.regions,
+          ),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAllWardDevices = async () => {
+    try {
+      startLoading(LOAD_DATA);
+      const payload: any = {
+        page,
+        size: sizePerPage,
+        regionId,
+        searchString: searchText,
+        excludeRegionId: 1,
+      };
+      const response: any = await axiosClient.get("/Device", {
+        params: payload,
+      });
+      if (response) {
+        const exportData = response?.devices?.map((device: IDevice) => {
+          const newDevice = { ...device };
+          delete newDevice.connectionStatus;
+          delete newDevice.mediaStatus;
+          delete newDevice.region;
+          delete newDevice.sim;
+          delete newDevice.location;
+
+          return {
+            ...newDevice,
+            locationName: device?.location?.locationDescription,
+            locationLatitude: device?.location?.latitude,
+            locationLongitude: device?.location?.longitude,
+            simNumber: device?.sim?.number,
+            connectionType: device?.connectionStatus?.connectionType,
+            connectionName: device?.connectionStatus?.WiFiName,
+            connectionStrength: device?.connectionStatus?.signalStrength,
+            mediaStatus: device?.mediaStatus?.status,
+            mediaVolume: device?.mediaStatus?.currentVolume,
+            regionId: device?.region?.id,
+            regionLevel: device?.region?.levelId,
+          };
+        });
+        setCSVData(exportData);
+        setListDevice(response.devices);
+        setTotalCount(response.totalCount);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      stopLoading(LOAD_DATA);
+    }
+  };
+
+  const renderAction = (record: IDevice) => {
     return (
       <ActionButtons
         buttons={{
@@ -85,9 +232,8 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
           delete: {
             DialogContent: props => (
               <DeleteDialog
-                onSuccess={async () => {
-                  // await deleteBlogAPI({ id: record._id });
-                  // invokeGetAllBlogList();
+                onSuccess={() => {
+                  getAllWardDevices();
                 }}
                 editField={record}
                 open
@@ -98,9 +244,8 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
           volume: {
             DialogContent: props => (
               <VolumeDialog
-                onSuccess={async () => {
-                  // await deleteBlogAPI({ id: record._id });
-                  // invokeGetAllBlogList();
+                onSuccess={() => {
+                  getAllWardDevices();
                 }}
                 editField={record}
                 open
@@ -122,14 +267,14 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
     () => [
       {
         text: "Tên thiết bị",
-        dataField: "name",
+        dataField: "displayName",
         headerStyle: () => ({
           width: "18%",
         }),
       },
       {
         text: "Mã thiết bị",
-        dataField: "deviceId",
+        dataField: "id",
         headerStyle: () => ({
           width: "18%",
         }),
@@ -143,11 +288,12 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
       },
       {
         text: "Kết nối",
-        dataField: "type",
-        formatter: (type: number) => {
-          if (type === 1) return <SVG name="device/ethernet" />;
-          if (type === 2) return <SVG name="device/4g" />;
-          if (type === 3) return <SVG name="device/wifi" />;
+        dataField: "connectionStatus",
+        formatter: (connectionStatus: IConnectionStatus) => {
+          const type = connectionStatus?.connectionType;
+          if (type === ETHERNET_ID) return <SVG name="device/ethernet" />;
+          if (type === DATA_ID) return <SVG name="device/4g" />;
+          if (type === WIFI_ID) return <SVG name="device/wifi" />;
           return <SVG name="device/wifi-off" />;
         },
         headerStyle: () => ({
@@ -156,20 +302,22 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
       },
       {
         text: "Trạng thái",
-        dataField: "status",
-        formatter: (status: boolean) => (
-          <StatusTag
-            active={status}
-            activeLabel="Đang phát"
-            inactiveLabel="Đang nghỉ"
-          />
-        ),
+        dataField: "mediaStatus",
+        formatter: (mediaStatus: IMediaStatus) => {
+          const status = mediaStatus?.status;
+          return (
+            <StatusTag
+              active={status!}
+              activeLabel="Đang phát"
+              inactiveLabel="Đang nghỉ"
+            />
+          );
+        },
       },
       {
         text: "Hành động",
         dataField: "actions",
-        formatter: (_: string, record: IConfiguredDevice) =>
-          renderAction(record),
+        formatter: (_: string, record: IDevice) => renderAction(record),
       },
     ],
     [page],
@@ -193,165 +341,105 @@ const WardDevice: React.FC<IWardDeviceProps> = ({ location }) => {
     <TableLayout
       title="Thiết bị cấp Phường/Xã/Thị Trấn"
       buttonMenu={
-        <div className="flex flex-col gap-2 items-end w-full phone:w-auto overflow-x-auto max-w-full pretty-scroll pb-">
-          <div className="flex flex-row gap-2 w-full phone:w-auto">
-            <CSVLink data={listDevice} filename="danh-sach-thiet-bi.csv">
-              <TopButton>Xuất báo cáo</TopButton>
-            </CSVLink>
+        useCheckPermission("DeviceManager", currentUser) ? (
+          <div className="flex flex-col gap-2 items-end w-full phone:w-auto overflow-x-auto max-w-full pretty-scroll pb-">
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
+                <TopButton>Xuất báo cáo</TopButton>
+              </CSVLink>
+            </div>
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              <EmergencyBroadcastDialog
+                ButtonMenu={
+                  <TopButton variant="third">Phát khẩn cấp</TopButton>
+                }
+              />
+              <EmergencyPauseDialog
+                ButtonMenu={
+                  <TopButton variant="danger" className="w-full">
+                    Dừng khẩn cấp
+                  </TopButton>
+                }
+              />
+              <RestartDialog
+                ButtonMenu={
+                  <TopButton variant="blue" className="w-full">
+                    Khởi động lại
+                  </TopButton>
+                }
+              />
+            </div>
           </div>
-          <div className="flex flex-row gap-2 w-full phone:w-auto">
-            <EmergencyBroadcastDialog
-              ButtonMenu={<TopButton variant="third">Phát khẩn cấp</TopButton>}
-            />
-            <EmergencyPauseDialog
-              ButtonMenu={
-                <TopButton variant="danger" className="w-full">
-                  Dừng khẩn cấp
-                </TopButton>
-              }
-            />
-            <RestartDialog
-              ButtonMenu={
-                <TopButton variant="blue" className="w-full">
-                  Khởi động lại
-                </TopButton>
-              }
-            />
-          </div>
-        </div>
+        ) : (
+          <></>
+        )
       }
     >
-      <SearchBoxWrapper>
-        <SearchBoxTable
-          onFetchData={handleFetchData}
-          placeholder="Tìm kiếm theo tên thiết bị"
-          className="w-full phone:max-w-35"
-        />
-        <SimpleSelect
-          options={provinceList}
-          optionSelected={provinceSelected}
-          onSelect={value => {
-            setProvinceSelected(value);
-            setPage(1);
-          }}
-          placeholder="Tỉnh/TP"
-          className="w-full phone:max-w-35"
-        />
-        <SimpleSelect
-          options={districtList}
-          optionSelected={districtSelected}
-          onSelect={value => {
-            setDistrictSelected(value);
-            setPage(1);
-          }}
-          placeholder="Quận/Huyện/Thị Xã"
-          disabled={provinceSelected ? false : true}
-          className="w-full phone:max-w-35"
-        />
-        <SimpleSelect
-          options={wardList}
-          optionSelected={wardSelected}
-          onSelect={value => {
-            setWardSelected(value);
-            setPage(1);
-          }}
-          placeholder="Phường/Xã/Thị Trấn"
-          disabled={districtSelected ? false : true}
-          className="w-full phone:max-w-35"
-        />
-      </SearchBoxWrapper>
+      {useCheckPermission("DeviceManager", currentUser) ? (
+        <>
+          <SearchBoxWrapper>
+            <SearchBoxTable
+              onFetchData={handleFetchData}
+              placeholder="Tìm kiếm theo tên thiết bị"
+              className="w-full phone:max-w-35"
+            />
+            {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
+              <SimpleSelect
+                options={districtList}
+                optionSelected={districtSelected}
+                onSelect={value => {
+                  setWardSelected(null);
+                  if (value) {
+                    getWardListService(value?.id!);
+                  }
+                  setDistrictSelected(value);
+                  setPage(1);
+                }}
+                placeholder="Quận/Huyện/Thị Xã"
+                className="w-full phone:max-w-35"
+                optionTarget="displayName"
+              />
+            )}
 
-      <Table
-        data={listDevice}
-        columns={columns}
-        page={page}
-        totalSize={totalCount}
-        onPageChange={handleChangePage}
-        onSizeChange={handleChangeSize}
-        isRemote
-      />
+            {currentUser?.userInfo?.region?.levelId < WARD_ID && (
+              <SimpleSelect
+                options={wardList}
+                optionSelected={wardSelected}
+                onSelect={value => {
+                  setWardSelected(value);
+                  setPage(1);
+                }}
+                placeholder="Phường/Xã/Thị Trấn"
+                disabled={
+                  currentUser?.userInfo?.region?.levelId === PROVINCE_ID
+                    ? districtSelected
+                      ? false
+                      : true
+                    : false
+                }
+                className="w-full phone:max-w-35"
+                optionTarget="displayName"
+              />
+            )}
+          </SearchBoxWrapper>
+
+          <Table
+            data={listDevice}
+            columns={columns}
+            page={page}
+            totalSize={totalCount}
+            onPageChange={handleChangePage}
+            onSizeChange={handleChangeSize}
+            isRemote
+          />
+        </>
+      ) : (
+        <div className="h-30 flex items-center justify-center font-bold text-20">
+          Bạn không có quyền truy cập trang này
+        </div>
+      )}
     </TableLayout>
   );
 };
 
 export default WardDevice;
-
-export const listDevice: any[] = [
-  {
-    id: "1",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 1,
-  },
-  {
-    id: "2",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: false,
-    type: 2,
-  },
-  {
-    id: "3",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 3,
-  },
-  {
-    id: "4",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 4,
-  },
-];
-
-const provinceList: IProvince[] = [
-  {
-    id: 1,
-    displayName: "TP HCM",
-  },
-  {
-    id: 2,
-    displayName: "TP HN",
-  },
-  {
-    id: 3,
-    displayName: "TP HP",
-  },
-];
-
-const districtList: IConfiguredDevice[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
-  },
-];
-
-const wardList: IWard[] = [
-  {
-    id: "1",
-    name: "Quận 1",
-  },
-  {
-    id: "2",
-    name: "Quận 2",
-  },
-  {
-    id: "3",
-    name: "Quận 3",
-  },
-];

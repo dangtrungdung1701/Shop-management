@@ -30,7 +30,7 @@ import {
 } from "common/constants/convert";
 import TextArea from "designs/TextArea";
 
-interface IProvinceProps extends RouteComponentProps {}
+interface IRegionProps extends RouteComponentProps {}
 
 interface IFormValue {
   title?: string;
@@ -39,7 +39,7 @@ interface IFormValue {
   paragraph?: string;
 }
 
-const FM: React.FC<IProvinceProps> = ({ location }) => {
+const FM: React.FC<IRegionProps> = ({ location }) => {
   const [loading, setLoading] = useState(false);
 
   useBreadcrumb([

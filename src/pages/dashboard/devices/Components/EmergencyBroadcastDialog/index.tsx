@@ -12,7 +12,7 @@ import MultipleSelect from "designs/MultipleSelect";
 import Select from "designs/Select";
 
 import {
-  IConfiguredDevice,
+  IDevice,
   IEmergencyBroadcastInput,
   IFileAudio,
   IFM,
@@ -57,9 +57,7 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [listDeviceSelected, setListDeviceSelected] = useState<
-    IConfiguredDevice[]
-  >([]);
+  const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
   const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
   const [fileSelected, setFileSelected] = useState<
     IFileAudio | ILink | IFM | null
@@ -217,7 +215,7 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
 
 export default EmergencyBroadcastDialog;
 
-const optionDevice: IConfiguredDevice[] = [
+const optionDevice: IDevice[] = [
   {
     id: "1",
     name: "device 1",

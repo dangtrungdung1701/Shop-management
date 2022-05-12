@@ -20,7 +20,7 @@ import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
 import Select from "designs/Select";
 
-import { IPermissionV2Id, IProvince, IUser, IUserInput } from "typings";
+import { IPermissionV2Id, IRegion, IUser, IUserInput } from "typings";
 
 import useGetLocation from "hooks/useGetLocation";
 
@@ -79,20 +79,20 @@ const NormalDialog: React.FC<IDialogProps> = ({
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [provinceList, setProvinceList] = useState<IProvince[]>([]);
-  const [districtList, setDistrictList] = useState<IProvince[]>([]);
-  const [wardList, setWardList] = useState<IProvince[]>([]);
+  const [provinceList, setProvinceList] = useState<IRegion[]>([]);
+  const [districtList, setDistrictList] = useState<IRegion[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
 
   const [selectedPermission, setSelectedPermission] = useState<IPermissionV2[]>(
     [],
   );
-  const [selectedProvince, setSelectedProvince] = useState<IProvince | null>(
+  const [selectedProvince, setSelectedProvince] = useState<IRegion | null>(
     null,
   );
-  const [selectedDistrict, setSelectedDistrict] = useState<IProvince | null>(
+  const [selectedDistrict, setSelectedDistrict] = useState<IRegion | null>(
     null,
   );
-  const [selectedWard, setSelectedWard] = useState<IProvince | null>(null);
+  const [selectedWard, setSelectedWard] = useState<IRegion | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<any | null>({});
 
   const [initialValues, setInitialValues] = useState<IFormValue>({

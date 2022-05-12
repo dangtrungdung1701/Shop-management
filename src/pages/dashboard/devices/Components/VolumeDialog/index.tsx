@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
+
+import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
 import VolumeSlider from "designs/Slider";
 
-import { IConfiguredDevice, IVolumeDeviceInput } from "typings";
+import { IDevice, IVolumeDeviceInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -15,7 +18,7 @@ import {
 } from "./styles";
 
 type IDialogProps = {
-  editField?: IConfiguredDevice;
+  editField?: IDevice;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -34,43 +37,34 @@ const VolumeDialog: React.FC<IDialogProps> = ({
   ButtonMenu,
   onClose,
   onSuccess,
+  editField,
 }) => {
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [volume, setVolume] = useState<number | number[]>();
+  const [volume, setVolume] = useState(editField?.volume || 0);
 
   const handleSubmit = async () => {
     const input: IVolumeDeviceInput = {
       volume,
     };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if () {
-    //     setLoading(true);
-    //     const payload: IUpdateDistrict = {
-    //       id: ?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateDistrict = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    try {
+      const res = await axiosClient.put(`/Device/${editField?.id}`, input);
+      if (res) {
+        onSuccess?.();
+        setLoading(false);
+        handleCloseDialog();
+        toast.dark("Cập nhật âm lượng thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      handleCloseDialog();
+      toast.dark("Cập nhật âm lượng không thành công !", {
+        type: toast.TYPE.ERROR,
+      });
+    }
   };
 
   const handleCloseDialog = () => {
@@ -88,7 +82,7 @@ const VolumeDialog: React.FC<IDialogProps> = ({
           <DialogHeader title="Điều chỉnh âm lượng" />
           <VolumeSlider
             title="Âm lượng"
-            initValue={20}
+            initValue={volume}
             onChange={value => setVolume(value)}
           />
           <ButtonWrapper>

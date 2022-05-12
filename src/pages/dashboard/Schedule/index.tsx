@@ -14,7 +14,7 @@ import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
-import { IDistrict } from "typings";
+import { IRegion } from "typings";
 import Link from "designs/Link";
 
 const LOAD_DATA = "LOAD_DATA";
@@ -26,7 +26,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
 
-  const [listCategories, setListCategories] = useState<IDistrict[]>([]);
+  const [listCategories, setListCategories] = useState<IRegion[]>([]);
 
   const [totalCount, setTotalCount] = useState<number>(listSchedule.length);
   const { startLoading, stopLoading } = useLoading();
@@ -41,7 +41,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
   // useEffect(() => {
   // }, [page, sizePerPage, searchText, provinceSelected]);
 
-  const renderAction = (record: IDistrict) => {
+  const renderAction = (record: any) => {
     return (
       <ActionButtons
         buttons={{
@@ -104,7 +104,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
       {
         text: "Hành động",
         dataField: "actions",
-        formatter: (_: string, record: IDistrict) => renderAction(record),
+        formatter: (_: string, record: IRegion) => renderAction(record),
       },
     ],
     [page],

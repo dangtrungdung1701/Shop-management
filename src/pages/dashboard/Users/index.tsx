@@ -14,15 +14,7 @@ import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 
 import { ButtonAdd, SearchBoxWrapper } from "./styles";
-import {
-  IDistrict,
-  IPermissionV2,
-  IPermissionV2Id,
-  IProvince,
-  IRegion,
-  IUser,
-  IWard,
-} from "typings";
+import { IRegion, IUser } from "typings";
 import SimpleSelect from "designs/SimpleSelect";
 import axiosClient from "common/utils/api";
 import useStore from "zustand/store";
@@ -50,17 +42,17 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
   const [currentAccount, setCurrentAccount] = useState<boolean>(true);
 
   const [listUsers, setListUsers] = useState<IUser[]>([]);
-  const [provinceList, setProvinceList] = useState<IProvince[]>([]);
-  const [districtList, setDistrictList] = useState<IProvince[]>([]);
-  const [wardList, setWardList] = useState<IProvince[]>([]);
+  const [provinceList, setProvinceList] = useState<IRegion[]>([]);
+  const [districtList, setDistrictList] = useState<IRegion[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
 
-  const [provinceSelected, setProvinceSelected] = useState<IProvince | null>(
+  const [provinceSelected, setProvinceSelected] = useState<IRegion | null>(
     null,
   );
-  const [districtSelected, setDistrictSelected] = useState<IProvince | null>(
+  const [districtSelected, setDistrictSelected] = useState<IRegion | null>(
     null,
   );
-  const [wardSelected, setWardSelected] = useState<IProvince | null>(null);
+  const [wardSelected, setWardSelected] = useState<IRegion | null>(null);
 
   const [totalCount, setTotalCount] = useState<number>(listUsers.length);
   const { startLoading, stopLoading } = useLoading();
@@ -199,13 +191,15 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
                 try {
                   startLoading(DELETE_DATA);
                   const res = await axiosClient.delete(`/User/${record?.id}`);
-                  toast.dark("Xóa quản trị viên thành công !", {
-                    type: toast.TYPE.SUCCESS,
-                  });
-                  getAllUserService();
+                  if (res) {
+                    toast.dark("Xóa người dùng thành công !", {
+                      type: toast.TYPE.SUCCESS,
+                    });
+                    getAllUserService();
+                  }
                 } catch (error) {
                   console.log(error);
-                  toast.dark("Xóa quản trị viên không thành công !", {
+                  toast.dark("Xóa người dùng không thành công !", {
                     type: toast.TYPE.ERROR,
                   });
                 } finally {

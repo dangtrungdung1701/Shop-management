@@ -1,4 +1,4 @@
-import { IDistrict, IProvince, IWard } from "typings";
+import { IRegion, IRegion, IRegion } from "typings";
 export type IPermission = "ADMIN" | "USER";
 export type IRole = "PROVINCE" | "DISTRICT" | "WARD";
 
