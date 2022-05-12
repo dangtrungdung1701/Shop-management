@@ -8,8 +8,8 @@ interface IEmptyDataProps {
 const EmptyData: React.FC<IEmptyDataProps> = props => {
   return (
     <EmptyDataContainer>
-      <Title>Your data is currently empty!</Title>
-      <Message>Please click add new data</Message>
+      <Title>Dữ liệu của bạn hiện đang trống !</Title>
+      <Message>Vui lòng bấm thêm dữ liệu</Message>
     </EmptyDataContainer>
   );
 };

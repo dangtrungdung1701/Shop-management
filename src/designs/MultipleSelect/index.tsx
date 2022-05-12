@@ -219,8 +219,9 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                           onFetchData={value => {
                             setSearchText(value.trim());
                           }}
-                          placeholder="Tìm kiếm theo tên tài khoản"
-                          className="w-full phone:max-w-35"
+                          placeholder="Tìm kiếm..."
+                          className="w-full"
+                          isSelect
                         />
                       </MenuItem>
                     </li>
@@ -263,7 +264,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                       <EmptyData>kết quả tìm kiếm không có</EmptyData>
                     )
                   ) : (
-                    <EmptyData>(Empty Data)</EmptyData>
+                    <EmptyData>(Trống)</EmptyData>
                   )}
                 </ListboxOptionsContainer>
               </Transition>

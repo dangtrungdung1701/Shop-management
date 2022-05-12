@@ -1,92 +1,78 @@
-import SVG from "designs/SVG";
+import { useEffect, useState } from "react";
+
+import axiosClient from "common/utils/api";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import { ISummary } from "typings";
 import useStore from "zustand/store";
+
+import Statistic from "./Statistic";
+import Device from "./Device";
 
 import {
   DashboardContainer,
   DashboardTitle,
   ListStatistics,
   NonBreadcrumb,
-  StatisticsItem,
   DevicesStatistics,
   DevicesTitle,
-  DeviceItem,
 } from "./styles";
 
 const Overview: React.FC = () => {
   const { currentUser } = useStore();
+  const [data, setData] = useState<ISummary>();
+
   useBreadcrumb([]);
+
+  useEffect(() => {
+    getRegion();
+  }, []);
+
+  const getRegion = async () => {
+    try {
+      const rs: any = await axiosClient.get(
+        `/Region/${currentUser.userInfo.region.id}`,
+      );
+      setData(rs.summary);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
   return (
     <DashboardContainer>
       <NonBreadcrumb>Xin chào</NonBreadcrumb>
-      <DashboardTitle>{currentUser?.userInfo?.displayName}</DashboardTitle>
+      <DashboardTitle>{currentUser.userInfo.displayName}</DashboardTitle>
       <ListStatistics>
-        {statisticData.map((item, index) => (
-          <StatisticsItem.Container key={index}>
-            <StatisticsItem.Background
-              src={require(`assets/images/dashboard/statistic-bg.png`)?.default}
-              alt=""
-            />
-            <StatisticsItem.Content>
-              <StatisticsItem.Label>{item.name}</StatisticsItem.Label>
-              <StatisticsItem.Number>{item.number}</StatisticsItem.Number>
-            </StatisticsItem.Content>
-          </StatisticsItem.Container>
-        ))}
+        <Statistic title="Tổng người dùng" data={data?.totalUsers} />
+        <Statistic title="Tổng thiết bị" data={data?.totalDevices} />
+        <Statistic title="Tổng bài viết" data={data?.totalPosts} />
       </ListStatistics>
       <DevicesTitle>Thống kê thiết bị</DevicesTitle>
 
       <DevicesStatistics>
-        {devicesData.map((item, index) => (
-          <DeviceItem.Container key={index}>
-            <SVG name={item.icon} width={36} height={36} />
-            <DeviceItem.Content>
-              <DeviceItem.Label>{item.name}</DeviceItem.Label>
-              <DeviceItem.Number>{item.number}</DeviceItem.Number>
-            </DeviceItem.Content>
-          </DeviceItem.Container>
-        ))}
+        <Device
+          icon="overview/tick-circle"
+          title="Hoạt động"
+          data={data?.totalConnectedDevices}
+        />
+        <Device
+          icon="overview/info-circle"
+          title="Mất kết nối"
+          data={data?.totalDisconnectedDevices}
+        />
+        <Device
+          icon="overview/volume-high"
+          title="Đang phát"
+          data={data?.totalPlayingDevices}
+        />
+        <Device
+          icon="overview/volume-slash"
+          title="Đang nghỉ"
+          data={data?.totalStoppedDevices}
+        />
       </DevicesStatistics>
     </DashboardContainer>
   );
 };
 
 export default Overview;
-
-const statisticData = [
-  {
-    name: "Tổng người dùng",
-    number: 2000,
-  },
-  {
-    name: "Tổng thiết bị",
-    number: 60040,
-  },
-  {
-    name: "Tổng bài viết",
-    number: 3400,
-  },
-];
-
-const devicesData = [
-  {
-    name: "Hoạt động",
-    number: 2000,
-    icon: "overview/tick-circle",
-  },
-  {
-    name: "Mất kết nối",
-    number: 60040,
-    icon: "overview/info-circle",
-  },
-  {
-    name: "Đang phát",
-    number: 3400,
-    icon: "overview/volume-high",
-  },
-  {
-    name: "Đang nghỉ",
-    number: 3400,
-    icon: "overview/volume-slash",
-  },
-];

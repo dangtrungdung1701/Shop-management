@@ -10,12 +10,7 @@ import PageLoading from "components/PageLoading";
 // let persistor = persistStore(store);
 const history = createBrowserHistory();
 ReactDOM.render(
-  <PersistGate
-    loading={null}
-    onBeforeLift={() => {
-      console.log("onBeforeLift");
-    }}
-  >
+  <PersistGate loading={null}>
     <Toast>
       {/* <PageLoading /> */}
       <App />

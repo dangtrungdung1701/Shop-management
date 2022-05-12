@@ -230,7 +230,7 @@ const MultipleAutocomplete = <T,>(props: IMultipleAutocompleteProps<T>) => {
                     </Listbox.Option>
                   ))
                 ) : (
-                  <EmptyData>(Empty Data)</EmptyData>
+                  <EmptyData>(Trống)</EmptyData>
                 )}
               </ListboxOptionsContainer>
             </Transition>
