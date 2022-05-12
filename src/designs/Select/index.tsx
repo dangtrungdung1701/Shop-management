@@ -191,7 +191,7 @@ const Select = <T,>(props: ISelectProps<T>) => {
                       </Listbox.Option>
                     ))
                   ) : (
-                    <EmptyData>(Empty Data)</EmptyData>
+                    <EmptyData>(Trống)</EmptyData>
                   )}
                 </ListboxOptionsContainer>
               </Transition>

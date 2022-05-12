@@ -264,7 +264,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                       <EmptyData>kết quả tìm kiếm không có</EmptyData>
                     )
                   ) : (
-                    <EmptyData>(Empty Data)</EmptyData>
+                    <EmptyData>(Trống)</EmptyData>
                   )}
                 </ListboxOptionsContainer>
               </Transition>
