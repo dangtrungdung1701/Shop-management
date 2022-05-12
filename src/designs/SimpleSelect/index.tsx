@@ -163,8 +163,9 @@ const SimpleSelect = <T,>(props: ISimpleSelectProps<T>) => {
                           onFetchData={value => {
                             setSearchText(value.trim());
                           }}
-                          placeholder="Tìm kiếm theo tên tài khoản"
-                          className="w-full phone:max-w-35"
+                          placeholder="Tìm kiếm..."
+                          className="w-full"
+                          isSelect
                         />
                       </MenuItem>
                     </li>
@@ -188,7 +189,7 @@ const SimpleSelect = <T,>(props: ISimpleSelectProps<T>) => {
                       </Listbox.Option>
                     ))
                   ) : (
-                    <EmptyData>(Empty Data)</EmptyData>
+                    <EmptyData>(Trống)</EmptyData>
                   )}
                 </ListboxOptionsContainer>
               </Transition>

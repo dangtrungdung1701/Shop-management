@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 
-const NAME_PROJECT = "Kingify controller";
+const NAME_PROJECT = "DFM";
 
 const Meta: React.FC<{ title: string }> = props => {
   const { title } = props;

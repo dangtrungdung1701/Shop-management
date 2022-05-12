@@ -194,7 +194,7 @@ const Autocomplete = <T,>(props: IAutocompleteProps<T>) => {
                     </Listbox.Option>
                   ))
                 ) : (
-                  <EmptyData>(Empty Data)</EmptyData>
+                  <EmptyData>(Trống)</EmptyData>
                 )}
               </ListboxOptionsContainer>
             </Transition>
