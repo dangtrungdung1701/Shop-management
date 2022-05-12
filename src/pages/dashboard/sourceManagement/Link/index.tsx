@@ -20,9 +20,9 @@ const FileAudioDialog = lazy(() => import("./LinkDialog"));
 
 const LOAD_DATA = "LOAD_DATA";
 
-interface IProvinceProps extends RouteComponentProps {}
+interface IRegionProps extends RouteComponentProps {}
 
-const Link: React.FC<IProvinceProps> = ({ location }) => {
+const Link: React.FC<IRegionProps> = ({ location }) => {
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");

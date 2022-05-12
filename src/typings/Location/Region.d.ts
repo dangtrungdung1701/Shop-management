@@ -1,4 +1,4 @@
-export interface IProvince {
+export interface IRegion {
   id?: number;
   parentId?: number;
   provinceId?: number;
@@ -10,8 +10,9 @@ export interface IProvince {
   disconnectDevice?: number;
   activeDevice?: number;
   inactiveDevice?: number;
+  name?: string;
 }
 
-export interface IProvinceInput {
+export interface IRegionInput {
   name: string;
 }

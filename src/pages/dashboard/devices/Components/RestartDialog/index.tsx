@@ -5,9 +5,9 @@ import * as yup from "yup";
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
-import Input from "designs/Input";
+import MultipleSelect from "designs/MultipleSelect";
 
-import { IConfiguredDevice, IDeleteDeviceInput } from "typings";
+import { IDevice, IRestartInput } from "typings";
 
 import {
   ButtonWrapper,
@@ -18,7 +18,6 @@ import {
 } from "./styles";
 
 type IDialogProps = {
-  editField?: IConfiguredDevice;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -33,10 +32,10 @@ type IDialogProps = {
 );
 
 interface IFormValue {
-  password?: string;
+  device?: string;
 }
 
-const DeleteDialog: React.FC<IDialogProps> = ({
+const RestartDialog: React.FC<IDialogProps> = ({
   open = false,
   ButtonMenu,
   onClose,
@@ -45,26 +44,21 @@ const DeleteDialog: React.FC<IDialogProps> = ({
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
-  const [listDeviceSelected, setListDeviceSelected] = useState<
-    IConfiguredDevice[]
-  >([]);
+  const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    password: "",
+    device: "",
   });
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      password: yup
-        .string()
-        .required("Vui lòng nhập mật khẩu!")
-        .min(6, "Mật khẩu tối thiểu 6 ký tự!"),
+      device: yup.string().required("Vui lòng chọn thiết bị!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IDeleteDeviceInput = {
-      password: value?.password,
+    const input: IRestartInput = {
+      device: listDeviceSelected?.map(device => device?.id || ""),
     };
     console.log(input);
     handleCloseDialog();
@@ -107,10 +101,7 @@ const DeleteDialog: React.FC<IDialogProps> = ({
       </ElementWrapper>
       <Dialog open={isOpen} onClose={handleCloseDialog} size="md">
         <UserDialogContainer>
-          <DialogHeader title="Xóa thiết bị" />
-          <div className="text-neutral-2 mb-2">
-            Bạn có chắc chắn muốn xóa thiết bị này?
-          </div>
+          <DialogHeader title="Khởi động lại" />
           <Formik
             initialValues={initialValues}
             enableReinitialize
@@ -120,11 +111,14 @@ const DeleteDialog: React.FC<IDialogProps> = ({
             {formik => {
               return (
                 <Form onSubmit={formik.handleSubmit}>
-                  <Input
-                    name="password"
-                    label="Mật khẩu"
-                    placeholder="Nhập mật khẩu"
-                    type="password"
+                  <MultipleSelect
+                    name="device"
+                    label="Thiết bị"
+                    listOptionsSelected={listDeviceSelected}
+                    options={optionDevice}
+                    onSelect={value => setListDeviceSelected(value)}
+                    className="border rounded border-neutral-4"
+                    placeholder="Chọn thiết bị"
                     required
                   />
                   <ButtonWrapper>
@@ -149,4 +143,19 @@ const DeleteDialog: React.FC<IDialogProps> = ({
   );
 };
 
-export default DeleteDialog;
+export default RestartDialog;
+
+const optionDevice: IDevice[] = [
+  {
+    id: "1",
+    name: "device 1",
+  },
+  {
+    id: "2",
+    name: "device 2",
+  },
+  {
+    id: "3",
+    name: "device 3",
+  },
+];

@@ -1,3 +1,1 @@
-export * from "./Province";
-export * from "./District";
-export * from "./Ward";
+export * from "./Region";

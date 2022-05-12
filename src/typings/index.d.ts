@@ -5,3 +5,4 @@ export * from "./Image";
 export * from "./Blog";
 export * from "./DeviceManagement";
 export * from "./User";
+export * from "./Location";
