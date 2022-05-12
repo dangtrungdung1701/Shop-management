@@ -1,9 +1,10 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import L from "leaflet";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { isIOS, osVersion } from "react-device-detect";
 import ActiveIcon from "assets/svg/device/active.svg";
 import InActiveIcon from "assets/svg/device/inactive.svg";
+import ErrorIcon from "assets/svg/device/error.svg";
 
 import {
   AddressItem,
@@ -14,6 +15,7 @@ import {
   Button,
   Text,
 } from "./styles";
+import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
 
 interface IMapMarkerProps {
   lat: number;
@@ -21,20 +23,35 @@ interface IMapMarkerProps {
   deviceName: string;
   deviceStatus: string;
   deviceAddress: string;
-  status: boolean;
+  status: number;
 }
 
 const MapMarker: React.FC<IMapMarkerProps> = props => {
+  const [zoomScale, setZoomScale] = useState<number>(useMap().getZoom());
+  console.log(zoomScale);
+  const map = useMapEvents({
+    zoom() {
+      setZoomScale(map.getZoom());
+    },
+  });
   const { lat, long, deviceName, deviceStatus, deviceAddress, status } = props;
 
   const getIcon = useCallback(
-    (status: boolean) => {
+    (status: number) => {
       return L.icon({
-        iconUrl: status ? ActiveIcon : InActiveIcon,
-        iconSize: [35, 30],
+        iconUrl:
+          status === ACTIVE_ID
+            ? ActiveIcon
+            : status === INACTIVE_ID
+            ? InActiveIcon
+            : ErrorIcon,
+        iconSize: [
+          zoomScale ? 3 * zoomScale : 3,
+          zoomScale ? 2.5 * zoomScale : 2.5,
+        ],
       });
     },
-    [status],
+    [status, zoomScale],
   );
 
   return (
