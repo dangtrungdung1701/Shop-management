@@ -24,7 +24,13 @@ import { useBreadcrumb } from "hooks/useBreadcrumb";
 import useCheckPermission from "hooks/useCheckPermission";
 import useGetLocation from "hooks/useGetLocation";
 
-import { IRegion, IDevice, IConnectionStatus, IMediaStatus } from "typings";
+import {
+  IRegion,
+  IDevice,
+  IConnectionStatus,
+  IMediaStatus,
+  IGetAllDevice,
+} from "typings";
 
 import useStore from "zustand/store";
 
@@ -144,20 +150,27 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const getAllDistrictDevices = async () => {
+    const input: IGetAllDevice = {
+      page,
+      size: sizePerPage,
+      regionId,
+      searchString: searchText,
+      excludeRegionId: 1,
+      level: PROVINCE_ID,
+    };
     try {
       startLoading(LOAD_DATA);
       const payload: any = {
-        page,
-        size: sizePerPage,
-        regionId,
-        searchString: searchText,
-        excludeRegionId: 1,
+        ...input,
       };
       const response: any = await axiosClient.get("/Device", {
         params: payload,
       });
-      if (response) {
-        const exportData = response?.devices?.map((device: IDevice) => {
+      const response2: any = await axiosClient.get("/Device", {
+        params: { ...payload, page: 0, size: 0 },
+      });
+      if (response2) {
+        const exportData = response2?.devices?.map((device: IDevice) => {
           const newDevice = { ...device };
           delete newDevice.connectionStatus;
           delete newDevice.mediaStatus;
@@ -181,6 +194,8 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
           };
         });
         setCSVData(exportData);
+      }
+      if (response) {
         setListDevice(response.devices);
         setTotalCount(response.totalCount);
       }
