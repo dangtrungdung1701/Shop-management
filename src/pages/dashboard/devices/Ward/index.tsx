@@ -108,8 +108,8 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   }, [page, sizePerPage, searchText, regionId]);
 
   useEffect(() => {
-    const provinceId: number = currentUser?.userInfo?.region?.provinceId;
-    if (districtList.length || wardList?.length) {
+    if (districtList.length && wardList?.length) {
+      const provinceId: number = currentUser?.userInfo?.region?.provinceId;
       const newRegionId = wardSelected
         ? wardSelected?.id
         : districtSelected
@@ -158,17 +158,12 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const getWardListService = async (id: number) => {
-    console.log(id);
-
     try {
       const res: any = await axiosClient.get(`Region/${id}/Subregions`);
       if (res) {
         setWardList(res.regions);
         setWardSelected(
-          useGetLocation(
-            currentUser?.userInfo?.region?.districtId!,
-            res.regions,
-          ),
+          useGetLocation(currentUser?.userInfo?.region?.wardId!, res.regions),
         );
       }
     } catch (error) {
@@ -183,7 +178,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       regionId,
       searchString: searchText,
       excludeRegionId: 1,
-      level: PROVINCE_ID,
+      level: WARD_ID,
     };
     try {
       startLoading(LOAD_DATA);
@@ -241,7 +236,10 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
             DialogContent: props => (
               <Redirect
                 to={{
-                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(":id", record.id!),
+                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(
+                    ":id",
+                    record.id!,
+                  ).replace(":class", "ward"),
                 }}
               />
             ),

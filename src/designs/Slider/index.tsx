@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Slider from "@mui/material/Slider";
@@ -20,6 +20,10 @@ const CustomSlider = withStyles({
 const VolumeSlider: React.FC<ISliderProps> = props => {
   const { onChange, title = "Âm lượng", initValue } = props;
   const [value, setValue] = React.useState<number | number[]>(initValue);
+
+  useEffect(() => {
+    setValue(initValue);
+  }, [initValue]);
 
   const handleChange = (event: Event, newValue: number | number[]) => {
     setValue(newValue as number);

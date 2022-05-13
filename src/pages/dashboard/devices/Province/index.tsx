@@ -179,7 +179,10 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
             DialogContent: props => (
               <Redirect
                 to={{
-                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(":id", record.id!),
+                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(
+                    ":id",
+                    record.id!,
+                  ).replace(":class", "province"),
                 }}
               />
             ),

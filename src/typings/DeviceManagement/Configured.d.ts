@@ -52,3 +52,14 @@ export interface ISim {
   startDate?: number;
   endDate?: number;
 }
+
+export interface IDeviceInput {
+  id?: string;
+  regionId?: number;
+  displayName?: string;
+  volume?: number;
+  isFixedVolume?: boolean;
+  location?: ILocation;
+  note?: string;
+  sim?: ISim;
+}
