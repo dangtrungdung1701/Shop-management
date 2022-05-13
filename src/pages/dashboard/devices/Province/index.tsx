@@ -5,7 +5,7 @@ import { CSVLink } from "react-csv";
 import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 import axiosClient from "common/utils/api";
-import { PROVINCE_ID } from "common/constants/region";
+import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
 import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
 
 import SearchBoxTable from "components/SearchBoxTable";
@@ -22,7 +22,13 @@ import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 import useCheckPermission from "hooks/useCheckPermission";
 
-import { IRegion, IDevice, IMediaStatus, IConnectionStatus } from "typings";
+import {
+  IRegion,
+  IDevice,
+  IMediaStatus,
+  IConnectionStatus,
+  IGetAllDevice,
+} from "typings";
 
 import useStore from "zustand/store";
 
@@ -109,20 +115,27 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const getAllProvinceDevices = async () => {
+    const input: IGetAllDevice = {
+      page,
+      size: sizePerPage,
+      regionId,
+      searchString: searchText,
+      excludeRegionId: 1,
+      level: PROVINCE_ID,
+    };
     try {
       startLoading(LOAD_DATA);
       const payload: any = {
-        page,
-        size: sizePerPage,
-        regionId,
-        searchString: searchText,
-        excludeRegionId: 1,
+        ...input,
       };
       const response: any = await axiosClient.get("/Device", {
         params: payload,
       });
-      if (response) {
-        const exportData = response?.devices?.map((device: IDevice) => {
+      const response2: any = await axiosClient.get("/Device", {
+        params: { ...payload, page: 0, size: 0 },
+      });
+      if (response2) {
+        const exportData = response2?.devices?.map((device: IDevice) => {
           const newDevice = { ...device };
           delete newDevice.connectionStatus;
           delete newDevice.mediaStatus;
@@ -146,6 +159,8 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
           };
         });
         setCSVData(exportData);
+      }
+      if (response) {
         setListDevice(response.devices);
         setTotalCount(response.totalCount);
       }

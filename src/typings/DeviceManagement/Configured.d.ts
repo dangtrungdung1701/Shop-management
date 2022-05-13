@@ -1,5 +1,14 @@
 import { IRegion } from "typings";
 
+export interface IGetAllDevice {
+  page?: number;
+  size?: number;
+  regionId?: number;
+  searchString?: string;
+  excludeRegionId?: number;
+  level?: number;
+}
+
 export interface IDevice {
   id: string;
   connectionStatus?: IConnectionStatus;
