@@ -1,18 +1,33 @@
-import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
-import { useHistory, useParams } from "react-router-dom";
-
-import { usePage } from "hooks/usePage";
-import { useLoading } from "hooks/useLoading";
-import { useBreadcrumb } from "hooks/useBreadcrumb";
-
-import SearchBoxTable from "components/SearchBoxTable";
-import Table, { IColumns } from "designs/Table";
-import ActionButtons from "designs/ActionButtons";
-import TableLayout from "layouts/Table";
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import dayjs from "dayjs";
+import { toast } from "react-toastify";
 import * as yup from "yup";
+import { Formik, FormikProps, FormikValues } from "formik";
 
+import axiosClient from "common/utils/api";
 import { PATH } from "common/constants/routes";
-import { getQueryFromLocation } from "common/functions";
+import { CLASS_LIST, CLASS_LIST_OF_DISTRICT } from "common/constants/user";
+import { PROVINCE_ID, WARD_ID } from "common/constants/region";
+
+import AlertDialog from "components/AlertDialog";
+
+import VolumeSlider from "designs/Slider";
+import Checkbox from "designs/Checkbox";
+import Input from "designs/Input";
+import TextArea from "designs/TextArea";
+import DatePicker from "designs/DatePicker";
+import Select from "designs/Select";
+
+import TableLayout from "layouts/Table";
+
+import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useGetLocation from "hooks/useGetLocation";
+
+import { IDevice, IDeviceInput, IRegion } from "typings";
+
+import useStore from "zustand/store";
+
 import {
   Title,
   TopWrapper,
@@ -25,22 +40,11 @@ import {
   NoteWrapper,
 } from "./styles";
 
-import VolumnSlider from "designs/Slider";
-import Checkbox from "designs/Checkbox";
-import Input from "designs/Input";
-import TextArea from "designs/TextArea";
-import DatePicker from "designs/DatePicker";
-import Select from "designs/Select";
-
-import { IRegion } from "typings";
-import { Formik, FormikProps, FormikValues } from "formik";
-import AlertDialog from "components/AlertDialog";
-
 interface IFormValue {
   iMei?: string;
   name?: string;
-  long?: string;
-  lat?: string;
+  long?: number;
+  lat?: number;
   class?: string;
   province?: string;
   district?: string;
@@ -53,16 +57,27 @@ interface IFormValue {
 }
 
 interface IDetailsProps {
-  editField?: any;
-  id?: string;
+  editField: IDevice;
+  level: string;
 }
 
-const Details: React.FC<IDetailsProps> = ({ id }) => {
+const Details: React.FC<IDetailsProps> = props => {
+  const { children, editField, level } = props;
+  const { currentUser } = useStore();
+
   const history = useHistory();
 
-  const [volume, setVolume] = useState<number | number[]>(100);
-  const [isFixed, setIsFixed] = useState(false);
+  const [volume, setVolume] = useState<number | number[]>(
+    editField?.volume || 100,
+  );
+  const [isFixed, setIsFixed] = useState(editField?.isFixedVolume || false);
+
   const [loading, setLoading] = useState(false);
+
+  const [provinceList, setProvinceList] = useState<IRegion[]>([]);
+  const [districtList, setDistrictList] = useState<IRegion[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
+
   const [selectedProvince, setSelectedProvince] = useState<IRegion | null>(
     null,
   );
@@ -73,10 +88,10 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   const [selectedClass, setSelectedClass] = useState<any | null>({});
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    iMei: "abc",
+    iMei: "",
     name: "",
-    long: "",
-    lat: "",
+    long: undefined,
+    lat: undefined,
     class: "",
     province: "",
     district: "",
@@ -100,24 +115,81 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   ]);
 
   useEffect(() => {
-    if (id) {
+    if (editField) {
       setInitialValues({
-        iMei: listDevice?.[parseInt(id) - 1].iMei,
-        name: listDevice?.[parseInt(id) - 1].name,
-        long: listDevice?.[parseInt(id) - 1].long,
-        lat: listDevice?.[parseInt(id) - 1].lat,
-        phoneNumber: listDevice?.[parseInt(id) - 1].phoneNumber,
-        address: listDevice?.[parseInt(id) - 1].address,
-        description: listDevice?.[parseInt(id) - 1].description,
-        startDay: listDevice?.[parseInt(id) - 1].startDate,
-        endDay: listDevice?.[parseInt(id) - 1].endDate,
+        iMei: editField?.id,
+        name: editField?.displayName,
+        long: editField?.location?.longitude,
+        lat: editField?.location?.longitude,
+        phoneNumber: editField?.sim?.number,
+        address: editField?.location?.locationDescription,
+        description: editField?.note,
+        startDay: dayjs.unix(editField.sim?.startDate as number).format(),
+        endDay: dayjs.unix(editField.sim?.endDate as number).format(),
+        class: "SELECTED",
+        province: "SELECTED",
+        district: "SELECTED",
+        ward: "SELECTED",
       });
-      setSelectedClass(listDevice?.[parseInt(id) - 1].class);
-      setSelectedDistrict(listDevice?.[parseInt(id) - 1].district);
-      setSelectedProvince(listDevice?.[parseInt(id) - 1].province);
-      setSelectedWard(listDevice?.[parseInt(id) - 1].ward);
+      setVolume(editField?.volume!);
+      setIsFixed(editField?.isFixedVolume!);
+      setSelectedClass(
+        CLASS_LIST.filter(item => item.id === editField?.region?.levelId)[0],
+      );
+      getProvinceListService();
+      if (editField?.region?.levelId === 3) {
+        getDistrictListService(editField?.region?.provinceId!);
+      }
+      if (editField?.region?.levelId === 4) {
+        getDistrictListService(editField?.region?.provinceId!);
+        getWardListService(editField?.region?.districtId!);
+      }
     }
-  }, [id]);
+  }, [editField]);
+
+  const getProvinceListService = async () => {
+    try {
+      const res: any = await axiosClient.get("Region", {
+        params: { level: 2 },
+      });
+      if (res) {
+        setProvinceList(res.regions);
+        setSelectedProvince(
+          useGetLocation(editField?.region?.provinceId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+        setSelectedDistrict(
+          useGetLocation(editField?.region?.districtId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+        setSelectedWard(
+          useGetLocation(editField?.region?.wardId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const validationSchema = yup
     .object()
@@ -130,32 +202,84 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
       ward: yup.string().required("Vui lòng chọn phường/ xã/ thị trấn"),
       endDay: yup
         .date()
-        .min(
-          yup.ref("startDay"),
-          "Vui lòng chọn ngày kết thúc muộn hơn ngày bắt đầu!",
+        .when(
+          "startDay",
+          (startDay, schema) =>
+            startDay &&
+            schema.min(
+              startDay,
+              "Vui lòng chọn ngày kết thúc muộn hơn ngày bắt đầu!",
+            ),
         ),
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: any = {
-      ...value,
-      // province: selectedProvince?.id || "",
-      // district: selectedDistrict?.id || "",
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : 1;
+    const input: IDeviceInput = {
+      id: value?.iMei,
+      regionId: regionId,
+      displayName: value?.name,
+      volume: volume as number,
+      isFixedVolume: isFixed,
+      location: {
+        locationDescription: value?.address,
+        longitude: value?.long,
+        latitude: value?.lat,
+      },
+      note: value?.description,
+      sim: {
+        ...(value.startDay && {
+          startDate: dayjs(value.startDay).unix(),
+        }),
+        ...(value.endDay && {
+          endDate: dayjs(value.endDay).unix(),
+        }),
+        number: value?.phoneNumber,
+      },
     };
-    console.log(input);
-  };
-
-  const resetField = () => {
-    setSelectedProvince(null);
-    setSelectedDistrict(null);
-    setSelectedWard(null);
+    try {
+      setLoading(true);
+      const payload: any = {
+        ...input,
+      };
+      const res = await axiosClient.put(`/Device/${editField?.id}`, payload);
+      if (res) {
+        toast.dark("Cập nhật thiết bị thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast.dark("Cập nhật thiết bị không thành công !", {
+        type: toast.TYPE.ERROR,
+      });
+    } finally {
+      setLoading(false);
+      handleBack();
+    }
   };
 
   const handleBack = () => {
-    history.goBack();
+    switch (level) {
+      case "province":
+        history.push(PATH.DEVICE.PROVINCE);
+        break;
+      case "district":
+        history.push(PATH.DEVICE.DISTRICT);
+        break;
+      case "ward":
+        history.push(PATH.DEVICE.WARD);
+        break;
+      default:
+        break;
+    }
   };
-
-  const handleReset = () => {};
 
   const handleRestart = async (onClose: () => void) => {
     await setTimeout(() => {
@@ -164,42 +288,67 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
   };
 
   const setFieldValue = (value: any, formik: FormikProps<IFormValue>) => {
+    const province = provinceList.filter(
+      item => item.id === currentUser?.userInfo?.region?.provinceId,
+    )[0];
+    const district = districtList.filter(
+      item => item.id === currentUser?.userInfo?.region?.districtId,
+    )[0];
+    const ward = wardList.filter(
+      item => item.id === currentUser?.userInfo?.region?.wardId,
+    )[0];
     switch (value?.id) {
-      case "0":
+      case 2:
+        setSelectedProvince(province);
         formik.setFieldValue("province", "SELECTED");
         formik.setFieldValue("district", "SELECTED");
         formik.setFieldValue("ward", "SELECTED");
         break;
-      case "1":
-        formik.setFieldValue("province", "");
+      case 3:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        !district && getDistrictListService(province?.id!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        formik.setFieldValue("ward", "SELECTED");
+        break;
+      case 4:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        setSelectedWard(ward);
+        !district && getDistrictListService(province?.id!);
+        !ward && district
+          ? getWardListService(district?.id!)
+          : getWardListService(editField?.region?.districtId!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        ward
+          ? formik.setFieldValue("ward", "SELECT")
+          : formik.setFieldValue("ward", "");
+        break;
+      default:
+        formik.setFieldValue("province", "SELECTED");
         formik.setFieldValue("district", "SELECTED");
         formik.setFieldValue("ward", "SELECTED");
         break;
-      case "2":
-        formik.setFieldValue("province", "");
-        formik.setFieldValue("district", "");
-        formik.setFieldValue("ward", "SELECTED");
-        break;
-      case "3":
-        formik.setFieldValue("province", "");
-        formik.setFieldValue("district", "");
-        formik.setFieldValue("ward", "");
-        break;
-      default:
-        break;
     }
   };
+
   return (
     <TableLayout>
       <Title>Cấu hình thiết bị</Title>
       <TopWrapper>
-        <VolumnSlider
+        <VolumeSlider
           initValue={volume}
           title="Âm lượng"
           onChange={value => setVolume(value)}
         />
         <Checkbox
-          initialCheck={false}
+          initialCheck={isFixed}
           label="Cố định"
           onChange={checked => setIsFixed(checked)}
         />
@@ -207,7 +356,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
 
       <Formik
         initialValues={initialValues}
-        // enableReinitialize
+        enableReinitialize
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -237,7 +386,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
                     type="text"
                   />
                   <Input
-                    name="phone"
+                    name="phoneNumber"
                     label="Số thuê bao"
                     placeholder="Nhập số thuê bao"
                     type="text"
@@ -257,84 +406,133 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
                     type="text"
                     required
                   />
+
                   <Select
                     name="class"
                     label="Cấp sở hữu"
                     optionSelected={selectedClass}
-                    options={classList}
+                    options={
+                      currentUser?.userInfo?.region?.levelId === 2
+                        ? CLASS_LIST
+                        : CLASS_LIST_OF_DISTRICT
+                    }
                     onSelect={value => {
-                      setSelectedClass(value);
                       setFieldValue(value, formik);
-                      resetField();
+                      setSelectedClass(value);
                     }}
                     placeholder="Chọn phân cấp"
                     required
+                    disabled={
+                      currentUser?.userInfo?.region?.levelId === WARD_ID
+                        ? true
+                        : false
+                    }
                   />
-                  {selectedClass?.id === "1" && (
-                    <Select
-                      name="province"
-                      label="Tên tỉnh/ thành phố"
-                      optionSelected={selectedProvince}
-                      options={optionProvince}
-                      onSelect={value => setSelectedProvince(value)}
-                      placeholder="Chọn tỉnh/thành phố"
-                      required
-                    />
-                  )}
-                  {selectedClass?.id === "2" && (
-                    <>
+
+                  {selectedClass?.id === 2 &&
+                    provinceList.length !== 0 &&
+                    selectedProvince && (
                       <Select
                         name="province"
                         label="Tên tỉnh/ thành phố"
                         optionSelected={selectedProvince}
-                        options={optionProvince}
+                        options={provinceList}
                         onSelect={value => setSelectedProvince(value)}
                         placeholder="Chọn tỉnh/thành phố"
                         required
+                        optionTarget="displayName"
+                        disabled
                       />
-                      <Select
-                        name="district"
-                        label="Tên quận/ huyện/ thị xã"
-                        optionSelected={selectedDistrict}
-                        options={optionDistrict}
-                        onSelect={value => setSelectedDistrict(value)}
-                        placeholder="Chọn quận/ huyện/ thị xã"
-                        disabled={selectedProvince ? false : true}
-                        required
-                      />
+                    )}
+                  {selectedClass?.id === 3 && (
+                    <>
+                      {provinceList.length !== 0 && selectedProvince && (
+                        <Select
+                          name="province"
+                          label="Tên tỉnh/ thành phố"
+                          optionSelected={selectedProvince}
+                          options={provinceList}
+                          onSelect={value => setSelectedProvince(value)}
+                          placeholder="Chọn tỉnh/thành phố"
+                          required
+                          optionTarget="displayName"
+                          disabled
+                        />
+                      )}
+                      {districtList.length !== 0 && selectedDistrict && (
+                        <Select
+                          name="district"
+                          label="Tên quận/ huyện/ thị xã"
+                          optionSelected={selectedDistrict}
+                          options={districtList}
+                          onSelect={value => setSelectedDistrict(value)}
+                          placeholder="Chọn quận/ huyện/ thị xã"
+                          disabled={
+                            currentUser?.userInfo?.region?.levelId > PROVINCE_ID
+                              ? true
+                              : false
+                          }
+                          required
+                          optionTarget="displayName"
+                        />
+                      )}
                     </>
                   )}
-                  {selectedClass?.id === "3" && (
+                  {selectedClass?.id === 4 && (
                     <>
-                      <Select
-                        name="province"
-                        label="Tên tỉnh/ thành phố"
-                        optionSelected={selectedProvince}
-                        options={optionProvince}
-                        onSelect={value => setSelectedProvince(value)}
-                        placeholder="Chọn tỉnh/ thành phố"
-                        required
-                      />
-                      <Select
-                        name="district"
-                        label="Tên quận/ huyện/ thị xã"
-                        optionSelected={selectedDistrict}
-                        options={optionDistrict}
-                        onSelect={value => setSelectedDistrict(value)}
-                        placeholder="Chọn quận/ huyện/ thị xã"
-                        disabled={selectedProvince ? false : true}
-                        required
-                      />
-                      <Select
-                        name="ward"
-                        label="Tên phường/ xã/ thị trấn"
-                        optionSelected={selectedWard}
-                        options={optionWard}
-                        onSelect={value => setSelectedWard(value)}
-                        placeholder="Chọn phường/ xã/ thị trấn"
-                        disabled={selectedDistrict ? false : true}
-                        required
-                      />
+                      {provinceList.length !== 0 && selectedProvince && (
+                        <Select
+                          name="province"
+                          label="Tên tỉnh/ thành phố"
+                          optionSelected={selectedProvince}
+                          options={provinceList}
+                          onSelect={value => setSelectedProvince(value)}
+                          placeholder="Chọn tỉnh/ thành phố"
+                          required
+                          optionTarget="displayName"
+                          disabled
+                        />
+                      )}
+                      {districtList.length !== 0 && selectedDistrict && (
+                        <Select
+                          name="district"
+                          label="Tên quận/ huyện/ thị xã"
+                          optionSelected={selectedDistrict}
+                          options={districtList}
+                          onSelect={value => {
+                            getWardListService(value?.id!);
+                            setSelectedWard(null);
+                            setSelectedDistrict(value);
+                          }}
+                          placeholder="Chọn quận/ huyện/ thị xã"
+                          disabled={
+                            currentUser?.userInfo?.region?.levelId > PROVINCE_ID
+                              ? true
+                              : false
+                          }
+                          required
+                          optionTarget="displayName"
+                        />
+                      )}
+                      {wardList.length !== 0 && selectedWard && (
+                        <Select
+                          name="ward"
+                          label="Tên phường/ xã/ thị trấn"
+                          optionSelected={selectedWard}
+                          options={wardList}
+                          onSelect={value => setSelectedWard(value)}
+                          placeholder="Chọn phường/ xã/ thị trấn"
+                          disabled={
+                            currentUser?.userInfo?.region?.levelId === WARD_ID
+                              ? true
+                              : selectedDistrict
+                              ? false
+                              : true
+                          }
+                          required
+                          optionTarget="displayName"
+                        />
+                      )}
                     </>
                   )}
                   <Input
@@ -356,7 +554,7 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
                 <Button type="button" variant="secondary" onClick={handleBack}>
                   Quay lại
                 </Button>
-                {id && (
+                {editField?.id && (
                   <AlertDialog
                     title="Khởi động lại"
                     message="Bạn có chắc chắn muốn khởi động lại thiết bị này?"
@@ -377,102 +575,3 @@ const Details: React.FC<IDetailsProps> = ({ id }) => {
 };
 
 export default Details;
-
-export const listDevice: any[] = [
-  {
-    id: "1",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 1,
-  },
-  {
-    id: "2",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: false,
-    type: 2,
-  },
-  {
-    id: "3",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 3,
-  },
-  {
-    id: "4",
-    name: "admin1",
-    deviceId: "1",
-    volume: "100",
-    status: true,
-    type: 4,
-  },
-];
-
-const classList: any = [
-  {
-    id: "0",
-    name: "Công ty",
-  },
-  {
-    id: "1",
-    name: "Tỉnh/Thành phố",
-  },
-  {
-    id: "2",
-    name: "Quận/Huyện/Thị Xã",
-  },
-  {
-    id: "3",
-    name: "Phường/Xã/Thị Trấn",
-  },
-];
-
-const optionProvince: IRegion[] = [
-  {
-    id: 1,
-    displayName: "TP HCM",
-  },
-  {
-    id: 2,
-    displayName: "TP HN",
-  },
-  {
-    id: 3,
-    displayName: "TP HP",
-  },
-];
-
-const optionDistrict: IRegion[] = [
-  {
-    id: 1,
-    name: "Quận 1",
-  },
-  {
-    id: 2,
-    name: "Quận 2",
-  },
-  {
-    id: 3,
-    name: "Quận 3",
-  },
-];
-
-const optionWard: IRegion[] = [
-  {
-    id: 1,
-    name: "Cao Thắng",
-  },
-  {
-    id: 2,
-    name: "Võ Văn Tần",
-  },
-  {
-    id: 3,
-    name: "Ngô Quyền",
-  },
-];

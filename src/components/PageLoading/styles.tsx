@@ -2,7 +2,7 @@ import styled from "styled-components";
 import tw from "twin.macro";
 
 export const PageLoadingContainer = styled.div`
-  ${tw`z-[110] fixed bg-b-1 opacity-60 flex items-center justify-center`}
+  ${tw`z-[29] fixed bg-b-1 opacity-60 flex items-center justify-center`}
 `;
 
 export const SpinnerContainer = styled.div`

@@ -17,7 +17,7 @@ export const PATH = {
     PROVINCE: "/device/province",
     DISTRICT: "/device/district",
     WARD: "/device/ward",
-    EDIT_DEVICE: "/device/edit/:id",
+    EDIT_DEVICE: "/device/:class/:id",
   },
   BLOG: "/blog",
   LOCATION: {

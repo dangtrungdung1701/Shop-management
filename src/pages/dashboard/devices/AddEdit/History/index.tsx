@@ -1,9 +1,12 @@
 import React, { useCallback, useMemo, useState } from "react";
-import TableLayout from "layouts/Table";
+
 import Table, { IColumns } from "designs/Table";
-import { getQueryFromLocation } from "common/functions";
-import { usePage } from "hooks/usePage";
 import SVG from "designs/SVG";
+
+import TableLayout from "layouts/Table";
+
+import { usePage } from "hooks/usePage";
+
 import { Title } from "./styles";
 
 interface IHistoryProps {

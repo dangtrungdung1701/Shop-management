@@ -1,7 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Formik } from "formik";
-import TableLayout from "layouts/Table";
+
 import Input from "designs/Input";
+
+import TableLayout from "layouts/Table";
+
+import { IDevice } from "typings";
+
 import {
   Title,
   FormWrapper,
@@ -12,7 +17,7 @@ import {
 } from "./styles";
 
 interface IFirmwareProps {
-  editField?: any;
+  editField?: IDevice;
 }
 
 interface IFormValue {
@@ -25,12 +30,24 @@ interface IFormValue {
 
 const Firmware: React.FC<IFirmwareProps> = ({ editField }) => {
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    versionFirmware: "12",
-    versionHardware: "12",
-    wan: "1.1.0.1",
-    lan: "1.1.0.1",
-    wifi: "1.1.0.1",
+    versionFirmware: "",
+    versionHardware: "",
+    wan: "",
+    lan: "",
+    wifi: "",
   });
+
+  useEffect(() => {
+    if (editField) {
+      setInitialValues({
+        versionFirmware: editField?.firmware || "",
+        versionHardware: editField?.hardware || "",
+        wan: editField?.connectionStatus?.WanIpAddress || "",
+        lan: editField?.connectionStatus?.LanIpAddress || "",
+        wifi: editField?.connectionStatus?.WiFiName || "",
+      });
+    }
+  }, [editField]);
 
   const handleUpdate = () => {};
 

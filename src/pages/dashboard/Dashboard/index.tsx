@@ -30,9 +30,11 @@ const Overview: React.FC = () => {
   const getRegion = async () => {
     try {
       const rs: any = await axiosClient.get(
-        `/Region/${currentUser.userInfo.region.id}`,
+        `/Region/${currentUser?.userInfo?.region?.id}`,
       );
-      setData(rs.summary);
+      if (rs) {
+        setData(rs.summary);
+      }
     } catch (error: any) {
       console.log(error);
     }

@@ -156,7 +156,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       regionId,
       searchString: searchText,
       excludeRegionId: 1,
-      level: PROVINCE_ID,
+      level: DISTRICT_ID,
     };
     try {
       startLoading(LOAD_DATA);
@@ -214,7 +214,10 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
             DialogContent: props => (
               <Redirect
                 to={{
-                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(":id", record.id!),
+                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(
+                    ":id",
+                    record.id!,
+                  ).replace(":class", "district"),
                 }}
               />
             ),
