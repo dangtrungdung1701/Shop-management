@@ -233,15 +233,15 @@ const optionDevice: IDevice[] = [
 const optionFileAudio: IFileAudio[] = [
   {
     id: "1",
-    name: "file 1",
+    displayName: "file 1",
   },
   {
     id: "2",
-    name: "file 2",
+    displayName: "file 2",
   },
   {
     id: "3",
-    name: "file 3",
+    displayName: "file 3",
   },
 ];
 

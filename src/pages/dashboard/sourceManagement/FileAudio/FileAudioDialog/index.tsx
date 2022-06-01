@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 import AudioPlayer from "material-ui-audio-player";
+import { toast } from "react-toastify";
 
-import { SUPPORTED_FORMATS } from "common/constants/file";
+import { FILE_SIZE, SUPPORTED_FORMATS } from "common/constants/file";
+import axiosClient from "common/utils/api";
+import { HTMLdecode } from "common/functions";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
@@ -11,7 +14,9 @@ import SingleFileUploader from "components/SingleFileUploader";
 
 import Input from "designs/Input";
 
-import { IFileAudio, IFileAudioInput } from "typings";
+import { IFileAudio } from "typings";
+
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -37,7 +42,7 @@ type IDialogProps = {
 );
 
 interface IFormValue {
-  name?: string;
+  displayName?: string;
   file?: File | string | undefined;
 }
 
@@ -48,35 +53,37 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { currentUser } = useStore();
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
   const [fileSelected, setFileSelected] = useState<File>();
   const [fileUrl, setFileUrl] = useState<string>("");
   const [initialValues, setInitialValues] = useState<IFormValue>({
-    name: "",
+    displayName: "",
     file: undefined,
   });
-  const file = editField?.fileAudio;
+
   useEffect(() => {
     if (editField) {
       setInitialValues({
-        name: editField?.name,
-        file: editField?.fileAudio,
+        displayName: HTMLdecode(editField?.displayName || "") || "",
+        file: editField?.url,
       });
+      setFileUrl(editField?.url || "");
     }
   }, []);
 
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên tệp tin"),
+      displayName: yup.string().required("Vui lòng nhập tên tệp tin"),
       file: yup
         .mixed()
         .required("Vui lòng thêm tệp tin")
-        // .test("fileSize", "File size is too large", value => {
-        //   if (!value) return true;
-        //   return fileSelected ? fileSelected.size <= FILE_SIZE : true;
-        // })
+        .test("fileSize", "File size is too large", value => {
+          if (!value) return true;
+          return fileSelected ? fileSelected.size <= FILE_SIZE : true;
+        })
         .test("fileType", "Định dạng tệp tin không hỗ trợ", value => {
           if (!value) return true;
           return fileSelected
@@ -86,44 +93,79 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IFileAudioInput = {
-      name: value?.name,
-      fileAudio: fileSelected,
-    };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if (editField) {
-    //     setLoading(true);
-    //     const payload: IUpdateProvince = {
-    //       id: editField?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateProvince = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    const formData = new FormData();
+    if (fileSelected) {
+      formData.append("FormFile", fileSelected, fileSelected.name);
+      formData.append("RegionId", currentUser?.userInfo?.region?.id);
+      formData.append("DisplayName", value?.displayName);
+    }
+    try {
+      setLoading(true);
+      if (editField) {
+        const payload = {
+          displayName: value?.displayName,
+        };
+        const res = await axiosClient.put(
+          `/AudioFileSource/${editField?.id}`,
+          payload,
+        );
+        if (res) {
+          onSuccess?.();
+          handleCloseDialog();
+          toast.dark("Tạo tệp tin thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
+        }
+        return;
+      }
+      const res = await axiosClient.post("/AudioFileSource", formData);
+      if (res) {
+        onSuccess?.();
+        handleCloseDialog();
+        toast.dark("Tạo tệp tin thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err: any) {
+      if (editField) {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Cập nhật tệp tin không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      } else {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Tạo thiết bị không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDialog = () => {
-    if (editField) {
-      setFileUrl(editField?.fileAudio as string);
-      setFileSelected(editField?.fileAudio as File);
-    }
     setFileUrl("");
     setFileSelected(undefined);
     setOpen(false);
@@ -149,34 +191,39 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
               return (
                 <Form onSubmit={formik.handleSubmit}>
                   <Input
-                    name="name"
+                    name="displayName"
                     label="Tên tệp tin"
                     placeholder="Nhập tên tệp tin"
                     type="text"
                     required
                   />
-                  <SingleFileUploader
-                    name="file"
-                    label="Tệp tin"
-                    subLabel="(Định dạng file .mp3, .m4a, .wav, .ogg)"
-                    file={file}
-                    onChange={(file, fileName, base64AudioFile) => {
-                      setFileSelected(file);
-                      setFileUrl(base64AudioFile);
-                    }}
-                    required
-                  />
-                  {fileSelected && !formik?.errors?.file && (
+
+                  {!editField && (
+                    <SingleFileUploader
+                      name="file"
+                      label="Tệp tin"
+                      subLabel="(Định dạng file .mp3, .m4a, .wav, .ogg)"
+                      file={initialValues?.file}
+                      onChange={(file, _, base64AudioFile) => {
+                        setFileSelected(file);
+                        setFileUrl(base64AudioFile);
+                      }}
+                      required
+                    />
+                  )}
+
+                  {fileUrl && !formik?.errors?.file && (
                     <div className="custom-audio-player">
                       <AudioPlayer
                         elevation={1}
-                        width="500px"
+                        width="100%"
                         variation="primary"
                         debug={false}
                         src={fileUrl}
                       />
                     </div>
                   )}
+
                   <ButtonWrapper>
                     <Button
                       type="button"
