@@ -9,6 +9,7 @@ import { useLoading } from "hooks/useLoading";
 import { IDevice } from "typings";
 import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
 import MyLocationMaker from "./MyLocationMaker";
+import useStore from "zustand/store";
 
 interface IPosition {
   lat: number;
@@ -18,8 +19,9 @@ interface IPosition {
 const LOAD_DATA = "LOAD_DATA";
 
 const Map: React.FC = () => {
+  const { currentUser } = useStore();
   const [listDevice, setListDevice] = useState<IDevice[]>([]);
-  const [positon, setPosion] = useState<IPosition>({
+  const [position, setPosition] = useState<IPosition>({
     lat: 10.823099,
     long: 106.629662,
   });
@@ -41,7 +43,7 @@ const Map: React.FC = () => {
     try {
       startLoading(LOAD_DATA);
       const payload: any = {
-        regionId: 0,
+        regionId: currentUser?.userInfo?.region?.id,
         excludeRegionId: 1,
       };
       const response: any = await axiosClient.get("/Device", {
@@ -72,7 +74,7 @@ const Map: React.FC = () => {
       <Title>Bản đồ thiết bị</Title>
       <MapContainer
         className="w-full h-60 z-10"
-        center={[positon.lat, positon.long]}
+        center={[position.lat, position.long]}
         scrollWheelZoom
         zoom={10}
       >

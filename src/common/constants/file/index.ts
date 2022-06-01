@@ -5,3 +5,5 @@ export const SUPPORTED_FORMATS = [
   "audio/ogg",
   "audio/mpeg",
 ];
+
+export const FILE_SIZE = 100 * 1024 * 1024;
