@@ -248,15 +248,15 @@ const optionFileAudio: IFileAudio[] = [
 const optionLink: ILink[] = [
   {
     id: "1",
-    name: "Link 1",
+    displayName: "Link 1",
   },
   {
     id: "2",
-    name: "Link 2",
+    displayName: "Link 2",
   },
   {
     id: "3",
-    name: "Link 3",
+    displayName: "Link 3",
   },
 ];
 

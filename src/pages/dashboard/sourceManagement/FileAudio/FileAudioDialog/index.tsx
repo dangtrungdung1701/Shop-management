@@ -112,7 +112,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         if (res) {
           onSuccess?.();
           handleCloseDialog();
-          toast.dark("Tạo tệp tin thành công !", {
+          toast.dark("Cập nhật tệp tin thành công !", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -154,7 +154,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
-            toast.dark("Tạo thiết bị không thành công !", {
+            toast.dark("Tạo tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
             });
             break;

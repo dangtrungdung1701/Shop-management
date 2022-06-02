@@ -20,7 +20,7 @@ export interface IFileAudio {
   latestModifiedByUser?: ILatestModifiedByUser;
 }
 
-export interface IGetAllFileAudio {
+export interface IGetAllSource {
   level?: number;
   regionId?: number;
   excludeRegionId?: number;
