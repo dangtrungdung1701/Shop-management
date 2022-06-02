@@ -18,7 +18,7 @@ import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 import useCheckPermission from "hooks/useCheckPermission";
 
-import { IFileAudio, IGetAllFileAudio } from "typings";
+import { IFileAudio, IGetAllSource } from "typings";
 
 import useStore from "zustand/store";
 
@@ -76,7 +76,7 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
   }, [page, sizePerPage, searchText]);
 
   const getAllFileAudioService = async () => {
-    const payload: IGetAllFileAudio = {
+    const payload: IGetAllSource = {
       level: currentUser?.userInfo?.region?.levelId,
       regionId: currentUser?.userInfo?.region?.id,
       page,

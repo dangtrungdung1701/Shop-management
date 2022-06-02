@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
+import { toast } from "react-toastify";
 
-import { SUPPORTED_FORMATS } from "common/constants/file";
+import { URL } from "common/constants/validation";
+import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
 import Input from "designs/Input";
 
-import { ILinkInput, ILink } from "typings";
+import { ILink } from "typings";
+
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -18,7 +22,6 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import { URL } from "common/constants/validation";
 
 type IDialogProps = {
   editField?: ILink;
@@ -47,6 +50,8 @@ const LinkDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { currentUser } = useStore();
+
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +63,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
   useEffect(() => {
     if (editField) {
       setInitialValues({
-        name: editField?.name,
+        name: editField?.displayName,
         url: editField?.url,
       });
     }
@@ -75,37 +80,78 @@ const LinkDialog: React.FC<IDialogProps> = ({
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: ILinkInput = {
-      name: value?.name,
-      url: value?.url,
-    };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if (editField) {
-    //     setLoading(true);
-    //     const payload: IUpdateProvince = {
-    //       id: editField?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateProvince = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    try {
+      setLoading(true);
+      if (editField) {
+        const payload = {
+          displayName: value?.name,
+          url: value?.url,
+        };
+        console.log(payload);
+        const res = await axiosClient.put(
+          `/AudioLinkSource/${editField?.id}`,
+          payload,
+        );
+        if (res) {
+          onSuccess?.();
+          handleCloseDialog();
+          toast.dark("Cập nhật link tiếp sóng thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
+        }
+        return;
+      }
+      const payload = {
+        displayName: value?.name,
+        regionId: currentUser?.userInfo?.region?.id,
+        url: value?.url,
+      };
+      const res = await axiosClient.post("/AudioLinkSource", payload);
+
+      if (res) {
+        onSuccess?.();
+        handleCloseDialog();
+        toast.dark("Tạo link tiếp sóng thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err: any) {
+      if (editField) {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Cập nhật link tiếp sóng không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      } else {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Tạo link tiếp sóng không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -140,13 +186,15 @@ const LinkDialog: React.FC<IDialogProps> = ({
                     type="text"
                     required
                   />
-                  <Input
-                    name="url"
-                    label="Đường dẫn link tiếp sóng"
-                    placeholder="Nhập đường dẫn link tiếp sóng"
-                    type="text"
-                    required
-                  />
+                  {!editField && (
+                    <Input
+                      name="url"
+                      label="Đường dẫn link tiếp sóng"
+                      placeholder="Nhập đường dẫn link tiếp sóng"
+                      type="text"
+                      required
+                    />
+                  )}
                   <ButtonWrapper>
                     <Button
                       type="button"

@@ -1,12 +1,14 @@
 import { IUser } from ".";
+import { ILatestModifiedByUser } from "./FileAudio";
 
 export interface ILink {
   id?: string;
-  name?: string;
-  createdTime?: string; //Date
-  totalTime?: number;
-  createdPerson?: IUser;
+  displayName?: string;
+  regionId?: number;
+  lastUsedTimeStamp?: number;
+  uploadTimeStamp?: number;
   url?: string;
+  latestModifiedByUser?: ILatestModifiedByUser;
 }
 
 export interface ILinkInput {
