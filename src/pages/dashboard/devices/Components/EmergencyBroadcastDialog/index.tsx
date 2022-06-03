@@ -263,14 +263,14 @@ const optionLink: ILink[] = [
 const optionFM: IFM[] = [
   {
     id: "1",
-    name: "FM 1",
+    displayName: "FM 1",
   },
   {
     id: "2",
-    name: "FM 2",
+    displayName: "FM 2",
   },
   {
     id: "3",
-    name: "FM 3",
+    displayName: "FM 3",
   },
 ];

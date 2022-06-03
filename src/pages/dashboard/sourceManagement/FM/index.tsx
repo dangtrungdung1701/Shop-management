@@ -1,34 +1,46 @@
 import React, { useEffect, useMemo, useState, lazy, useCallback } from "react";
 import { RouteComponentProps } from "react-router";
+import dayjs from "dayjs";
+import { toast } from "react-toastify";
+
+import { PATH } from "common/constants/routes";
+import { getQueryFromLocation } from "common/functions";
+import axiosClient from "common/utils/api";
+
+import SearchBoxTable from "components/SearchBoxTable";
+
+import Table, { IColumns } from "designs/Table";
+import ActionButtons from "designs/ActionButtons";
+
+import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
 
-import SearchBoxTable from "components/SearchBoxTable";
-import Table, { IColumns } from "designs/Table";
-import ActionButtons from "designs/ActionButtons";
-import TableLayout from "layouts/Table";
+import { IFM, IGetAllSource } from "typings";
 
-import { PATH } from "common/constants/routes";
-import { getQueryFromLocation } from "common/functions";
+import useStore from "zustand/store";
 
 import { ButtonAddFileAudio, SearchBoxWrapper } from "./styles";
-import { IFM } from "typings";
 
 const FileAudioDialog = lazy(() => import("./FMDialog"));
 
 const LOAD_DATA = "LOAD_DATA";
+const DELETE_DATA = "DELETE_DATA";
 
 interface IRegionProps extends RouteComponentProps {}
 
 const FM: React.FC<IRegionProps> = ({ location }) => {
+  const { currentUser, setCurrentUser } = useStore();
+
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
 
-  const [listCategories, setListCategories] = useState<IFM[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(listFM.length);
+  const [listFmAudio, setListFmAudio] = useState<IFM[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const { startLoading, stopLoading } = useLoading();
 
   useBreadcrumb([
@@ -42,8 +54,51 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
     },
   ]);
 
-  // useEffect(() => {
-  // }, [page, sizePerPage, searchText]);
+  useEffect(() => {
+    getUserInfoService();
+  }, []);
+
+  const getUserInfoService = async () => {
+    try {
+      const res: any = await axiosClient.get(
+        `User/${currentUser?.userInfo?.id}`,
+      );
+      if (res) {
+        setCurrentUser({ ...currentUser, userInfo: res });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllFMService();
+  }, [page, sizePerPage, searchText]);
+
+  const getAllFMService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+      page,
+      size: sizePerPage,
+      searchString: searchText,
+    };
+    try {
+      startLoading(LOAD_DATA);
+
+      const res: any = await axiosClient.get("/AudioFmSource", {
+        params: payload,
+      });
+      if (res) {
+        setListFmAudio(res.fms);
+        setTotalCount(res.totalCount);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      stopLoading(LOAD_DATA);
+    }
+  };
 
   const renderAction = (record: IFM) => {
     return (
@@ -53,7 +108,7 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
             DialogContent: props => (
               <FileAudioDialog
                 onSuccess={() => {
-                  // invokeGetAllCategory();
+                  getAllFMService();
                 }}
                 open
                 editField={record}
@@ -62,11 +117,28 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
             ),
           },
           delete: {
-            title: "Xóa tệp tin",
+            title: "Xóa kênh FM",
             message: `Bạn có chắc chắn muốn xóa kênh FM này?`,
             onDelete: async () => {
-              // await removeUserAPI({ id: record._id });
-              // invokeGetAllUserAPI();
+              try {
+                startLoading(DELETE_DATA);
+                const res = await axiosClient.delete(
+                  `/AudioFmSource/${record?.id}`,
+                );
+                if (res) {
+                  toast.dark("Xóa kênh FM thành công !", {
+                    type: toast.TYPE.SUCCESS,
+                  });
+                  getAllFMService();
+                }
+              } catch (error) {
+                console.log(error);
+                toast.dark("Xóa kênh FM không thành công !", {
+                  type: toast.TYPE.ERROR,
+                });
+              } finally {
+                stopLoading(DELETE_DATA);
+              }
             },
           },
         }}
@@ -78,7 +150,7 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
     () => [
       {
         text: "Tên kênh FM",
-        dataField: "name",
+        dataField: "displayName",
         headerStyle: () => ({
           width: "20%",
         }),
@@ -113,11 +185,16 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
       },
       {
         text: "Thời gian tạo",
-        dataField: "createdTime",
+        dataField: "uploadTimeStamp",
+        formatter: (uploadTimeStamp: number) => {
+          const date = dayjs.unix(uploadTimeStamp).format("DD/MM/YYYY");
+          const time = dayjs.unix(uploadTimeStamp).format("HH:mm:ss");
+          return `${date} - ${time}`;
+        },
       },
       {
         text: "Người tạo",
-        dataField: "createdPerson.name",
+        dataField: "latestModifiedByUser.userName",
       },
       {
         text: "Hành động",
@@ -148,83 +225,38 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm kênh FM</ButtonAddFileAudio>}
-          onSuccess={() => {}}
+          onSuccess={() => {
+            getAllFMService();
+          }}
         />
       }
     >
-      <SearchBoxWrapper>
-        <SearchBoxTable
-          onFetchData={handleFetchData}
-          placeholder="Tìm kiếm theo tên kênh FM"
-        />
-      </SearchBoxWrapper>
+      {useCheckPermission("AudioSourceManager", currentUser) ? (
+        <>
+          <SearchBoxWrapper>
+            <SearchBoxTable
+              onFetchData={handleFetchData}
+              placeholder="Tìm kiếm theo tên kênh FM"
+            />
+          </SearchBoxWrapper>
 
-      <Table
-        data={listFM}
-        columns={columns}
-        page={page}
-        totalSize={totalCount}
-        onPageChange={handleChangePage}
-        onSizeChange={handleChangeSize}
-        isRemote
-      />
+          <Table
+            data={listFmAudio}
+            columns={columns}
+            page={page}
+            totalSize={totalCount}
+            onPageChange={handleChangePage}
+            onSizeChange={handleChangeSize}
+            isRemote
+          />
+        </>
+      ) : (
+        <div className="h-30 flex items-center justify-center font-bold text-20">
+          Bạn không có quyền truy cập trang này
+        </div>
+      )}
     </TableLayout>
   );
 };
 
 export default FM;
-
-const listFM: IFM[] = [
-  {
-    id: "1",
-    name: "Kênh FM 1",
-    frequency: 3,
-    rssi: 3,
-    c: 3,
-    g: 3,
-    createdTime: "01/01/2022 - 17:30",
-    createdPerson: {
-      id: "1",
-      name: "user 1",
-    },
-  },
-  {
-    id: "2",
-    name: "Kênh FM 2",
-    frequency: 3,
-    rssi: 3,
-    c: 3,
-    g: 3,
-    createdTime: "01/01/2022 - 17:30",
-    createdPerson: {
-      id: "1",
-      name: "user 1",
-    },
-  },
-  {
-    id: "3",
-    name: "Kênh FM 3",
-    frequency: 3,
-    rssi: 3,
-    c: 3,
-    g: 3,
-    createdTime: "01/01/2022 - 17:30",
-    createdPerson: {
-      id: "1",
-      name: "user 1",
-    },
-  },
-  {
-    id: "4",
-    name: "Kênh FM 4",
-    frequency: 3,
-    rssi: 3,
-    c: 3,
-    g: 3,
-    createdTime: "01/01/2022 - 17:30",
-    createdPerson: {
-      id: "1",
-      name: "user 1",
-    },
-  },
-];
