@@ -8,7 +8,8 @@ export type IPermissionV2Id =
   | "AudioSourceManager"
   | "DeviceManager"
   | "RegionManager"
-  | "ScheduleManager";
+  | "ScheduleManager"
+  | "EmergencyOperator";
 
 export interface IPermissionV2 {
   id?: IPermissionV2Id;

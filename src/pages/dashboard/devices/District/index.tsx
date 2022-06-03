@@ -343,18 +343,24 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
               </CSVLink>
             </div>
             <div className="flex flex-row gap-2 w-full phone:w-auto">
-              <EmergencyBroadcastDialog
-                ButtonMenu={
-                  <TopButton variant="third">Phát khẩn cấp</TopButton>
-                }
-              />
-              <EmergencyPauseDialog
-                ButtonMenu={
-                  <TopButton variant="danger" className="w-full">
-                    Dừng khẩn cấp
-                  </TopButton>
-                }
-              />
+              {useCheckPermission("EmergencyOperator", currentUser) ? (
+                <>
+                  <EmergencyBroadcastDialog
+                    level={DISTRICT_ID}
+                    ButtonMenu={
+                      <TopButton variant="third">Phát khẩn cấp</TopButton>
+                    }
+                  />
+                  <EmergencyPauseDialog
+                    ButtonMenu={
+                      <TopButton variant="danger" className="w-full">
+                        Dừng khẩn cấp
+                      </TopButton>
+                    }
+                  />
+                </>
+              ) : null}
+
               <RestartDialog
                 ButtonMenu={
                   <TopButton variant="blue" className="w-full">
