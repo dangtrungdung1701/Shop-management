@@ -64,7 +64,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
     placeholder = "",
     disabled = false,
     formTarget = "id",
-    optionTarget = "name",
+    optionTarget = "displayName",
     required = false,
     splitSign = "|",
     onSelect,
@@ -107,10 +107,10 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
 
     if (listOptionsSelected?.length) {
       const alreadySelect = listOptionsSelected?.map(
-        (selected: any) => selected?.[optionTarget],
+        (selected: any) => selected?.[formTarget],
       );
       const filteredOptions = options?.filter((option: any) => {
-        return !alreadySelect?.includes(option?.[optionTarget]);
+        return !alreadySelect?.includes(option?.[formTarget]);
       });
       setDisplayOptions(
         filteredOptions.filter(item =>

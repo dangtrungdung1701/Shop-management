@@ -1,19 +1,19 @@
 export interface ISource {
   id?: string;
-  name?: string;
+  displayName?: string;
 }
 
 export const optionSource: ISource[] = [
   {
     id: "1",
-    name: "Tệp tin",
+    displayName: "Tệp tin",
   },
   {
     id: "2",
-    name: "Link tiếp sóng",
+    displayName: "Link tiếp sóng",
   },
   {
     id: "3",
-    name: "Kênh FM",
+    displayName: "Kênh FM",
   },
 ];

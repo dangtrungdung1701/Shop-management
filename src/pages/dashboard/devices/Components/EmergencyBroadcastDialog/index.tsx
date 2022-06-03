@@ -3,6 +3,7 @@ import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 
 import { ISource, optionSource } from "common/constants/source";
+import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
@@ -16,8 +17,12 @@ import {
   IEmergencyBroadcastInput,
   IFileAudio,
   IFM,
+  IGetAllDevice,
+  IGetAllSource,
   ILink,
 } from "typings";
+
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -28,6 +33,7 @@ import {
 } from "./styles";
 
 type IDialogProps = {
+  level?: number;
   onClose?: () => void;
   onSuccess?: () => void;
 } & (
@@ -53,9 +59,13 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
   ButtonMenu,
   onClose,
   onSuccess,
+  level = 0,
 }) => {
+  const { currentUser } = useStore();
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
+
+  const [listDevices, setListDevices] = useState<IDevice[]>([]);
 
   const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
   const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
@@ -120,6 +130,95 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
     setOpen(false);
     onClose?.();
   };
+
+  useEffect(() => {
+    getAllDeviceService();
+  }, []);
+
+  const getAllDeviceService = async () => {
+    const input: IGetAllDevice = {
+      regionId: currentUser?.userInfo?.region?.id,
+      excludeRegionId: 1,
+      level,
+    };
+    try {
+      setLoading(true);
+      const payload: any = {
+        ...input,
+      };
+      const response: any = await axiosClient.get("/Device", {
+        params: payload,
+      });
+      if (response) {
+        setListDevices(response.devices);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllFileService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioFileSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.files);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllLinkService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioLinkSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.links);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllFmService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioFmSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.fms);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getOption();
   }, [sourceSelected]);
@@ -127,11 +226,14 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
   const getOption = () => {
     switch (sourceSelected?.id) {
       case "1":
-        return setOptions(optionFileAudio);
+        getAllFileService();
+        break;
       case "2":
-        return setOptions(optionLink);
+        getAllLinkService();
+        break;
       case "3":
-        return setOptions(optionFM);
+        getAllFmService();
+        break;
       default:
         break;
     }
@@ -155,8 +257,8 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
                 <Form onSubmit={formik.handleSubmit}>
                   <Input
                     name="name"
-                    label="Tên quận/ huyện/ thị xã"
-                    placeholder="Nhập tên quận/ huyện/ thị xã"
+                    label="Tên chương trình"
+                    placeholder="Nhập tên tên chương trình"
                     type="text"
                     required
                   />
@@ -164,7 +266,7 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
                     name="device"
                     label="Thiết bị"
                     listOptionsSelected={listDeviceSelected}
-                    options={optionDevice}
+                    options={listDevices}
                     onSelect={value => setListDeviceSelected(value)}
                     className="border rounded border-neutral-4"
                     placeholder="Chọn thiết bị"
@@ -214,63 +316,3 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
 };
 
 export default EmergencyBroadcastDialog;
-
-const optionDevice: IDevice[] = [
-  {
-    id: "1",
-    name: "device 1",
-  },
-  {
-    id: "2",
-    name: "device 2",
-  },
-  {
-    id: "3",
-    name: "device 3",
-  },
-];
-
-const optionFileAudio: IFileAudio[] = [
-  {
-    id: "1",
-    displayName: "file 1",
-  },
-  {
-    id: "2",
-    displayName: "file 2",
-  },
-  {
-    id: "3",
-    displayName: "file 3",
-  },
-];
-
-const optionLink: ILink[] = [
-  {
-    id: "1",
-    displayName: "Link 1",
-  },
-  {
-    id: "2",
-    displayName: "Link 2",
-  },
-  {
-    id: "3",
-    displayName: "Link 3",
-  },
-];
-
-const optionFM: IFM[] = [
-  {
-    id: "1",
-    displayName: "FM 1",
-  },
-  {
-    id: "2",
-    displayName: "FM 2",
-  },
-  {
-    id: "3",
-    displayName: "FM 3",
-  },
-];

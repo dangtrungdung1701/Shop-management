@@ -1,21 +1,24 @@
-import React, { useMemo, useState, lazy, useCallback } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
+
+import { PATH } from "common/constants/routes";
+import { getQueryFromLocation } from "common/functions";
+
+import SearchBoxTable from "components/SearchBoxTable";
+
+import Table, { IColumns } from "designs/Table";
+import ActionButtons from "designs/ActionButtons";
+import Link from "designs/Link";
+
+import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 
-import SearchBoxTable from "components/SearchBoxTable";
-import Table, { IColumns } from "designs/Table";
-import ActionButtons from "designs/ActionButtons";
-import TableLayout from "layouts/Table";
-
-import { PATH } from "common/constants/routes";
-import { getQueryFromLocation } from "common/functions";
+import { IRegion } from "typings";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
-import { IRegion } from "typings";
-import Link from "designs/Link";
 
 const LOAD_DATA = "LOAD_DATA";
 

@@ -1,13 +1,41 @@
-import { useBreadcrumb } from "hooks/useBreadcrumb";
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps, useHistory, useParams } from "react-router";
+import * as yup from "yup";
+import { Formik, FormikProps, FormikValues } from "formik";
+
 import { PATH } from "common/constants/routes";
 import { ISource, optionSource } from "common/constants/source";
-import * as yup from "yup";
+import axiosClient from "common/utils/api";
+import { optionWeek } from "common/constants/date";
+import {
+  CLASS_LIST,
+  CLASS_LIST_OF_DISTRICT,
+  CLASS_LIST_OF_WARD,
+} from "common/constants/user";
+import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
 
 import Input from "designs/Input";
+import MultipleSelect from "designs/MultipleSelect";
+import Select from "designs/Select";
+import DatePicker from "designs/DatePicker";
+import TimePicker from "designs/TimePicker";
+
 import TableLayout from "layouts/Table";
-import { Formik, FormikValues } from "formik";
+
+import useGetLocation from "hooks/useGetLocation";
+import { useBreadcrumb } from "hooks/useBreadcrumb";
+
+import {
+  IDevice,
+  IFileAudio,
+  IFM,
+  IGetAllDevice,
+  IGetAllSource,
+  ILink,
+  IRegion,
+} from "typings";
+
+import useStore from "zustand/store";
 
 import {
   Title,
@@ -18,11 +46,6 @@ import {
   Button,
   FormRightWrapper,
 } from "./styles";
-import MultipleSelect from "designs/MultipleSelect";
-import { IFileAudio, IFM, ILink } from "typings";
-import Select from "designs/Select";
-import DatePicker from "designs/DatePicker";
-import TimePicker from "designs/TimePicker";
 
 interface IConfigureScheduleProps extends RouteComponentProps {}
 interface IParams {
@@ -31,6 +54,10 @@ interface IParams {
 
 interface IFormValue {
   name?: string;
+  level?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
   devices?: string;
   sources?: string;
   file?: string;
@@ -45,7 +72,26 @@ interface IFormValue {
 const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const params: IParams = useParams();
   const history = useHistory();
+
+  const { currentUser } = useStore();
+
   const [loading, setLoading] = useState(false);
+
+  const [schedule, setSchedule] = useState<any | null>(null);
+
+  const [listDevices, setListDevices] = useState<IDevice[]>([]);
+  const [provinceList, setProvinceList] = useState<IRegion[]>([]);
+  const [districtList, setDistrictList] = useState<IRegion[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
+
+  const [selectedProvince, setSelectedProvince] = useState<IRegion | null>(
+    null,
+  );
+  const [selectedDistrict, setSelectedDistrict] = useState<IRegion | null>(
+    null,
+  );
+  const [selectedWard, setSelectedWard] = useState<IRegion | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<any | null>(null);
 
   const [listDeviceSelected, setListDeviceSelected] = useState<any[]>([]);
   const [fileSelected, setFileSelected] = useState<
@@ -59,6 +105,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
     name: "",
+    level: "",
+    province: "",
+    district: "",
+    ward: "",
     devices: "",
     sources: "",
     file: "",
@@ -85,6 +135,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
       name: yup.string().required("Vui lòng nhập tên lịch phát"),
+      level: yup.string().required("Vui lòng chọn cấp độ"),
+      province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
+      district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị xã"),
+      ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị trấn"),
       devices: yup.string().required("Vui lòng chọn thiết bị phát"),
       sources: yup.string().required("Vui lòng chọn nguồn phát"),
       file: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
@@ -101,6 +155,176 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       repeatTime: yup.number().required("Vui lòng chọn số lần lặp"),
     });
 
+  // const getScheduleService = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const res = await axiosClient.get(`/Schedule/${params.id}`);
+  //     if (res) {
+  //       setSchedule(res);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  useEffect(() => {
+    getProvinceListService();
+    currentUser?.userInfo?.region?.provinceId !== -1 &&
+      getDistrictListService(currentUser?.userInfo?.region?.provinceId);
+    currentUser?.userInfo?.region?.districtId !== -1 &&
+      getWardListService(currentUser?.userInfo?.region?.districtId);
+  }, []);
+
+  useEffect(() => {
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : undefined;
+    if (regionId) {
+      getAllDeviceService();
+    }
+  }, [selectedProvince, selectedDistrict, selectedWard]);
+
+  // get region option
+  const getProvinceListService = async () => {
+    try {
+      const res: any = await axiosClient.get("Region", {
+        params: { level: 2 },
+      });
+      if (res) {
+        setProvinceList(res.regions);
+        setSelectedProvince(
+          useGetLocation(schedule?.region?.provinceId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+        setSelectedDistrict(
+          useGetLocation(schedule?.region?.districtId!, res.regions),
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+        setSelectedWard(useGetLocation(schedule?.region?.wardId!, res.regions));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  //
+
+  const getAllDeviceService = async () => {
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : undefined;
+    const input: IGetAllDevice = {
+      regionId: regionId,
+      excludeRegionId: 1,
+      level: selectedLevel?.id,
+    };
+    try {
+      setLoading(true);
+      const payload: any = {
+        ...input,
+      };
+      const response: any = await axiosClient.get("/Device", {
+        params: payload,
+      });
+      if (response) {
+        setListDevices(response.devices);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllFileService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioFileSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.files);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllLinkService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioLinkSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.links);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllFmService = async () => {
+    const payload: IGetAllSource = {
+      level: currentUser?.userInfo?.region?.levelId,
+      regionId: currentUser?.userInfo?.region?.id,
+    };
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get("/AudioFmSource", {
+        params: payload,
+      });
+      if (res) {
+        setOptions(res.fms);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getOption();
   }, [sourceSelected]);
@@ -108,11 +332,14 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const getOption = () => {
     switch (sourceSelected?.id) {
       case "1":
-        return setOptions(optionFileAudio);
+        getAllFileService();
+        break;
       case "2":
-        return setOptions(optionLink);
+        getAllLinkService();
+        break;
       case "3":
-        return setOptions(optionFM);
+        getAllFmService();
+        break;
       default:
         break;
     }
@@ -127,6 +354,57 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 
   const handleBack = () => {
     history.push(PATH.SCHEDULE.SELF);
+  };
+
+  const setFieldValue = (value: any, formik: FormikProps<IFormValue>) => {
+    const province = provinceList.filter(
+      item => item.id === currentUser?.userInfo?.region?.provinceId,
+    )[0];
+    const district = districtList.filter(
+      item => item.id === currentUser?.userInfo?.region?.districtId,
+    )[0];
+    const ward = wardList.filter(
+      item => item.id === currentUser?.userInfo?.region?.wardId,
+    )[0];
+    switch (value?.id) {
+      case 2:
+        setSelectedProvince(province);
+        formik.setFieldValue("province", "SELECTED");
+        formik.setFieldValue("district", "SELECTED");
+        formik.setFieldValue("ward", "SELECTED");
+        break;
+      case 3:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        !district && getDistrictListService(province?.id!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        formik.setFieldValue("ward", "SELECTED");
+        break;
+      case 4:
+        setSelectedProvince(province);
+        setSelectedDistrict(district);
+        setSelectedWard(ward);
+        !district && getDistrictListService(province?.id!);
+        !ward && district
+          ? getWardListService(district?.id!)
+          : getWardListService(schedule?.region?.districtId!);
+        formik.setFieldValue("province", "SELECTED");
+        district
+          ? formik.setFieldValue("district", "SELECTED")
+          : formik.setFieldValue("district", "");
+        ward
+          ? formik.setFieldValue("ward", "SELECT")
+          : formik.setFieldValue("ward", "");
+        break;
+      default:
+        formik.setFieldValue("province", "SELECTED");
+        formik.setFieldValue("district", "SELECTED");
+        formik.setFieldValue("ward", "SELECTED");
+        break;
+    }
   };
 
   return (
@@ -151,14 +429,167 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     type="text"
                     required
                   />
+                  <Select
+                    name="level"
+                    label="Phân cấp"
+                    optionSelected={selectedLevel}
+                    options={
+                      currentUser?.userInfo?.region?.levelId === 2
+                        ? CLASS_LIST
+                        : currentUser?.userInfo?.region?.levelId === 3
+                        ? CLASS_LIST_OF_DISTRICT
+                        : CLASS_LIST_OF_WARD
+                    }
+                    onSelect={value => {
+                      setFieldValue(value, formik);
+                      setSelectedLevel(value);
+                    }}
+                    placeholder="Chọn phân cấp"
+                    required
+                  />
+                  {selectedLevel?.id === 2 && (
+                    <Select
+                      name="province"
+                      label="Tên tỉnh/ thành phố"
+                      optionSelected={selectedProvince}
+                      options={provinceList}
+                      onSelect={value => setSelectedProvince(value)}
+                      placeholder="Chọn tỉnh/thành phố"
+                      required
+                      optionTarget="displayName"
+                      disabled
+                    />
+                  )}
+                  {selectedLevel?.id === 3 && (
+                    <>
+                      <Select
+                        name="province"
+                        label="Tên tỉnh/ thành phố"
+                        optionSelected={selectedProvince}
+                        options={provinceList}
+                        onSelect={value => {
+                          getDistrictListService(value?.id!);
+                          setSelectedDistrict(null);
+                          setSelectedProvince(value);
+                        }}
+                        placeholder="Chọn tỉnh/thành phố"
+                        required
+                        optionTarget="displayName"
+                        disabled
+                      />
+                      <Select
+                        name="district"
+                        label="Tên quận/ huyện/ thị xã"
+                        optionSelected={selectedDistrict}
+                        options={districtList}
+                        onSelect={value => {
+                          setSelectedDistrict(value);
+                        }}
+                        placeholder="Chọn quận/ huyện/ thị xã"
+                        disabled={
+                          currentUser?.userInfo?.region?.districtId === -1
+                            ? false
+                            : true
+                        }
+                        required
+                        optionTarget="displayName"
+                      />
+                    </>
+                  )}
+                  {selectedLevel?.id === 4 && (
+                    <>
+                      <Select
+                        name="province"
+                        label="Tên tỉnh/ thành phố"
+                        optionSelected={selectedProvince}
+                        options={provinceList}
+                        onSelect={value => {
+                          getDistrictListService(value?.id!);
+                          setSelectedDistrict(null);
+                          setSelectedWard(null);
+                          setSelectedProvince(value);
+                        }}
+                        placeholder="Chọn tỉnh/ thành phố"
+                        required
+                        optionTarget="displayName"
+                        disabled
+                      />
+                      <Select
+                        name="district"
+                        label="Tên quận/ huyện/ thị xã"
+                        optionSelected={selectedDistrict}
+                        options={districtList}
+                        onSelect={value => {
+                          getWardListService(value?.id!);
+                          setSelectedWard(null);
+                          setSelectedDistrict(value);
+                        }}
+                        placeholder="Chọn quận/ huyện/ thị xã"
+                        disabled={
+                          currentUser?.userInfo?.region?.districtId === -1
+                            ? false
+                            : true
+                        }
+                        required
+                        optionTarget="displayName"
+                      />
+                      <Select
+                        name="ward"
+                        label="Tên phường/ xã/ thị trấn"
+                        optionSelected={selectedWard}
+                        options={wardList}
+                        onSelect={value => setSelectedWard(value)}
+                        placeholder="Chọn phường/ xã/ thị trấn"
+                        disabled={(() => {
+                          if (currentUser?.userInfo?.region?.wardId !== -1) {
+                            return true;
+                          } else {
+                            if (!selectedDistrict) {
+                              return true;
+                            }
+                          }
+                          return false;
+                        })()}
+                        required
+                        optionTarget="displayName"
+                      />
+                    </>
+                  )}
                   <MultipleSelect
                     name="devices"
                     label="Thiết bị"
                     listOptionsSelected={listDeviceSelected}
-                    options={optionDevice}
+                    options={listDevices}
                     onSelect={value => setListDeviceSelected(value)}
                     placeholder="Chọn thiết bị"
                     required
+                    disabled={(() => {
+                      if (!selectedLevel) {
+                        return true;
+                      }
+                      const regionId = () => {
+                        if (selectedLevel?.id === WARD_ID && selectedWard) {
+                          return selectedWard?.id;
+                        }
+                        if (
+                          selectedLevel?.id === DISTRICT_ID &&
+                          selectedDistrict
+                        ) {
+                          return selectedDistrict?.id;
+                        }
+                        if (
+                          selectedLevel?.id === PROVINCE_ID &&
+                          selectedProvince
+                        ) {
+                          return selectedProvince?.id;
+                        }
+                        return undefined;
+                      };
+                      if (!regionId()) {
+                        return true;
+                      }
+                      return false;
+                    })()}
                   />
                   <Select
                     name="sources"
@@ -243,94 +674,3 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 };
 
 export default ConfigureSchedule;
-
-const optionDevice: any[] = [
-  {
-    id: "1",
-    name: "device 1",
-  },
-  {
-    id: "2",
-    name: "device 2",
-  },
-  {
-    id: "3",
-    name: "device 3",
-  },
-];
-
-const optionWeek: any[] = [
-  {
-    id: "1",
-    name: "Thứ 2",
-  },
-  {
-    id: "2",
-    name: "Thứ 3",
-  },
-  {
-    id: "3",
-    name: "Thứ 4",
-  },
-  {
-    id: "4",
-    name: "Thứ 5",
-  },
-  {
-    id: "5",
-    name: "Thứ 6",
-  },
-  {
-    id: "6",
-    name: "Thứ 7",
-  },
-  {
-    id: "7",
-    name: "Chủ nhật",
-  },
-];
-
-const optionFileAudio: IFileAudio[] = [
-  {
-    id: "1",
-    displayName: "file 1",
-  },
-  {
-    id: "2",
-    displayName: "file 2",
-  },
-  {
-    id: "3",
-    displayName: "file 3",
-  },
-];
-
-const optionLink: ILink[] = [
-  {
-    id: "1",
-    displayName: "Link 1",
-  },
-  {
-    id: "2",
-    displayName: "Link 2",
-  },
-  {
-    id: "3",
-    displayName: "Link 3",
-  },
-];
-
-const optionFM: IFM[] = [
-  {
-    id: "1",
-    displayName: "FM 1",
-  },
-  {
-    id: "2",
-    displayName: "FM 2",
-  },
-  {
-    id: "3",
-    displayName: "FM 3",
-  },
-];
