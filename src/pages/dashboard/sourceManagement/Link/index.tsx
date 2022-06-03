@@ -170,7 +170,7 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
       },
       {
         text: "Người tạo",
-        dataField: "latestModifiedByUser.userName",
+        dataField: "latestModifiedByUser.displayName",
       },
       {
         text: "Hành động",
