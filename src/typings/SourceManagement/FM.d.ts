@@ -1,15 +1,17 @@
 import { IUser } from ".";
+import { ILatestModifiedByUser } from "./FileAudio";
 
 export interface IFM {
-  id?: string;
-  name?: string;
-  createdTime?: string; //Date
-  totalTime?: number;
-  createdPerson?: IUser;
+  displayName?: string;
   frequency?: number;
   rssi?: number;
   c?: number;
   g?: number;
+  id?: string;
+  regionId?: number;
+  lastUsedTimeStamp?: number;
+  uploadTimeStamp?: number;
+  latestModifiedByUser?: ILatestModifiedByUser;
 }
 
 export interface IFMInput {

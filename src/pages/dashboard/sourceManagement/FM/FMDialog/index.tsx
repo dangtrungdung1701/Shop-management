@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
+import { toast } from "react-toastify";
 
-import { SUPPORTED_FORMATS } from "common/constants/file";
+import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
 
 import Input from "designs/Input";
 
-import { IFMInput, IFM } from "typings";
+import { IFM } from "typings";
+
+import useStore from "zustand/store";
 
 import {
   ButtonWrapper,
@@ -18,7 +21,6 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import { URL } from "common/constants/validation";
 
 type IDialogProps = {
   editField?: IFM;
@@ -50,6 +52,8 @@ const LinkDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { currentUser } = useStore();
+
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +68,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
   useEffect(() => {
     if (editField) {
       setInitialValues({
-        name: editField?.name,
+        name: editField?.displayName,
         frequency: editField?.frequency,
         rssi: editField?.rssi,
         c: editField?.c,
@@ -84,40 +88,84 @@ const LinkDialog: React.FC<IDialogProps> = ({
     });
 
   const handleSubmit = async (value: FormikValues) => {
-    const input: IFMInput = {
-      name: value?.name,
-      frequency: value?.frequency,
-      rssi: value?.rssi,
-      c: value?.c,
-      g: value?.g,
-    };
-    console.log(input);
-    handleCloseDialog();
-    // try {
-    //   if (editField) {
-    //     setLoading(true);
-    //     const payload: IUpdateProvince = {
-    //       id: editField?._id!,
-    //       categoryInput: input,
-    //     };
-    //     await updateCategoryAPI(payload);
-    //     onSuccess?.();
-    //     setLoading(false);
-    //     handleCloseDialog();
-    //     return;
-    //   }
-    //   setLoading(true);
-    //   const payload: ICreateProvince = {
-    //     categoryInput: input,
-    //   };
-    //   await createCategoryAPI(payload);
-    //   onSuccess?.();
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // } catch (err) {
-    //   setLoading(false);
-    //   handleCloseDialog();
-    // }
+    try {
+      setLoading(true);
+      if (editField) {
+        const payload = {
+          displayName: value?.name,
+          frequency: value?.frequency,
+          rssi: value?.rssi,
+          c: value?.c,
+          g: value?.g,
+        };
+        console.log(payload);
+        const res = await axiosClient.put(
+          `/AudioFmSource/${editField?.id}`,
+          payload,
+        );
+        if (res) {
+          onSuccess?.();
+          handleCloseDialog();
+          toast.dark("Cập nhật kênh FM thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
+        }
+        return;
+      }
+      const payload = {
+        displayName: value?.name,
+        frequency: value?.frequency,
+        rssi: value?.rssi,
+        c: value?.c,
+        g: value?.g,
+        regionId: currentUser?.userInfo?.region?.id,
+      };
+      const res = await axiosClient.post("/AudioFmSource", payload);
+
+      if (res) {
+        onSuccess?.();
+        handleCloseDialog();
+        toast.dark("Tạo kênh FM thành công !", {
+          type: toast.TYPE.SUCCESS,
+        });
+      }
+    } catch (err: any) {
+      if (editField) {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị kênh FM đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Cập nhật kênh FM không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      } else {
+        switch (err.response.status) {
+          case 409:
+            toast.dark(
+              "Tên hiển thị kênh FM đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              {
+                type: toast.TYPE.ERROR,
+              },
+            );
+            break;
+          default:
+            toast.dark("Tạo kênh FM không thành công !", {
+              type: toast.TYPE.ERROR,
+            });
+            break;
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDialog = () => {
