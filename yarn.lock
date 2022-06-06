@@ -2495,10 +2495,10 @@
   dependencies:
     "@types/react-bootstrap-table-next" "*"
 
-"@types/react-bootstrap-table2-toolkit@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.npmjs.org/@types/react-bootstrap-table2-toolkit/-/react-bootstrap-table2-toolkit-2.1.5.tgz"
-  integrity sha512-3uH5jVGKlmmtgGydKW6ILCnNr6zNhEh7ibK12iSqf/JTpz4pjXw6jLkKqTd8vULELcRBHcK6Kxcz7mb+3YW6oA==
+"@types/react-bootstrap-table2-toolkit@^2.1.7":
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/@types/react-bootstrap-table2-toolkit/-/react-bootstrap-table2-toolkit-2.1.7.tgz#b3c0aae80306533019c87be4819441ce13516c6c"
+  integrity sha512-Jr4rjcnzqy1srSrrTaO0xMjP0MJdenJx5yOO/Rwo6mkru9hID7omEHfZeer0tRhPrN2QOFmCqe+sHYjZnUqKmw==
   dependencies:
     "@types/react" "*"
     "@types/react-bootstrap-table-next" "*"
