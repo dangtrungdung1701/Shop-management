@@ -59,7 +59,7 @@
     "quill-table": "^1.0.0",
     "rc-time-picker": "^3.7.3",
     "react": "^17.0.2",
-    "react-async-hook": "^3.6.2",
+    "react-async-hook": "^4.0.0",
     "react-bootstrap-table-next": "^4.0.3",
     "react-bootstrap-table2-overlay-esm": "^0.2.2",
     "react-bootstrap-table2-paginator": "^2.1.2",
