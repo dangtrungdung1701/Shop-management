@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.16",
-    "@ckeditor/ckeditor5-react": "^3.0.3",
+    "@ckeditor/ckeditor5-react": "^5.0.2",
     "@craco/craco": "^6.4.3",
     "@deedmob/quill-image-resize-alt-module": "^4.0.0",
     "@emotion/react": "^11.8.1",
