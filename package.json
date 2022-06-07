@@ -50,7 +50,7 @@
     "fuse.js": "^6.6.2",
     "graphql": "^15.5.0",
     "history": "4.10.1",
-    "immer": "^9.0.2",
+    "immer": "^9.0.14",
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.7.1",
     "material-ui-audio-player": "^1.7.1",
