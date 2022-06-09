@@ -17,7 +17,7 @@
     "format": "prettier --write \"**/*\""
   },
   "dependencies": {
-    "@apollo/client": "^3.3.16",
+    "@apollo/client": "^3.6.6",
     "@ckeditor/ckeditor5-react": "^5.0.2",
     "@craco/craco": "^6.4.3",
     "@deedmob/quill-image-resize-alt-module": "^4.0.0",
