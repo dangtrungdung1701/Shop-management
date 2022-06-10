@@ -92,7 +92,7 @@
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "twin.macro": "^2.7.0",
     "use-constant": "^1.1.0",
-    "web-vitals": "^1.0.1",
+    "web-vitals": "^2.1.4",
     "yup": "^0.32.9",
     "zustand": "^3.7.0",
     "zustand-persist": "^0.4.0"
