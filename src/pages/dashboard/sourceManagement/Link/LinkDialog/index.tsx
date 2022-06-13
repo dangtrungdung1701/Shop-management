@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
+import AudioPlayer from "material-ui-audio-player";
+import ReactHlsPlayer from "react-hls-player";
 
 import { URL } from "common/constants/validation";
 import axiosClient from "common/utils/api";
@@ -52,6 +54,8 @@ const LinkDialog: React.FC<IDialogProps> = ({
 }) => {
   const { currentUser } = useStore();
 
+  const playerRef = useRef<any>(null);
+
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
 
@@ -72,10 +76,11 @@ const LinkDialog: React.FC<IDialogProps> = ({
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên tệp tin"),
+      name: yup.string().required("Vui lòng nhập tên tệp tin").trim(),
       url: yup
         .string()
         .required("Vui lòng nhập đường dẫn!")
+        .trim("asdasd")
         .matches(URL, "Đường dẫn chưa đúng định dạng, vui lòng thử lại!"),
     });
 
@@ -87,7 +92,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
           displayName: value?.name,
           url: value?.url,
         };
-        console.log(payload);
+
         const res = await axiosClient.put(
           `/AudioLinkSource/${editField?.id}`,
           payload,
@@ -186,15 +191,52 @@ const LinkDialog: React.FC<IDialogProps> = ({
                     type="text"
                     required
                   />
-                  {!editField && (
-                    <Input
-                      name="url"
-                      label="Đường dẫn link tiếp sóng"
-                      placeholder="Nhập đường dẫn link tiếp sóng"
-                      type="text"
-                      required
-                    />
-                  )}
+
+                  <Input
+                    name="url"
+                    label="Đường dẫn link tiếp sóng"
+                    placeholder="Nhập đường dẫn link tiếp sóng"
+                    type="text"
+                    required
+                    onChangeValue={value => {
+                      formik.setFieldValue("url", (value as string).trim());
+                    }}
+                  />
+                  {(() => {
+                    if (formik.values.url && !formik?.errors?.url) {
+                      if (formik.values.url.includes(".m3u8")) {
+                        console.log("alo1");
+                        return (
+                          <div className="custom-hls-player">
+                            <ReactHlsPlayer
+                              src={formik.values.url}
+                              autoPlay={false}
+                              controls={true}
+                              width="100%"
+                              height={100}
+                              playerRef={playerRef}
+                            />
+                          </div>
+                        );
+                      }
+                      if (formik.values.url.includes(".mp3")) {
+                        return (
+                          <div className="custom-audio-player">
+                            <AudioPlayer
+                              elevation={1}
+                              width="100%"
+                              variation="primary"
+                              debug={false}
+                              src={formik.values.url!}
+                            />
+                          </div>
+                        );
+                      }
+                      console.log("alo");
+                      return <div>Chưa hỗ trợ định dạng audio này</div>;
+                    }
+                    return;
+                  })()}
                   <ButtonWrapper>
                     <Button
                       type="button"

@@ -76,7 +76,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      displayName: yup.string().required("Vui lòng nhập tên tệp tin"),
+      displayName: yup.string().required("Vui lòng nhập tên tệp tin").trim(),
       file: yup
         .mixed()
         .required("Vui lòng thêm tệp tin")
@@ -171,6 +171,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
     setOpen(false);
     onClose?.();
   };
+
   return (
     <>
       <ElementWrapper onClick={() => setOpen(true)}>
