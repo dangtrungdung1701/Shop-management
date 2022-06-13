@@ -80,7 +80,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên kênh FM"),
+      name: yup.string().required("Vui lòng nhập tên kênh FM").trim(),
       frequency: yup.number().required("Vui lòng nhập tần số!"),
       rssi: yup.number().required("Vui lòng nhập thông số RSSI!"),
       c: yup.number().required("Vui lòng nhập thông số C!"),
@@ -202,28 +202,28 @@ const LinkDialog: React.FC<IDialogProps> = ({
                     name="frequency"
                     label="Tần số"
                     placeholder="Nhập tần số"
-                    type="text"
+                    type="number"
                     required
                   />
                   <Input
                     name="rssi"
                     label="Thông số RSSI"
                     placeholder="Nhập thông số RSSI"
-                    type="text"
+                    type="number"
                     required
                   />
                   <Input
                     name="c"
                     label="Thông số C"
                     placeholder="Nhập thông số C"
-                    type="text"
+                    type="number"
                     required
                   />
                   <Input
                     name="g"
                     label="Thông số G"
                     placeholder="Nhập thông số G"
-                    type="text"
+                    type="number"
                     required
                   />
                   <ButtonWrapper>

@@ -19,3 +19,9 @@
     padding: 5px 0;
   }
 }
+
+.custom-hls-player {
+  video {
+    max-height: 100px;
+  }
+}

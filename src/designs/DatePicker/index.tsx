@@ -54,8 +54,10 @@ const DatePicker: React.FC<IInput> = props => {
 
   const handleChange = (newDate: Date | null) => {
     setDate(newDate);
-    if (newDate) setFieldValue(name, String(newDate));
-    else setFieldValue(name, "");
+    if (newDate) {
+      setFieldValue(name, String(newDate));
+      onDateChange && onDateChange(newDate);
+    } else setFieldValue(name, "");
   };
 
   return (

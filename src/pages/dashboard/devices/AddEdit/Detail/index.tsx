@@ -54,6 +54,7 @@ interface IFormValue {
   endDay?: string;
   address?: string;
   description?: string;
+  dayLeft?: number;
 }
 
 interface IDetailsProps {
@@ -101,6 +102,7 @@ const Details: React.FC<IDetailsProps> = props => {
     endDay: "",
     address: "",
     description: "",
+    dayLeft: undefined,
   });
 
   useBreadcrumb([
@@ -126,6 +128,7 @@ const Details: React.FC<IDetailsProps> = props => {
         description: editField?.note,
         startDay: dayjs.unix(editField.sim?.startDate as number).format(),
         endDay: dayjs.unix(editField.sim?.endDate as number).format(),
+        dayLeft: getDayLeft(editField.sim?.endDate as number),
         class: "SELECTED",
         province: "SELECTED",
         district: "SELECTED",
@@ -287,6 +290,19 @@ const Details: React.FC<IDetailsProps> = props => {
     }, 1000);
   };
 
+  const getDayLeft = (endDate: number | Date) => {
+    const startDay = new Date();
+    let endDay: Date;
+    if (typeof endDate === "number") {
+      endDay = new Date(dayjs.unix(endDate).format());
+    } else {
+      endDay = endDate;
+    }
+    const timeLeft = endDay.getTime() - startDay.getTime();
+    const dayLeft = timeLeft / 86400000 > 0 ? timeLeft / 86400000 : 0;
+    return Math.round(dayLeft);
+  };
+
   const setFieldValue = (value: any, formik: FormikProps<IFormValue>) => {
     const province = provinceList.filter(
       item => item.id === currentUser?.userInfo?.region?.provinceId,
@@ -396,7 +412,20 @@ const Details: React.FC<IDetailsProps> = props => {
                     minimumDate={new Date(formik.values.startDay || "")}
                     label="Ngày kết thúc gói cước"
                     name="endDay"
+                    onDateChange={newDate => {
+                      formik.setFieldValue("dayLeft", getDayLeft(newDate));
+                    }}
                   />
+                  {formik.values.startDay &&
+                    formik.values.endDay &&
+                    !formik.errors.endDay && (
+                      <Input
+                        disabled={true}
+                        name="dayLeft"
+                        label="Số ngày còn lại"
+                        type="text"
+                      />
+                    )}
                 </FormLeftWrapper>
                 <FormRightWrapper>
                   <Input

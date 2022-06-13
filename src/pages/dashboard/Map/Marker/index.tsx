@@ -28,7 +28,7 @@ interface IMapMarkerProps {
 
 const MapMarker: React.FC<IMapMarkerProps> = props => {
   const [zoomScale, setZoomScale] = useState<number>(useMap().getZoom());
-  console.log(zoomScale);
+
   const map = useMapEvents({
     zoom() {
       setZoomScale(map.getZoom());
