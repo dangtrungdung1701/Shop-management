@@ -3,7 +3,7 @@ import { lazy } from "react";
 import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
-import ChallengeIcon from "icons/Dashboard/Challenge";
+import DeviceIcon from "icons/Dashboard/Device";
 
 const Province = lazy(() => import("pages/dashboard/devices/Province"));
 const District = lazy(() => import("pages/dashboard/devices/District"));
@@ -16,7 +16,7 @@ export const devicesRoute: IRoutes = {
   path: PATH.DEVICE.SELF,
   exact: true,
   isPrivate: true,
-  Icon: <ChallengeIcon />,
+  Icon: <DeviceIcon />,
   children: [
     {
       name: "Cấp Tỉnh/TP",

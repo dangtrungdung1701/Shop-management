@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 
 import {
   CLASS_LIST_OF_DISTRICT,
-  CLASS_LIST_OF_PROVINCE,
   CLASS_LIST,
   CLASS_LIST_OF_WARD,
 } from "common/constants/user";
@@ -20,9 +19,10 @@ import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
 import Select from "designs/Select";
 
-import { IPermissionV2Id, IRegion, IUser, IUserInput } from "typings";
+import { IRegion, IUser, IUserInput } from "typings";
 
 import useGetLocation from "hooks/useGetLocation";
+import useCheckPermission from "hooks/useCheckPermission";
 
 import { IPermissionV2 } from "typings";
 import useStore from "zustand/store";
@@ -37,7 +37,6 @@ import {
   FormRightWrapper,
   FormTopWrapper,
 } from "./styles";
-import useCheckPermission from "hooks/useCheckPermission";
 
 type IDialogProps = {
   editField?: IUser;

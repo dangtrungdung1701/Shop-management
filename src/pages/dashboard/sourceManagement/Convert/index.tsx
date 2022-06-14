@@ -5,13 +5,22 @@ import { Formik, FormikValues } from "formik";
 import AudioPlayer from "material-ui-audio-player";
 
 import { PATH } from "common/constants/routes";
+import {
+  ISpeed,
+  IVoice,
+  optionSpeed,
+  optionVoice,
+} from "common/constants/convert";
 
 import Input from "designs/Input";
+import Select from "designs/Select";
+import TextArea from "designs/TextArea";
+
 import TableLayout from "layouts/Table";
 
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 
-import { IConvertInput, IFM } from "typings";
+import { IConvertInput } from "typings";
 
 import {
   Button,
@@ -21,14 +30,6 @@ import {
   SliderWrapper,
   Title,
 } from "./styles";
-import Select from "designs/Select";
-import {
-  ISpeed,
-  IVoice,
-  optionSpeed,
-  optionVoice,
-} from "common/constants/convert";
-import TextArea from "designs/TextArea";
 
 interface IRegionProps extends RouteComponentProps {}
 
