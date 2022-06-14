@@ -17,6 +17,7 @@ import TableLayout from "layouts/Table";
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
 
 import { IFM, IGetAllSource } from "typings";
 
@@ -221,7 +222,6 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý kênh FM"
-      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm kênh FM</ButtonAddFileAudio>}
@@ -231,22 +231,30 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
         />
       }
     >
-      <SearchBoxWrapper>
-        <SearchBoxTable
-          onFetchData={handleFetchData}
-          placeholder="Tìm kiếm theo tên kênh FM"
-        />
-      </SearchBoxWrapper>
+      {useCheckPermission("AudioSourceManager", currentUser) ? (
+        <>
+          <SearchBoxWrapper>
+            <SearchBoxTable
+              onFetchData={handleFetchData}
+              placeholder="Tìm kiếm theo tên kênh FM"
+            />
+          </SearchBoxWrapper>
 
-      <Table
-        data={listFmAudio}
-        columns={columns}
-        page={page}
-        totalSize={totalCount}
-        onPageChange={handleChangePage}
-        onSizeChange={handleChangeSize}
-        isRemote
-      />
+          <Table
+            data={listFmAudio}
+            columns={columns}
+            page={page}
+            totalSize={totalCount}
+            onPageChange={handleChangePage}
+            onSizeChange={handleChangeSize}
+            isRemote
+          />
+        </>
+      ) : (
+        <div className="h-30 flex items-center justify-center font-bold text-20">
+          Bạn không có quyền truy cập trang này
+        </div>
+      )}
     </TableLayout>
   );
 };

@@ -130,7 +130,6 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý lịch phát"
-      permission="ScheduleManager"
       buttonMenu={
         <Link to={PATH.SCHEDULE.CREATE} className="w-full phone:w-auto">
           <TopButton>Thêm lịch phát</TopButton>

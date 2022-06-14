@@ -21,6 +21,7 @@ import TableLayout from "layouts/Table";
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
 import useGetLocation from "hooks/useGetLocation";
 
 import {
@@ -34,6 +35,14 @@ import {
 import useStore from "zustand/store";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
+
+const EmergencyBroadcastDialog = lazy(
+  () => import("../Components/EmergencyBroadcastDialog"),
+);
+
+const EmergencyPauseDialog = lazy(
+  () => import("../Components/EmergencyPauseDialog"),
+);
 
 const RestartDialog = lazy(() => import("../Components/RestartDialog"));
 
@@ -346,77 +355,110 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   return (
     <TableLayout
       title="Thiết bị cấp Phường/Xã/Thị Trấn"
-      permission="DeviceManager"
       buttonMenu={
-        <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
-          <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
-            <TopButton>Xuất báo cáo</TopButton>
-          </CSVLink>
-          <RestartDialog
-            ButtonMenu={
-              <TopButton variant="danger" className="w-full">
-                Khởi động lại
-              </TopButton>
-            }
-          />
-        </div>
+        useCheckPermission("DeviceManager", currentUser) ? (
+          <div className="flex flex-col gap-2 items-end w-full phone:w-auto overflow-x-auto max-w-full pretty-scroll pb-">
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
+                <TopButton>Xuất báo cáo</TopButton>
+              </CSVLink>
+            </div>
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              {useCheckPermission("EmergencyOperator", currentUser) ? (
+                <>
+                  <EmergencyBroadcastDialog
+                    level={WARD_ID}
+                    ButtonMenu={
+                      <TopButton variant="third">Phát khẩn cấp</TopButton>
+                    }
+                  />
+                  <EmergencyPauseDialog
+                    ButtonMenu={
+                      <TopButton variant="danger" className="w-full">
+                        Dừng khẩn cấp
+                      </TopButton>
+                    }
+                  />
+                </>
+              ) : null}
+
+              <RestartDialog
+                ButtonMenu={
+                  <TopButton variant="blue" className="w-full">
+                    Khởi động lại
+                  </TopButton>
+                }
+              />
+            </div>
+          </div>
+        ) : (
+          <></>
+        )
       }
     >
-      <SearchBoxWrapper>
-        <SearchBoxTable
-          onFetchData={handleFetchData}
-          placeholder="Tìm kiếm theo tên thiết bị"
-          className="w-full phone:max-w-35"
-        />
-        {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
-          <SimpleSelect
-            options={districtList}
-            optionSelected={districtSelected}
-            onSelect={value => {
-              setWardSelected(null);
-              if (value) {
-                getWardListService(value?.id!);
-              }
-              setDistrictSelected(value);
-              setPage(1);
-            }}
-            placeholder="Quận/Huyện/Thị Xã"
-            className="w-full phone:max-w-35"
-            optionTarget="displayName"
-          />
-        )}
+      {useCheckPermission("DeviceManager", currentUser) ? (
+        <>
+          <SearchBoxWrapper>
+            <SearchBoxTable
+              onFetchData={handleFetchData}
+              placeholder="Tìm kiếm theo tên thiết bị"
+              className="w-full phone:max-w-35"
+            />
+            {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
+              <SimpleSelect
+                options={districtList}
+                optionSelected={districtSelected}
+                onSelect={value => {
+                  setWardSelected(null);
+                  if (value) {
+                    getWardListService(value?.id!);
+                  }
+                  setDistrictSelected(value);
+                  setPage(1);
+                }}
+                placeholder="Quận/Huyện/Thị Xã"
+                className="w-full phone:max-w-35"
+                optionTarget="displayName"
+              />
+            )}
 
-        {currentUser?.userInfo?.region?.levelId < WARD_ID && (
-          <SimpleSelect
-            options={wardList}
-            optionSelected={wardSelected}
-            onSelect={value => {
-              setWardSelected(value);
-              setPage(1);
-            }}
-            placeholder="Phường/Xã/Thị Trấn"
-            disabled={
-              currentUser?.userInfo?.region?.levelId === PROVINCE_ID
-                ? districtSelected
-                  ? false
-                  : true
-                : false
-            }
-            className="w-full phone:max-w-35"
-            optionTarget="displayName"
-          />
-        )}
-      </SearchBoxWrapper>
+            {currentUser?.userInfo?.region?.levelId < WARD_ID && (
+              <SimpleSelect
+                options={wardList}
+                optionSelected={wardSelected}
+                onSelect={value => {
+                  setWardSelected(value);
+                  setPage(1);
+                }}
+                placeholder="Phường/Xã/Thị Trấn"
+                disabled={
+                  currentUser?.userInfo?.region?.levelId === PROVINCE_ID
+                    ? districtSelected
+                      ? false
+                      : true
+                    : false
+                }
+                className="w-full phone:max-w-35"
+                optionTarget="displayName"
+              />
+            )}
+          </SearchBoxWrapper>
 
-      <Table
-        data={listDevice}
-        columns={columns}
-        page={page}
-        totalSize={totalCount}
-        onPageChange={handleChangePage}
-        onSizeChange={handleChangeSize}
-        isRemote
-      />
+          <Table
+            data={listDevice}
+            columns={columns}
+            page={page}
+            totalSize={totalCount}
+            onPageChange={handleChangePage}
+            onSizeChange={handleChangeSize}
+            isRemote
+          />
+        </>
+      ) : (
+        <div className="h-30 flex items-center justify-center font-bold text-20">
+          Bạn không có quyền truy cập trang này
+        </div>
+      )}
     </TableLayout>
   );
 };

@@ -134,7 +134,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên lịch phát").trim(),
+      name: yup.string().required("Vui lòng nhập tên lịch phát"),
       level: yup.string().required("Vui lòng chọn cấp độ"),
       province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
       district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị xã"),

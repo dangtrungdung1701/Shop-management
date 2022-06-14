@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 
 import axiosClient from "common/utils/api";
-
 import { useBreadcrumb } from "hooks/useBreadcrumb";
-
 import { ISummary } from "typings";
-
 import useStore from "zustand/store";
 
 import Statistic from "./Statistic";

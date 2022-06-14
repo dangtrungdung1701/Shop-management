@@ -5,7 +5,7 @@ import { CSVLink } from "react-csv";
 import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 import axiosClient from "common/utils/api";
-import { PROVINCE_ID } from "common/constants/region";
+import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
 import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
 
 import SearchBoxTable from "components/SearchBoxTable";
@@ -20,6 +20,7 @@ import TableLayout from "layouts/Table";
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
 
 import {
   IRegion,
@@ -32,6 +33,14 @@ import {
 import useStore from "zustand/store";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
+
+const EmergencyBroadcastDialog = lazy(
+  () => import("../Components/EmergencyBroadcastDialog"),
+);
+
+const EmergencyPauseDialog = lazy(
+  () => import("../Components/EmergencyPauseDialog"),
+);
 
 const RestartDialog = lazy(() => import("../Components/RestartDialog"));
 
@@ -289,25 +298,50 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   return (
     <TableLayout
       title="Thiết bị cấp Tỉnh/TP"
-      permission="DeviceManager"
       buttonMenu={
-        currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
-          <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
-            <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
-              <TopButton>Xuất báo cáo</TopButton>
-            </CSVLink>
-            <RestartDialog
-              ButtonMenu={
-                <TopButton variant="danger" className="w-full">
-                  Khởi động lại
-                </TopButton>
-              }
-            />
+        useCheckPermission("DeviceManager", currentUser) &&
+        currentUser?.userInfo?.region?.levelId === PROVINCE_ID ? (
+          <div className="flex flex-col gap-2 items-end w-full phone:w-auto overflow-x-auto max-w-full pretty-scroll pb-">
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
+                <TopButton>Xuất báo cáo</TopButton>
+              </CSVLink>
+            </div>
+            <div className="flex flex-row gap-2 w-full phone:w-auto">
+              {useCheckPermission("EmergencyOperator", currentUser) ? (
+                <>
+                  <EmergencyBroadcastDialog
+                    level={PROVINCE_ID}
+                    ButtonMenu={
+                      <TopButton variant="third">Phát khẩn cấp</TopButton>
+                    }
+                  />
+                  <EmergencyPauseDialog
+                    ButtonMenu={
+                      <TopButton variant="danger" className="w-full">
+                        Dừng khẩn cấp
+                      </TopButton>
+                    }
+                  />
+                </>
+              ) : null}
+
+              <RestartDialog
+                ButtonMenu={
+                  <TopButton variant="blue" className="w-full">
+                    Khởi động lại
+                  </TopButton>
+                }
+              />
+            </div>
           </div>
+        ) : (
+          <></>
         )
       }
     >
-      {currentUser?.userInfo?.region?.levelId === PROVINCE_ID ? (
+      {useCheckPermission("DeviceManager", currentUser) &&
+      currentUser?.userInfo?.region?.levelId === PROVINCE_ID ? (
         <>
           <SearchBoxWrapper>
             <SearchBoxTable

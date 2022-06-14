@@ -2,12 +2,9 @@ import React, { useCallback, useState } from "react";
 import L from "leaflet";
 import { Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { isIOS, osVersion } from "react-device-detect";
-
 import ActiveIcon from "assets/svg/device/active.svg";
 import InActiveIcon from "assets/svg/device/inactive.svg";
 import ErrorIcon from "assets/svg/device/error.svg";
-
-import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
 
 import {
   AddressItem,
@@ -18,6 +15,7 @@ import {
   Button,
   Text,
 } from "./styles";
+import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
 
 interface IMapMarkerProps {
   lat: number;
