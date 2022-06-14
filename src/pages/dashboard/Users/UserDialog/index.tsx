@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 import {
   CLASS_LIST_OF_DISTRICT,
+  CLASS_LIST_OF_PROVINCE,
   CLASS_LIST,
   CLASS_LIST_OF_WARD,
 } from "common/constants/user";
@@ -19,10 +20,9 @@ import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
 import Select from "designs/Select";
 
-import { IRegion, IUser, IUserInput } from "typings";
+import { IPermissionV2Id, IRegion, IUser, IUserInput } from "typings";
 
 import useGetLocation from "hooks/useGetLocation";
-import useCheckPermission from "hooks/useCheckPermission";
 
 import { IPermissionV2 } from "typings";
 import useStore from "zustand/store";
@@ -37,6 +37,7 @@ import {
   FormRightWrapper,
   FormTopWrapper,
 } from "./styles";
+import useCheckPermission from "hooks/useCheckPermission";
 
 type IDialogProps = {
   editField?: IUser;
@@ -206,9 +207,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
         userName: yup
           .string()
           .required("Vui lòng nhập tên tài khoản")
-          .trim()
           .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
-        displayName: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
         password: yup
           .string()
           .required("Vui lòng nhập mật khẩu")
@@ -235,9 +235,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
         userName: yup
           .string()
           .required("Vui lòng nhập tên tài khoản")
-          .trim()
           .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
-        displayName: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
         password: yup
           .string()
           .min(6, "Mật khẩu phải tối thiểu 6 ký tự")

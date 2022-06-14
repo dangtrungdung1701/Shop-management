@@ -1,5 +1,4 @@
 import React from "react";
-
 import { StatisticsItem } from "./styles";
 
 interface IStatisticProps {

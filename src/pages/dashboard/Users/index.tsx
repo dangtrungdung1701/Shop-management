@@ -1,29 +1,26 @@
 import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
 import { RouteComponentProps } from "react-router";
-import { toast } from "react-toastify";
-
-import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
-import axiosClient from "common/utils/api";
-import { PATH } from "common/constants/routes";
-import { getQueryFromLocation } from "common/functions";
-
-import SearchBoxTable from "components/SearchBoxTable";
-
-import Table, { IColumns } from "designs/Table";
-import ActionButtons from "designs/ActionButtons";
-import SimpleSelect from "designs/SimpleSelect";
-
-import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 
-import { IRegion, IUser } from "typings";
+import SearchBoxTable from "components/SearchBoxTable";
+import Table, { IColumns } from "designs/Table";
+import ActionButtons from "designs/ActionButtons";
+import TableLayout from "layouts/Table";
 
-import useStore from "zustand/store";
+import { PATH } from "common/constants/routes";
+import { getQueryFromLocation } from "common/functions";
 
 import { ButtonAdd, SearchBoxWrapper } from "./styles";
+import { IRegion, IUser } from "typings";
+import SimpleSelect from "designs/SimpleSelect";
+import axiosClient from "common/utils/api";
+import useStore from "zustand/store";
+import { toast } from "react-toastify";
+import { userInfo } from "os";
+import useCheckPermission from "hooks/useCheckPermission";
 
 const NormalDialog = lazy(() => import("./UserDialog"));
 const UserProfileDialog = lazy(() => import("components/UserProfileDialog"));
@@ -290,10 +287,15 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
   return (
     <TableLayout
       title="Người dùng"
-      permission="UserManager"
       buttonMenu={
         <NormalDialog
-          ButtonMenu={<ButtonAdd>Thêm người dùng</ButtonAdd>}
+          ButtonMenu={
+            useCheckPermission("UserManager", currentUser) ? (
+              <ButtonAdd>Thêm người dùng</ButtonAdd>
+            ) : (
+              <></>
+            )
+          }
           onSuccess={() => {
             getAllUserService();
           }}
@@ -306,7 +308,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
           placeholder="Tìm kiếm theo tên tài khoản"
           className="w-full phone:max-w-35"
         />
-        {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
+        {currentUser?.userInfo?.region?.levelId === 2 && (
           <>
             <SimpleSelect
               options={districtList}
@@ -337,7 +339,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
             />
           </>
         )}
-        {currentUser?.userInfo?.region?.levelId === DISTRICT_ID && (
+        {currentUser?.userInfo?.region?.levelId === 3 && (
           <SimpleSelect
             options={wardList}
             optionSelected={wardSelected}

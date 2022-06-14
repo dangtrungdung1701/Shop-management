@@ -1,6 +1,5 @@
-import { PATH } from "common/constants/routes";
-
 import SVG from "designs/SVG";
+import { PATH } from "common/constants/routes";
 
 import { Button, Container, Heading, NotFoundContainer } from "./styles";
 

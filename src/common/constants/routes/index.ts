@@ -33,10 +33,6 @@ export const PATH = {
     FM: "/source-management/fm",
     CONVERT: "/source-management/convert",
   },
-  EMERGENCY: {
-    SELF: "/emergency",
-    DETAIL: "/emergency/detail/:id",
-  },
 };
 
 const getAllStringValuesOfObject = <T>(obj: T): string[] => {

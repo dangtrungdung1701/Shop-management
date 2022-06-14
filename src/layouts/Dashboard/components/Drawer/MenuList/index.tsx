@@ -49,7 +49,6 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
       </Link>
       <List>
         {dashboardItemsOfNestedMenu.map(({ data, items }) => {
-          if (data.hiddenRoute) return <></>;
           return (
             <NestedMenu
               key={data.path}
@@ -63,6 +62,7 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
               }}
               renderItem={(data, isOpen, level, hasChildren) => {
                 if (data.hiddenRoute) return <></>;
+
                 const active = currentPath.startsWith(data.path);
                 const path = hasChildren ? "#" : data.path;
                 if (level === 0) {

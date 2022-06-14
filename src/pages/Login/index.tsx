@@ -5,8 +5,6 @@ import { toast } from "react-toastify";
 
 import { PATH } from "common/constants/routes";
 import axiosClient from "common/utils/api";
-import { AUTH_KEY } from "common/constants/auth";
-import { getLocalStorage } from "common/utils/auth";
 
 import Input from "designs/Input";
 import Button from "designs/Button";
@@ -17,13 +15,14 @@ import useAuth from "hooks/useAuth";
 import useLogin from "hooks/useLogin";
 
 import { Form } from "./styles";
+import { AUTH_KEY } from "common/constants/auth";
+import { getLocalStorage } from "common/utils/auth";
 
 interface IFormValue {
   username: string;
   password: string;
 }
 const URL = "/Login";
-
 const LoginPage: React.FC = () => {
   const redirect = useRedirect();
   const { isAuth } = useAuth();
