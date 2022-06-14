@@ -80,7 +80,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
       url: yup
         .string()
         .required("Vui lòng nhập đường dẫn!")
-        .trim("asdasd")
+        .trim()
         .matches(URL, "Đường dẫn chưa đúng định dạng, vui lòng thử lại!"),
     });
 

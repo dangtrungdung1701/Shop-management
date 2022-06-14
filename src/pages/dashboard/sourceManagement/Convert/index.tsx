@@ -66,10 +66,10 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      title: yup.string().required("Vui lòng nhập tiêu đề!"),
+      title: yup.string().required("Vui lòng nhập tiêu đề!").trim(),
       voice: yup.string().required("Vui lòng chọn giọng nói!"),
       speed: yup.string().required("Vui lòng chọn tốc độ!"),
-      paragraph: yup.string().required("Vui lòng nhập văn bản!"),
+      paragraph: yup.string().required("Vui lòng nhập văn bản!").trim(),
     });
 
   const handleSubmit = async (value: FormikValues) => {

@@ -207,8 +207,9 @@ const NormalDialog: React.FC<IDialogProps> = ({
         userName: yup
           .string()
           .required("Vui lòng nhập tên tài khoản")
+          .trim()
           .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
-        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
         password: yup
           .string()
           .required("Vui lòng nhập mật khẩu")
@@ -235,8 +236,9 @@ const NormalDialog: React.FC<IDialogProps> = ({
         userName: yup
           .string()
           .required("Vui lòng nhập tên tài khoản")
+          .trim()
           .min(5, "Tên tài khoản phải tối thiểu 5 ký tự"),
-        displayName: yup.string().required("Vui lòng nhập tên hiển thị"),
+        displayName: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
         password: yup
           .string()
           .min(6, "Mật khẩu phải tối thiểu 6 ký tự")
