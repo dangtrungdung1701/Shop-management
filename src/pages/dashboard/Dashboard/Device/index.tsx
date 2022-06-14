@@ -1,5 +1,7 @@
 import React from "react";
+
 import SVG from "designs/SVG";
+
 import { DeviceItem } from "./styles";
 
 interface IDeviceProps {

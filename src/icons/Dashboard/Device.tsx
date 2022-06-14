@@ -7,7 +7,7 @@
 
 import { IIconSVGProps } from "typings";
 
-const ChallengeIcon: React.FC<IIconSVGProps> = props => {
+const DeviceIcon: React.FC<IIconSVGProps> = props => {
   return (
     <svg
       width="24"
@@ -26,4 +26,4 @@ const ChallengeIcon: React.FC<IIconSVGProps> = props => {
   );
 };
 
-export default ChallengeIcon;
+export default DeviceIcon;

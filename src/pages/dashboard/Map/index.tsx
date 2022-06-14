@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useBreadcrumb } from "hooks/useBreadcrumb";
-import { PATH } from "common/constants/routes";
 import { MapContainer, TileLayer } from "react-leaflet";
+
+import { PATH } from "common/constants/routes";
+import axiosClient from "common/utils/api";
+import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
+
+import { useLoading } from "hooks/useLoading";
+import { useBreadcrumb } from "hooks/useBreadcrumb";
+
+import { IDevice } from "typings";
+
+import useStore from "zustand/store";
+
+import MyLocationMaker from "./MyLocationMaker";
 import { Title } from "./styles";
 import MapMarker from "./Marker";
-import axiosClient from "common/utils/api";
-import { useLoading } from "hooks/useLoading";
-import { IDevice } from "typings";
-import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
-import MyLocationMaker from "./MyLocationMaker";
-import useStore from "zustand/store";
 
 interface IPosition {
   lat: number;

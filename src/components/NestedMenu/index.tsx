@@ -52,12 +52,12 @@ const NestedMenu = <T,>(props: INestedMenuProps<T>) => {
   }, [checkOpen(data)]);
 
   if (!data) return null;
-
   return (
-    <>
+    <div>
       <div onClick={() => hasChildren && setIsOpen(!isOpen)}>
         {renderItem(data, isOpen, level, hasChildren)}
       </div>
+
       {hasChildren && (
         <Collapse
           show={isOpen}
@@ -80,7 +80,7 @@ const NestedMenu = <T,>(props: INestedMenuProps<T>) => {
           })}
         </Collapse>
       )}
-    </>
+    </div>
   );
 };
 

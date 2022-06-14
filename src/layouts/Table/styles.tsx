@@ -7,7 +7,7 @@ export const LayoutTableContainer = styled.div`
 
 export const Heading = {
   Wrapper: styled.div`
-    ${tw`flex flex-col gap-1 phone:flex-row phone:justify-between items-end`}
+    ${tw`flex flex-col gap-x-1 gap-y-2 phone:flex-row phone:justify-between items-start`}
   `,
   Title: styled.div`
     ${tw`font-bold text-xxl text-neutral-1 w-full phone:w-auto`}
