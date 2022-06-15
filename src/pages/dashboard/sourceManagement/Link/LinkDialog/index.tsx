@@ -205,7 +205,6 @@ const LinkDialog: React.FC<IDialogProps> = ({
                   {(() => {
                     if (formik.values.url && !formik?.errors?.url) {
                       if (formik.values.url.includes(".m3u8")) {
-                        console.log("alo1");
                         return (
                           <div className="custom-hls-player">
                             <ReactHlsPlayer
@@ -232,7 +231,6 @@ const LinkDialog: React.FC<IDialogProps> = ({
                           </div>
                         );
                       }
-                      console.log("alo");
                       return <div>Chưa hỗ trợ định dạng audio này</div>;
                     }
                     return;
