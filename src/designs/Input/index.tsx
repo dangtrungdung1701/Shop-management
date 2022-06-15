@@ -6,6 +6,13 @@ import {
   useState,
 } from "react";
 import { useField } from "formik";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import HidePasswordIcon from "icons/PasswordEye/HidePassword";
+import ShowPasswordIcon from "icons/PasswordEye/ShowPassword";
+
 import {
   FieldWrapper,
   IconWrapper,
@@ -13,12 +20,7 @@ import {
   InputField,
   EventChange,
   LabelWrapper,
-  SubLabel,
 } from "./styles";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import HidePasswordIcon from "icons/PasswordEye/HidePassword";
-import ShowPasswordIcon from "icons/PasswordEye/ShowPassword";
 
 interface IInput
   extends DetailedHTMLProps<

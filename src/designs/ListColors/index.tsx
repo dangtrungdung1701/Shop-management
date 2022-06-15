@@ -1,4 +1,5 @@
 import ColorBlock from "designs/ColorBlock";
+
 import { ColorSelectorContainer } from "./styles";
 
 export type ISize = "md" | "sm";

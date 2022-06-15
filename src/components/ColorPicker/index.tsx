@@ -1,6 +1,3 @@
-import { ReactNode } from "react";
-import BaseButton from "designs/BaseButton";
-
 interface IColorPickerProps {
   className?: string;
   hex: string;

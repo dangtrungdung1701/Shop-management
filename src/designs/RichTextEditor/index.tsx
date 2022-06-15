@@ -1,11 +1,14 @@
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import HiddenInput from "common/styles/HiddenInput";
 import { useField, useFormikContext } from "formik";
 import React, { memo } from "react";
 import ReactQuill, { Quill } from "react-quill";
-import "react-quill/dist/quill.snow.css";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+import HiddenInput from "common/styles/HiddenInput";
+
 import { TextEditorContainer } from "./styles";
+
+import "react-quill/dist/quill.snow.css";
 
 const Size = Quill.import("attributors/style/size");
 const sizes = ["14px", "16px", "18px", "20px", "24px", "30px"];

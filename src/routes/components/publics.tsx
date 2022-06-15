@@ -1,7 +1,9 @@
 import { lazy } from "react";
-import { IRoutes } from "typings";
 import { Redirect } from "react-router";
+
 import { PATH } from "common/constants/routes";
+
+import { IRoutes } from "typings";
 
 import NotFound from "pages/NotFound";
 

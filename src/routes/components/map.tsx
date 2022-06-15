@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
 import MapIcon from "icons/Dashboard/Map";
+
+import { IRoutes } from "typings";
 
 const Map = lazy(() => import("pages/dashboard/Map"));
 

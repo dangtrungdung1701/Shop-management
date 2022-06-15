@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { DialogContainer, Title, FormContainer, Form, Other } from "./styles";
+import { Formik } from "formik";
+import * as yup from "yup";
 
 import Dialog from "components/Dialog";
+
 import Input from "designs/Input";
 import Button from "designs/Button";
 
-import { Formik } from "formik";
-import * as yup from "yup";
+import { DialogContainer, Title, Form, Other } from "./styles";
 
 import { ITab } from "../index";
 

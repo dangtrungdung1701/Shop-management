@@ -1,6 +1,8 @@
 import { ButtonHTMLAttributes, MouseEvent } from "react";
-import { ButtonContainer } from "./styles";
+
 import { useRedirect } from "hooks/useRedirect";
+
+import { ButtonContainer } from "./styles";
 
 interface IBaseButtonProps extends ButtonHTMLAttributes<any> {
   className?: string;

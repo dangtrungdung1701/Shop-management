@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
+import { toast } from "react-toastify";
+
+import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
 import Dialog from "components/Dialog";
@@ -9,6 +12,8 @@ import Input from "designs/Input";
 
 import { IDevice, IDeleteDeviceInput } from "typings";
 
+import useStore from "zustand/store";
+
 import {
   ButtonWrapper,
   Button,
@@ -16,9 +21,6 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import axiosClient from "common/utils/api";
-import useStore from "zustand/store";
-import { toast } from "react-toastify";
 
 type IDialogProps = {
   editField?: IDevice;

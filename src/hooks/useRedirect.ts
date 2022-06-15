@@ -10,10 +10,11 @@
  *    }
  */
 
-import { PATH_URLS } from "common/constants/routes";
-import { cleanObject } from "common/functions";
 import { useCallback } from "react";
 import { useHistory } from "react-router";
+
+import { PATH_URLS } from "common/constants/routes";
+import { cleanObject } from "common/functions";
 
 export const useRedirect = () => {
   const history = useHistory();

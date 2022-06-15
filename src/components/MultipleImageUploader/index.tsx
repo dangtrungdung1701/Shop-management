@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useField, useFormikContext } from "formik";
+
+import FormControlLabel from "common/styles/FormControlLabel";
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+
+import ImageCropper from "components/ImageCropper";
+
+import SVG from "designs/SVG";
+import IconButton from "designs/IconButton";
+
+import AddImageIcon from "icons/AddImage";
+import ImageUploadLayout from "layouts/ImageUpload";
+
+import { IBase64Image } from "typings";
+
 import {
   MultipleImageUploaderContainer,
   HiddenInput,
@@ -7,14 +21,6 @@ import {
   SkeletonMessage,
   ImageContainer,
 } from "./styles";
-import ImageCropper from "components/ImageCropper";
-import { IBase64Image } from "typings";
-import ImageUploadLayout from "layouts/ImageUpload";
-import FormControlLabel from "common/styles/FormControlLabel";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import AddImageIcon from "icons/AddImage";
-import SVG from "designs/SVG";
-import IconButton from "designs/IconButton";
 
 interface IMultipleImageUploaderProps {
   className?: string;

@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useField, useFormikContext } from "formik";
+
+import FormControlLabel from "common/styles/FormControlLabel";
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+
+import LinearProgressWithLabel from "components/LinearProgressWithLabel";
+
+import UploadFileIcon from "icons/UploadFileIcon";
+import ImageUploadLayout from "layouts/ImageUpload";
+
 import {
   SingleImageUploaderContainer,
   HiddenInput,
   ImageUploadContainer,
-  PreviewImage,
   SkeletonContainer,
   SkeletonMessage,
-  SubLabel,
 } from "./styles";
-
-import ImageUploadLayout from "layouts/ImageUpload";
-import FormControlLabel from "common/styles/FormControlLabel";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import LinearProgressWithLabel from "components/LinearProgressWithLabel";
-import UploadFileIcon from "icons/UploadFileIcon";
 
 interface ISingleFileUploaderProps {
   className?: string;

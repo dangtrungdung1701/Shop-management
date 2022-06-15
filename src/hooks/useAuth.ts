@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import useStore from "zustand/store";
-import { useRedirect } from "./useRedirect";
 
 import { PATH } from "common/constants/routes";
 import { isAuthenticated } from "common/utils/auth";
+
+import useStore from "zustand/store";
+
+import { useRedirect } from "./useRedirect";
 
 const useAuth = () => {
   const redirect = useRedirect();

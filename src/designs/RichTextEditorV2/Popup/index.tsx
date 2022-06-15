@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Dialog from "components/Dialog";
-import DialogHeader from "components/Dialog/Header";
-import { IVisible } from "../index";
-
-import { DialogContainer, Form } from "./styles";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { Quill } from "react-quill";
+
+import Dialog from "components/Dialog";
+import DialogHeader from "components/Dialog/Header";
 
 import Input from "designs/Input";
 import Button from "designs/Button";
 
-import { Quill } from "react-quill";
+import { DialogContainer, Form } from "./styles";
+
+import { IVisible } from "../index";
+
 const Parchment = Quill.import("parchment");
 export interface IPopupProps {
   enable: boolean;

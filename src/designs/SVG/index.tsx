@@ -1,5 +1,6 @@
-import withErrorBoundary from "common/HOC/withErrorBoundary";
 import React from "react";
+
+import withErrorBoundary from "common/HOC/withErrorBoundary";
 
 interface ISVGProps
   extends React.DetailedHTMLProps<

@@ -1,8 +1,11 @@
 import React, { ChangeEvent, useState } from "react";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
-import { SearchBoxTableContainer, Input } from "./styles";
+
 import SearchIcon from "icons/Search";
+
 import useConstant from "hooks/useConstant";
+
+import { SearchBoxTableContainer, Input } from "./styles";
 
 const DELAY = 300;
 

@@ -1,7 +1,15 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop/types";
 import InputRange from "react-input-range";
+import { Point, Area } from "react-easy-crop/types";
+
+import { getCroppedImg, readFile } from "common/functions";
+
+import TransparentBG from "assets/images/product/transparent-pattern.png";
+
+import Button from "designs/Button";
+import Dialog from "components/Dialog";
+
 import {
   ActionButtons,
   RangeContainer,
@@ -9,10 +17,6 @@ import {
   Content,
   CropperImageContainer,
 } from "./styles";
-import Button from "designs/Button";
-import { getCroppedImg, readFile } from "common/functions";
-import Dialog from "components/Dialog";
-import TransparentBG from "assets/images/product/transparent-pattern.png";
 
 import "react-input-range/lib/css/index.css";
 

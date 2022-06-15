@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
+
+import { AUTO_CLOSE_POINT } from "common/constants/drawer";
 
 import Overlay from "components/Overlay";
-import { AUTO_CLOSE_POINT } from "common/constants/drawer";
 
 import { useEventListener } from "hooks/useEventListener";
 
-import MenuList from "./MenuList";
-import { DrawerContainer } from "./styles";
 import useStore from "zustand/store";
+
+import MenuList from "./MenuList";
+
+import { DrawerContainer } from "./styles";
 
 interface ILeftSidebar {
   className?: string;

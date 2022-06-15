@@ -1,6 +1,8 @@
 import { MouseEvent, useEffect, useRef, useState } from "react";
-import TransparentBG from "assets/images/product/transparent-pattern.png";
 import { useField, useFormikContext } from "formik";
+
+import TransparentBG from "assets/images/product/transparent-pattern.png";
+
 import FormControlLabel from "common/styles/FormControlLabel";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
 

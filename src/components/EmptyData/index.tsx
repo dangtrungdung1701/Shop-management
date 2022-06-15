@@ -1,4 +1,5 @@
 import React from "react";
+
 import { EmptyDataContainer, Title, Message } from "./styles";
 
 interface IEmptyDataProps {

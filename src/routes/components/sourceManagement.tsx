@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
 import SourceAudio from "icons/Dashboard/SourceAudio";
+
+import { IRoutes } from "typings";
 
 const FileAudio = lazy(
   () => import("pages/dashboard/sourceManagement/FileAudio"),

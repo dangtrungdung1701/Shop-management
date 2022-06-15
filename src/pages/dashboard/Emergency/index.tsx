@@ -1,12 +1,11 @@
 import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
-import { CSVLink } from "react-csv";
 
 import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
-import { PROVINCE_ID, WARD_ID } from "common/constants/region";
-import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
 import axiosClient from "common/utils/api";
+import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
+import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
 
 import SearchBoxTable from "components/SearchBoxTable";
 import StatusTag from "components/StatusTag";
@@ -35,17 +34,19 @@ import useStore from "zustand/store";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
 
-const RestartDialog = lazy(() => import("../Components/RestartDialog"));
+const EmergencyBroadcastDialog = lazy(
+  () => import("./Components/EmergencyBroadcastDialog"),
+);
 
-const DeleteDialog = lazy(() => import("../Components/DeleteDialog"));
-
-const VolumeDialog = lazy(() => import("../Components/VolumeDialog"));
+const EmergencyPauseDialog = lazy(
+  () => import("./Components/EmergencyPauseDialog"),
+);
 
 const LOAD_DATA = "LOAD_DATA";
 
 interface IRegionDeviceProps extends RouteComponentProps {}
 
-const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
+const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
   const { currentUser, setCurrentUser } = useStore();
 
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
@@ -53,17 +54,16 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   const [searchText, setSearchText] = useState<string>("");
 
   const [districtList, setDistrictList] = useState<IRegion[]>([]);
-  const [wardList, setWardList] = useState<IRegion[]>([]);
+  const [listDevice, setListDevice] = useState<IDevice[]>([]);
 
   const [districtSelected, setDistrictSelected] = useState<IRegion | null>(
     null,
   );
-  const [wardSelected, setWardSelected] = useState<IRegion | null>(null);
 
-  const [listDevice, setListDevice] = useState<IDevice[]>([]);
   const [totalCount, setTotalCount] = useState<number>(listDevice.length);
-
   const { startLoading, stopLoading } = useLoading();
+
+  const [CSVData, setCSVData] = useState<any[]>([]);
 
   const getDefaultRegionId = (): number => {
     const provinceId = currentUser?.userInfo?.region?.provinceId;
@@ -81,41 +81,34 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   const [regionId, setRegionId] = useState(getDefaultRegionId());
 
-  const [CSVData, setCSVData] = useState<any[]>([]);
-
   useBreadcrumb([
     {
-      name: "Quản lý thiết bị",
+      name: "Quản lý khẩn cấp",
       href: "#",
     },
     {
-      name: "Cấp Phường/Xã/Thị Trấn",
-      href: PATH.DEVICE.WARD,
+      name: "Khẩn cấp",
+      href: PATH.EMERGENCY.SELF,
     },
   ]);
 
   useEffect(() => {
-    getAllWardDevices();
+    getAllDistrictDevices();
   }, [page, sizePerPage, searchText, regionId]);
 
   useEffect(() => {
-    if (districtList.length && wardList?.length) {
-      const provinceId: number = currentUser?.userInfo?.region?.provinceId;
-      const newRegionId = wardSelected
-        ? wardSelected?.id
-        : districtSelected
-        ? districtSelected?.id
-        : provinceId;
+    const provinceId: number = currentUser?.userInfo?.region?.provinceId;
+
+    if (districtList.length) {
+      const newRegionId = districtSelected ? districtSelected?.id : provinceId;
       setRegionId(newRegionId!);
     }
-  }, [districtSelected, wardSelected]);
+  }, [districtSelected]);
 
   useEffect(() => {
     getUserInfoService();
     const provinceId = currentUser?.userInfo?.region?.provinceId;
-    const districtId = currentUser?.userInfo?.region?.districtId;
     getDistrictListService(provinceId);
-    districtId !== -1 && getWardListService(districtId);
   }, []);
 
   const getUserInfoService = async () => {
@@ -148,28 +141,14 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
     }
   };
 
-  const getWardListService = async (id: number) => {
-    try {
-      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
-      if (res) {
-        setWardList(res.regions);
-        setWardSelected(
-          useGetLocation(currentUser?.userInfo?.region?.wardId!, res.regions),
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getAllWardDevices = async () => {
+  const getAllDistrictDevices = async () => {
     const input: IGetAllDevice = {
       page,
       size: sizePerPage,
       regionId,
       searchString: searchText,
       excludeRegionId: 1,
-      level: WARD_ID,
+      level: DISTRICT_ID,
     };
     try {
       startLoading(LOAD_DATA);
@@ -230,39 +209,10 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
                   pathname: PATH.DEVICE.EDIT_DEVICE.replace(
                     ":id",
                     record.id!,
-                  ).replace(":class", "ward"),
+                  ).replace(":class", "district"),
                 }}
               />
             ),
-          },
-          delete: {
-            DialogContent: props => (
-              <DeleteDialog
-                onSuccess={() => {
-                  getAllWardDevices();
-                }}
-                editField={record}
-                open
-                {...props}
-              />
-            ),
-          },
-          volume: {
-            DialogContent: props => (
-              <VolumeDialog
-                onSuccess={() => {
-                  getAllWardDevices();
-                }}
-                editField={record}
-                open
-                {...props}
-              />
-            ),
-          },
-          restart: {
-            title: "Khởi động lại",
-            message: "Bạn có chắc chắn muốn khởi động lại thiết bị này?",
-            onRestart: async () => {},
           },
         }}
       />
@@ -345,80 +295,64 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Thiết bị cấp Phường/Xã/Thị Trấn"
-      permission="DeviceManager"
+      title="Quản lý lịch phát khẩn cấp"
+      permission="EmergencyOperator"
       buttonMenu={
         <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
-          <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
-            <TopButton>Xuất báo cáo</TopButton>
-          </CSVLink>
-          <RestartDialog
+          <EmergencyBroadcastDialog
+            level={DISTRICT_ID}
+            ButtonMenu={<TopButton variant="primary">Phát khẩn cấp</TopButton>}
+          />
+          <EmergencyPauseDialog
             ButtonMenu={
               <TopButton variant="danger" className="w-full">
-                Khởi động lại
+                Dừng khẩn cấp
               </TopButton>
             }
           />
         </div>
       }
     >
-      <SearchBoxWrapper>
-        <SearchBoxTable
-          onFetchData={handleFetchData}
-          placeholder="Tìm kiếm theo tên thiết bị"
-          className="w-full phone:max-w-35"
-        />
-        {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
-          <SimpleSelect
-            options={districtList}
-            optionSelected={districtSelected}
-            onSelect={value => {
-              setWardSelected(null);
-              if (value) {
-                getWardListService(value?.id!);
-              }
-              setDistrictSelected(value);
-              setPage(1);
-            }}
-            placeholder="Quận/Huyện/Thị Xã"
-            className="w-full phone:max-w-35"
-            optionTarget="displayName"
-          />
-        )}
+      {currentUser?.userInfo?.region?.levelId <= DISTRICT_ID ? (
+        <>
+          <SearchBoxWrapper>
+            <SearchBoxTable
+              onFetchData={handleFetchData}
+              placeholder="Tìm kiếm theo tên thiết bị"
+              className="w-full phone:max-w-35"
+            />
+            {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
+              <SimpleSelect
+                options={districtList}
+                optionSelected={districtSelected}
+                onSelect={value => {
+                  setDistrictSelected(value);
+                  setPage(1);
+                }}
+                placeholder="Quận/Huyện/Thị Xã"
+                className="w-full phone:max-w-35"
+                optionTarget="displayName"
+              />
+            )}
+          </SearchBoxWrapper>
 
-        {currentUser?.userInfo?.region?.levelId < WARD_ID && (
-          <SimpleSelect
-            options={wardList}
-            optionSelected={wardSelected}
-            onSelect={value => {
-              setWardSelected(value);
-              setPage(1);
-            }}
-            placeholder="Phường/Xã/Thị Trấn"
-            disabled={
-              currentUser?.userInfo?.region?.levelId === PROVINCE_ID
-                ? districtSelected
-                  ? false
-                  : true
-                : false
-            }
-            className="w-full phone:max-w-35"
-            optionTarget="displayName"
+          <Table
+            data={listDevice}
+            columns={columns}
+            page={page}
+            totalSize={totalCount}
+            onPageChange={handleChangePage}
+            onSizeChange={handleChangeSize}
+            isRemote
           />
-        )}
-      </SearchBoxWrapper>
-
-      <Table
-        data={listDevice}
-        columns={columns}
-        page={page}
-        totalSize={totalCount}
-        onPageChange={handleChangePage}
-        onSizeChange={handleChangeSize}
-        isRemote
-      />
+        </>
+      ) : (
+        <div className="h-30 flex items-center justify-center font-bold text-20">
+          Bạn không có quyền truy cập trang này
+        </div>
+      )}
     </TableLayout>
   );
 };
 
-export default WardDevice;
+export default Emergency;

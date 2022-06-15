@@ -1,6 +1,14 @@
 import React, { useEffect, Fragment, useRef, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { useField, useFormikContext } from "formik";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import SearchBoxTable from "components/SearchBoxTable";
+
+import DropdownArrowIcon from "icons/Arrows/SelectArrow";
+
 import {
   SelectContainer,
   HiddenInput,
@@ -12,11 +20,7 @@ import {
   Placeholder,
   EmptyData,
 } from "./styles";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import DropdownArrowIcon from "icons/Arrows/SelectArrow";
-import SearchBoxTable from "components/SearchBoxTable";
-import { keyframes } from "styled-components";
+
 export interface ISelectData {
   _id: string;
   name: string;

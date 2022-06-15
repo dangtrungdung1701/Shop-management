@@ -1,5 +1,7 @@
-import { ActionItem, ActionText } from "./styles";
 import SVG from "designs/SVG";
+
+import { ActionItem, ActionText } from "./styles";
+
 interface IUpgradeProps {}
 
 export const Upgrade: React.FC<IUpgradeProps> = props => {

@@ -10,6 +10,16 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { useField, useFormikContext } from "formik";
 import { useEffect, useState, Fragment, useRef } from "react";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import SearchBoxTable from "components/SearchBoxTable";
+
+import DropdownArrowIcon from "icons/Arrows/SelectArrow";
+
+import { IIconSVGProps } from "typings";
+
 import {
   MultipleSelectContainer,
   HiddenInput,
@@ -23,11 +33,6 @@ import {
   TagText,
   EmptyData,
 } from "./styles";
-import { IIconSVGProps } from "typings";
-import DropdownArrowIcon from "icons/Arrows/SelectArrow";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import SearchBoxTable from "components/SearchBoxTable";
 
 interface IMultipleSelectProps<T> {
   name: string;

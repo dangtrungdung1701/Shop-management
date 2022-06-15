@@ -1,5 +1,4 @@
 import { LeftSide, LoginLayoutContainer, RightSide, Content } from "./styles";
-import Image from "designs/Image";
 
 interface IAuthLayoutProps {}
 

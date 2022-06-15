@@ -2,7 +2,9 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 
 import CSS from "csstype";
+
 import ArrowIcon from "designs/icons/Arrow";
+
 import useStore from "zustand/store";
 
 import { BreadcrumbContainer, Container, ItemWrapper, Item } from "./styles";

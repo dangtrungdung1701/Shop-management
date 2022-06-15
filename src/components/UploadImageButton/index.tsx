@@ -1,12 +1,17 @@
 import React, { useState, useEffect, ReactNode } from "react";
 import { useField, useFormikContext } from "formik";
-import { SingleImageUploaderContainer, HiddenInput } from "./styles";
+
 import { readFile } from "common/functions";
-import ImageCropper from "components/ImageCropper";
-import { IBase64Image } from "typings";
-import ImageUploadLayout from "layouts/ImageUpload";
 import FormControlLabel from "common/styles/FormControlLabel";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+
+import ImageCropper from "components/ImageCropper";
+
+import ImageUploadLayout from "layouts/ImageUpload";
+
+import { IBase64Image } from "typings";
+
+import { SingleImageUploaderContainer, HiddenInput } from "./styles";
 
 interface IUpperImageUploaderProps {
   className?: string;

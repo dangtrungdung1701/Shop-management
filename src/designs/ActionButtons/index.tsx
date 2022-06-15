@@ -1,10 +1,12 @@
+import { useCallback, useState } from "react";
+
+import AlertDialogV2 from "components/AlertDialogV2";
+
+import Switch from "designs/Switch";
 import Dropdown from "designs/Dropdown";
 import SVG from "designs/SVG";
+
 import { OptionDropdown } from "./styles";
-import { ReactNode, useCallback, useState } from "react";
-import AlertDialogV2 from "components/AlertDialogV2";
-import Switch from "designs/Switch";
-// type IActionType = "edit" | "delete" | "info" | "active";
 
 type IActionType =
   | "edit"

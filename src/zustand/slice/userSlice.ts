@@ -1,4 +1,5 @@
 import { removeLocalStorage } from "common/utils/auth";
+
 import { IPermissionV2 } from "typings";
 
 export interface IUserStore {

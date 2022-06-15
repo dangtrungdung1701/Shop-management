@@ -1,14 +1,16 @@
+import React, { useState, memo } from "react";
+import { useField, useFormikContext } from "formik";
+import ReactQuill, { Quill } from "react-quill";
+
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
 import FormControlLabel from "common/styles/FormControlLabel";
 import HiddenInput from "common/styles/HiddenInput";
-import { useField, useFormikContext } from "formik";
-import React, { useEffect, useState, useCallback, memo } from "react";
-import ReactQuill, { Quill } from "react-quill";
 
-import "react-quill/dist/quill.snow.css";
 import { TextEditorContainer } from "./styles";
 
 import Popup from "./Popup";
+
+import "react-quill/dist/quill.snow.css";
 
 const quillTable = require("quill-table");
 const ImageResize = require("@deedmob/quill-image-resize-alt-module");

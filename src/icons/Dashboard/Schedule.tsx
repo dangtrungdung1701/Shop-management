@@ -7,7 +7,7 @@
 
 import { IIconSVGProps } from "typings";
 
-const SchduleIcon: React.FC<IIconSVGProps> = props => (
+const ScheduleIcon: React.FC<IIconSVGProps> = props => (
   <svg
     width="24"
     height="24"
@@ -22,4 +22,4 @@ const SchduleIcon: React.FC<IIconSVGProps> = props => (
   </svg>
 );
 
-export default SchduleIcon;
+export default ScheduleIcon;

@@ -5,13 +5,22 @@ import { Formik, FormikValues } from "formik";
 import AudioPlayer from "material-ui-audio-player";
 
 import { PATH } from "common/constants/routes";
+import {
+  ISpeed,
+  IVoice,
+  optionSpeed,
+  optionVoice,
+} from "common/constants/convert";
 
 import Input from "designs/Input";
+import Select from "designs/Select";
+import TextArea from "designs/TextArea";
+
 import TableLayout from "layouts/Table";
 
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 
-import { IConvertInput, IFM } from "typings";
+import { IConvertInput } from "typings";
 
 import {
   Button,
@@ -21,14 +30,6 @@ import {
   SliderWrapper,
   Title,
 } from "./styles";
-import Select from "designs/Select";
-import {
-  ISpeed,
-  IVoice,
-  optionSpeed,
-  optionVoice,
-} from "common/constants/convert";
-import TextArea from "designs/TextArea";
 
 interface IRegionProps extends RouteComponentProps {}
 
@@ -66,10 +67,10 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      title: yup.string().required("Vui lòng nhập tiêu đề!"),
+      title: yup.string().required("Vui lòng nhập tiêu đề!").trim(),
       voice: yup.string().required("Vui lòng chọn giọng nói!"),
       speed: yup.string().required("Vui lòng chọn tốc độ!"),
-      paragraph: yup.string().required("Vui lòng nhập văn bản!"),
+      paragraph: yup.string().required("Vui lòng nhập văn bản!").trim(),
     });
 
   const handleSubmit = async (value: FormikValues) => {

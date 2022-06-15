@@ -1,5 +1,4 @@
-import { HeaderContainer, Title, IconButton } from "./styles";
-import SVG from "designs/SVG";
+import { HeaderContainer, Title } from "./styles";
 
 interface IHeaderProps {
   title: string;

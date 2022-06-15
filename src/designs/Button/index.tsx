@@ -4,8 +4,10 @@ import {
   MouseEvent,
   ReactNode,
 } from "react";
-import { ButtonContainer, Spinner } from "./styles";
+
 import { useRedirect } from "hooks/useRedirect";
+
+import { ButtonContainer, Spinner } from "./styles";
 
 export type IButtonVariant =
   | "primary"

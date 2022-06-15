@@ -1,9 +1,9 @@
-import path from "path";
 import { KeyboardEvent, MouseEvent } from "react";
-import { ILinkProps } from "./interface";
-import { PATH } from "common/constants/routes";
-import { cleanObject } from "common/functions";
 import { useHistory } from "react-router";
+
+import { cleanObject } from "common/functions";
+
+import { ILinkProps } from "./interface";
 
 const Link: React.FC<ILinkProps> = props => {
   const history = useHistory();

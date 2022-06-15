@@ -3,9 +3,12 @@ import {
   DetailedHTMLProps,
   TextareaHTMLAttributes,
   useEffect,
-  useState,
 } from "react";
 import { useField } from "formik";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
 import {
   FieldWrapper,
   InputContainer,
@@ -13,8 +16,6 @@ import {
   LabelWrapper,
   Label,
 } from "./styles";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
 
 interface ITextArea
   extends DetailedHTMLProps<

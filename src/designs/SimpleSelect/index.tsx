@@ -4,6 +4,13 @@
  */
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
+
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import SearchBoxTable from "components/SearchBoxTable";
+
+import DropdownArrowIcon from "icons/Arrows/SelectArrow";
+
 import {
   SelectContainer,
   MenuButton,
@@ -14,9 +21,6 @@ import {
   Placeholder,
   EmptyData,
 } from "./styles";
-import FormControlLabel from "common/styles/FormControlLabel";
-import DropdownArrowIcon from "icons/Arrows/SelectArrow";
-import SearchBoxTable from "components/SearchBoxTable";
 
 export interface ISelectData {
   _id: string;

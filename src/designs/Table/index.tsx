@@ -3,15 +3,19 @@
  * You should read it in gitlab.
  */
 
+import { useEffect, useRef } from "react";
 import ToolkitProvider from "react-bootstrap-table2-toolkit";
 import BootstrapTable, { ColumnDescription } from "react-bootstrap-table-next";
-import Pagination from "components/Pagination";
-import { ITableProps } from "./interfaces";
-import { TableContainer, Header, PaginationWrapper } from "./styles";
-import EmptyData from "components/EmptyData";
-import Thumbnail from "./Thumbnail";
-import { useEffect, useRef } from "react";
+
 import { shouldDecreasePageIndex } from "common/functions";
+
+import Pagination from "components/Pagination";
+import EmptyData from "components/EmptyData";
+
+import { TableContainer, Header, PaginationWrapper } from "./styles";
+
+import { ITableProps } from "./interfaces";
+import Thumbnail from "./Thumbnail";
 
 export type IColumns = ColumnDescription<any, any>[];
 

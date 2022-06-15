@@ -1,7 +1,12 @@
-import { getLocalStorage } from "common/utils/auth";
-import Breadcrumb from "components/Breadcrumb";
 import { useEffect } from "react";
 import jwtDecode from "jwt-decode";
+
+import { getLocalStorage } from "common/utils/auth";
+
+import Breadcrumb from "components/Breadcrumb";
+import PageLoading from "components/PageLoading";
+
+import useAuth from "hooks/useAuth";
 
 import useStore from "zustand/store";
 
@@ -14,8 +19,6 @@ import {
   MainContent,
   ContentWrap,
 } from "./styles";
-import useAuth from "hooks/useAuth";
-import PageLoading from "components/PageLoading";
 
 const AdminLayout: React.FC = props => {
   const { children } = props;

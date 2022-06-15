@@ -7,6 +7,7 @@ import axiosClient from "common/utils/api";
 
 import Dialog from "components/Dialog";
 import DialogHeader from "components/Dialog/Header";
+
 import Input from "designs/Input";
 
 import useStore from "zustand/store";
@@ -18,6 +19,7 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
+
 interface IUserDialogProps {
   ButtonMenu?: React.ReactElement;
   editField?: any;

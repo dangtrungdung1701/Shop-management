@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
-import { toast } from "react-toastify";
 
-import Input from "designs/Input";
 import Dialog from "components/Dialog";
 import DialogHeader from "components/Dialog/Header";
+
+import Select from "designs/Select";
+import Input from "designs/Input";
 
 import {
   ButtonWrapper,
@@ -14,7 +15,6 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import Select from "designs/Select";
 
 interface IOptionDialogProps {
   ButtonMenu?: React.ReactElement;

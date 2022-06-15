@@ -1,4 +1,5 @@
 import React from "react";
+
 import withErrorBoundary from "common/HOC/withErrorBoundary";
 
 /**
