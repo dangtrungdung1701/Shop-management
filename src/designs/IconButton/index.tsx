@@ -1,6 +1,8 @@
 import { MouseEvent } from "react";
-import { IconButtonContainer } from "./styles";
+
 import Tooltip from "designs/Tooltip";
+
+import { IconButtonContainer } from "./styles";
 
 interface IIConButton {
   className?: string;

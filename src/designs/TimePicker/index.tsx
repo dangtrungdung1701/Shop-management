@@ -1,19 +1,23 @@
-import { useField, useFormikContext } from "formik";
 import {
   DetailedHTMLProps,
   InputHTMLAttributes,
   useState,
   useEffect,
 } from "react";
-import { Container, StyledTimePicker } from "./styles";
-import FormControlLabel from "common/styles/FormControlLabel";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import TimePickerIcon from "icons/TimePicker";
+import { useField, useFormikContext } from "formik";
+import styled from "styled-components";
 import moment, { Moment } from "moment";
 
-import "rc-time-picker/assets/index.css";
-import styled from "styled-components";
 import tw from "twin.macro";
+
+import FormControlLabel from "common/styles/FormControlLabel";
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+
+import TimePickerIcon from "icons/TimePicker";
+
+import { Container, StyledTimePicker } from "./styles";
+
+import "rc-time-picker/assets/index.css";
 
 interface IInput
   extends DetailedHTMLProps<

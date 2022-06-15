@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Container, Input, Label } from "./styles";
+
 import { randomId } from "common/functions";
+
+import { Container, Input, Label } from "./styles";
 
 interface ICheckbox {
   initialCheck?: boolean;

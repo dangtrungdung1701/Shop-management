@@ -1,8 +1,9 @@
 import { Tab } from "@headlessui/react";
 import { ReactComponentElement, Fragment } from "react";
 
-import { TabContainer, Container, Title, Content, ListTitle } from "./styles";
 import SVG from "designs/SVG";
+
+import { TabContainer, Container, Title, Content, ListTitle } from "./styles";
 
 interface ITabProps {
   titles: string[];

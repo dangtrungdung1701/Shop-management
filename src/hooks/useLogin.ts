@@ -2,11 +2,11 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import { PATH } from "common/constants/routes";
+import { updateLocalStorage } from "common/utils/auth";
 
 import useStore from "zustand/store";
 
 import { useRedirect } from "./useRedirect";
-import { updateLocalStorage } from "common/utils/auth";
 import usePermission from "./usePermission";
 
 const useLogin = () => {

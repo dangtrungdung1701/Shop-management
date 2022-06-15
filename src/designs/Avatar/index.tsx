@@ -1,5 +1,6 @@
-import { AvatarContainer, Img } from "./styles";
 import SkeletonAvatar from "assets/images/avatar.png";
+
+import { AvatarContainer, Img } from "./styles";
 
 interface IAvatarProps {
   className?: string;

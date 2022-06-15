@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
 import DashboardIcon from "icons/Dashboard/Dashboard";
+
+import { IRoutes } from "typings";
 
 const Dashboard = lazy(() => import("pages/dashboard/Dashboard"));
 

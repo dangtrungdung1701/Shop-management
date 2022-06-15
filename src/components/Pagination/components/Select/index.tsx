@@ -1,5 +1,8 @@
 import { Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
+
+import SVG from "designs/SVG";
+
 import {
   SelectContainer,
   MenuButton,
@@ -9,7 +12,6 @@ import {
   Text,
 } from "./styles";
 
-import SVG from "designs/SVG";
 interface ISize {
   size: number;
 }

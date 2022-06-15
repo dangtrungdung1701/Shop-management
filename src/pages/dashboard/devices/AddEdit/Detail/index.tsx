@@ -197,8 +197,8 @@ const Details: React.FC<IDetailsProps> = props => {
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      iMei: yup.string().required("Vui lòng nhập tên tài khoản"),
-      name: yup.string().required("Vui lòng nhập tên hiển thị"),
+      iMei: yup.string().required("Vui lòng nhập tên tài khoản").trim(),
+      name: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
       class: yup.string().required("Vui lòng chọn phân cấp"),
       province: yup.string().required("Vui lòng chọn tỉnh/ thành phố"),
       district: yup.string().required("Vui lòng chọn quận/ huyện/ thị xã"),

@@ -1,5 +1,6 @@
-import { useRerender } from "hooks/useRerender";
 import { ReactNode, useEffect, useRef } from "react";
+
+import { useRerender } from "hooks/useRerender";
 
 interface IPriceInputProps {
   label?: string;

@@ -103,17 +103,20 @@ const LinkDialog: React.FC<IDialogProps> = ({
         .number()
         .required("Vui lòng nhập thông số RSSI!")
         .min(0, "Thông số RSSI nằm trong khoảng 0 - 127, vui lòng nhập lại!")
-        .max(127, "Thông số RSSI nằm trong khoảng 0 - 127, vui lòng nhập lại!"),
+        .max(127, "Thông số RSSI nằm trong khoảng 0 - 127, vui lòng nhập lại!")
+        .integer("Không được nhập số thập phân, vui lòng nhập lại!"),
       c: yup
         .number()
         .required("Vui lòng nhập thông số C!")
         .min(0, "Thông số C nằm trong khoảng 0 - 31, vui lòng nhập lại!")
-        .max(31, "Thông số C nằm trong khoảng 0 - 31, vui lòng nhập lại!"),
+        .max(31, "Thông số C nằm trong khoảng 0 - 31, vui lòng nhập lại!")
+        .integer("Không được nhập số thập phân, vui lòng nhập lại!"),
       g: yup
         .number()
         .required("Vui lòng nhập thông số G!")
         .min(0, "Thông số G nằm trong khoảng 0 - 15, vui lòng nhập lại!")
-        .max(15, "Thông số G nằm trong khoảng 0 - 15, vui lòng nhập lại!"),
+        .max(15, "Thông số G nằm trong khoảng 0 - 15, vui lòng nhập lại!")
+        .integer("Không được nhập số thập phân, vui lòng nhập lại!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {

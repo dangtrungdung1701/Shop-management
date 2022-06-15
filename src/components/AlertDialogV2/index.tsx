@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import Dialog from "components/Dialog";
 
 import { AlertDialogContainer, Button } from "./styles";

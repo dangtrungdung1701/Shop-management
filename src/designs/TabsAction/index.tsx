@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Tab } from "@headlessui/react";
 import { ReactComponentElement, Fragment } from "react";
 
+import SVG from "designs/SVG";
+
 import {
   TabContainer,
   Container,
@@ -10,7 +12,6 @@ import {
   ListTitle,
   IconContainer,
 } from "./styles";
-import SVG from "designs/SVG";
 
 import EditDialog from "./Dialog";
 

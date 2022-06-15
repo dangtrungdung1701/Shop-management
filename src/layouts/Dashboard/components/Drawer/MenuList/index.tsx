@@ -1,6 +1,19 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 import { Link } from "react-router-dom";
+
+import { renderItemsForNestedMenu } from "common/functions";
+import { PATH } from "common/constants/routes";
+
+import LogoIcon from "assets/images/logo/logo.png";
+
+import NestedMenu from "components/NestedMenu";
+import DotIcon from "icons/Dot";
+
+import { dashboardRoutes } from "routes/Routes";
+
+import useStore from "zustand/store";
+
 import {
   MenuListContainer,
   ItemButton,
@@ -12,13 +25,6 @@ import {
   LogoContainer,
   LogoName,
 } from "./styles";
-import { dashboardRoutes } from "routes/Routes";
-import LogoIcon from "assets/images/logo/logo.png";
-import DotIcon from "icons/Dot";
-import NestedMenu from "components/NestedMenu";
-import { renderItemsForNestedMenu } from "common/functions";
-import { PATH } from "common/constants/routes";
-import useStore from "zustand/store";
 
 interface IMenuListProps extends RouteComponentProps {}
 
@@ -49,6 +55,7 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
       </Link>
       <List>
         {dashboardItemsOfNestedMenu.map(({ data, items }) => {
+          if (data.hiddenRoute) return <></>;
           return (
             <NestedMenu
               key={data.path}
@@ -62,7 +69,6 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
               }}
               renderItem={(data, isOpen, level, hasChildren) => {
                 if (data.hiddenRoute) return <></>;
-
                 const active = currentPath.startsWith(data.path);
                 const path = hasChildren ? "#" : data.path;
                 if (level === 0) {

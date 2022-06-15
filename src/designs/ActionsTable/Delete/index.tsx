@@ -1,5 +1,7 @@
-import { ActionItem, ActionText } from "./styles";
 import SVG from "designs/SVG";
+
+import { ActionItem, ActionText } from "./styles";
+
 interface IDeleteProps {}
 
 export const Delete: React.FC<IDeleteProps> = props => {

@@ -4,14 +4,16 @@ import {
   useEffect,
   useState,
 } from "react";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
 import {
   FieldWrapper,
   InputContainer,
   InputField,
   LabelWrapper,
 } from "./styles";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
 
 type IInput = {
   className?: string;

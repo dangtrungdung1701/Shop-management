@@ -1,6 +1,7 @@
-import { DRAWER_WIDTH } from "common/constants/drawer";
 import { useLoading } from "hooks/useLoading";
+
 import useStore from "zustand/store";
+
 import { PageLoadingContainer, SpinnerContainer } from "./styles";
 
 interface IPageLoadingProps {}

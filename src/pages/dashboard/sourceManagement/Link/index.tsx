@@ -17,7 +17,6 @@ import TableLayout from "layouts/Table";
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
-import useCheckPermission from "hooks/useCheckPermission";
 
 import { IGetAllSource, ILink } from "typings";
 
@@ -198,6 +197,7 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý link tiếp sóng"
+      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={
@@ -209,30 +209,22 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
         />
       }
     >
-      {useCheckPermission("AudioSourceManager", currentUser) ? (
-        <>
-          <SearchBoxWrapper>
-            <SearchBoxTable
-              onFetchData={handleFetchData}
-              placeholder="Tìm kiếm theo tên link tiếp sóng"
-            />
-          </SearchBoxWrapper>
+      <SearchBoxWrapper>
+        <SearchBoxTable
+          onFetchData={handleFetchData}
+          placeholder="Tìm kiếm theo tên link tiếp sóng"
+        />
+      </SearchBoxWrapper>
 
-          <Table
-            data={listLinks}
-            columns={columns}
-            page={page}
-            totalSize={totalCount}
-            onPageChange={handleChangePage}
-            onSizeChange={handleChangeSize}
-            isRemote
-          />
-        </>
-      ) : (
-        <div className="h-30 flex items-center justify-center font-bold text-20">
-          Bạn không có quyền truy cập trang này
-        </div>
-      )}
+      <Table
+        data={listLinks}
+        columns={columns}
+        page={page}
+        totalSize={totalCount}
+        onPageChange={handleChangePage}
+        onSizeChange={handleChangeSize}
+        isRemote
+      />
     </TableLayout>
   );
 };

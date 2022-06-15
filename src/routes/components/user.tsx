@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
 import UserIcon from "icons/Dashboard/User";
+
+import { IRoutes } from "typings";
 
 const Normal = lazy(() => import("pages/dashboard/Users"));
 

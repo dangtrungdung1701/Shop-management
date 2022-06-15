@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+
 import { randomId } from "common/functions";
 import { getFilesFromFileList } from "common/functions";
-import { useDropzone } from "react-dropzone";
+
 import { ImageUploadLayoutContainer, Overlay, Label } from "./styles";
 
 interface IImageUploadLayoutProps {

@@ -1,5 +1,7 @@
-import { ActionItem, ActionText } from "./styles";
 import SVG from "designs/SVG";
+
+import { ActionItem, ActionText } from "./styles";
+
 interface IEditProps {}
 
 export const Edit: React.FC<IEditProps> = props => {

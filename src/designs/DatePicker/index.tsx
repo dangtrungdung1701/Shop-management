@@ -1,17 +1,19 @@
-import { useField, useFormikContext } from "formik";
 import {
   DetailedHTMLProps,
   InputHTMLAttributes,
   useEffect,
   useState,
 } from "react";
+import { useField, useFormikContext } from "formik";
 import vi from "date-fns/locale/vi";
 import { DatePicker as NiceDatePicker } from "react-nice-dates";
-import { Container, InputField, DateInputContainer } from "./styles";
-import SVG from "designs/SVG";
+
 import FormControlLabel from "common/styles/FormControlLabel";
 import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+
 import DatePickerIcon from "icons/DatePicker";
+
+import { Container, InputField, DateInputContainer } from "./styles";
 
 interface IInput
   extends DetailedHTMLProps<

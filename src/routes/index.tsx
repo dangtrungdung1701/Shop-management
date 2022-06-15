@@ -5,11 +5,15 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
-import { flattenedRoutes as routes, notFoundRoute } from "./Routes";
+
+import { PATH } from "common/constants/routes";
+
 import PrivateRoute from "components/PrivateRoute";
+
 import DashboardLayout from "layouts/Dashboard";
 import AuthLayout from "layouts/Auth";
-import { PATH } from "common/constants/routes";
+
+import { flattenedRoutes as routes, notFoundRoute } from "./Routes";
 
 const Routers: React.FC = props => {
   const [privateRoutes] = useState(() =>

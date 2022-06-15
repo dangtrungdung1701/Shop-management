@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { PaginationContainer, SizeOnTotal, SizePerPage } from "./styles";
-import Select from "./components/Select";
+
 import SVG from "designs/SVG";
+
+import { PaginationContainer, SizeOnTotal, SizePerPage } from "./styles";
+
+import Select from "./components/Select";
 
 interface IPaginationProps {
   onChangePageNext: (page: number) => void;

@@ -7,9 +7,18 @@
  * --> value submitted: "12EQ|32UI|7u21"
  */
 
+import { useEffect, useState, Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { useField, useFormikContext } from "formik";
-import { useEffect, useState, Fragment } from "react";
+import Fuse from "fuse.js";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import DropdownArrowIcon from "icons/Arrows/SelectArrow";
+
+import { IIconSVGProps } from "typings";
+
 import {
   AutocompleteContainer,
   HiddenInput,
@@ -17,19 +26,11 @@ import {
   MenuItem,
   ListboxButton,
   ListboxOptionsContainer,
-  Tag,
   Placeholder,
-  TagContainer,
-  TagText,
   EmptyData,
   SearchInput,
   Text,
 } from "./styles";
-import { IIconSVGProps } from "typings";
-import DropdownArrowIcon from "icons/Arrows/SelectArrow";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import Fuse from "fuse.js";
 
 interface IAutocompleteProps<T> {
   name: string;

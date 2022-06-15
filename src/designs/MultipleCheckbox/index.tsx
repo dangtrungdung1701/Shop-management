@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import Checkbox from "designs/Checkbox";
-import { HiddenInput } from "designs/Select/styles";
 import { useField, useFormikContext } from "formik";
 
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import Checkbox from "designs/Checkbox";
+import { HiddenInput } from "designs/Select/styles";
 interface IMultipleCheckboxProps<T> {
   className?: string;
   name: string;

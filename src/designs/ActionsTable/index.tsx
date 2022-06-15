@@ -8,6 +8,7 @@ import { ActionButton, ActionsContainer, Overlay, Wrapper } from "./styles";
 export * from "./Delete";
 export * from "./Edit";
 export * from "./Upgrade";
+
 interface IActionsProps<T> {
   ButtonAction: React.ReactElement;
   options: T[];

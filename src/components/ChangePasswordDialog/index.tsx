@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 
-import Input from "designs/Input";
+import axiosClient from "common/utils/api";
+import { PASSWORD } from "common/constants/validation";
+
 import Dialog from "components/Dialog";
 import DialogHeader from "components/Dialog/Header";
+
+import Input from "designs/Input";
 
 import {
   ButtonWrapper,
@@ -14,8 +18,7 @@ import {
   Form,
   UserDialogContainer,
 } from "./styles";
-import axiosClient from "common/utils/api";
-import { PASSWORD } from "common/constants/validation";
+
 interface IUserDialogProps {
   ButtonMenu?: React.ReactElement;
   editField?: any;

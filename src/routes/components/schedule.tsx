@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-import { IRoutes } from "typings";
 import { PATH } from "common/constants/routes";
 
-import SchduleIcon from "icons/Dashboard/Schedule";
+import ScheduleIcon from "icons/Dashboard/Schedule";
+
+import { IRoutes } from "typings";
 
 const Schedule = lazy(() => import("pages/dashboard/Schedule"));
 const CreateEdit = lazy(() => import("pages/dashboard/Schedule/AddEdit"));
@@ -13,7 +14,7 @@ export const scheduleRoute: IRoutes = {
   path: PATH.SCHEDULE.SELF,
   exact: true,
   isPrivate: true,
-  Icon: <SchduleIcon />,
+  Icon: <ScheduleIcon />,
   Component: Schedule,
 };
 

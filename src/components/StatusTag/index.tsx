@@ -1,4 +1,5 @@
 import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
+
 import { StatusTagContainer } from "./styles";
 
 interface IStatusTagProps {

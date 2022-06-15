@@ -10,6 +10,15 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { useField, useFormikContext } from "formik";
 import { useEffect, useState, Fragment } from "react";
+import Fuse from "fuse.js";
+
+import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
+import FormControlLabel from "common/styles/FormControlLabel";
+
+import DropdownArrowIcon from "icons/Arrows/SelectArrow";
+
+import { IIconSVGProps } from "typings";
+
 import {
   MultipleSelectContainer,
   HiddenInput,
@@ -24,12 +33,6 @@ import {
   EmptyData,
   SearchInput,
 } from "./styles";
-import { IIconSVGProps } from "typings";
-import DropdownArrowIcon from "icons/Arrows/SelectArrow";
-import FormControlErrorHelper from "common/styles/FormControlErrorHelper";
-import FormControlLabel from "common/styles/FormControlLabel";
-import Fuse from "fuse.js";
-import { useDebounced } from "hooks/useDebounced";
 
 interface IMultipleAutocompleteProps<T> {
   name: string;

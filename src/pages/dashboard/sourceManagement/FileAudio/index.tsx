@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState, lazy, useCallback } from "react";
 import { RouteComponentProps } from "react-router";
 import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 import { PATH } from "common/constants/routes";
-import { formatDate, getQueryFromLocation, HTMLdecode } from "common/functions";
+import { getQueryFromLocation, HTMLdecode } from "common/functions";
 import axiosClient from "common/utils/api";
 
 import SearchBoxTable from "components/SearchBoxTable";
@@ -16,14 +17,12 @@ import TableLayout from "layouts/Table";
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
-import useCheckPermission from "hooks/useCheckPermission";
 
 import { IFileAudio, IGetAllSource } from "typings";
 
 import useStore from "zustand/store";
 
 import { ButtonAddFileAudio, SearchBoxWrapper } from "./styles";
-import dayjs from "dayjs";
 
 const FileAudioDialog = lazy(() => import("./FileAudioDialog"));
 
@@ -201,6 +200,7 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý tệp tin"
+      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm tệp tin</ButtonAddFileAudio>}
@@ -210,29 +210,21 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
         />
       }
     >
-      {useCheckPermission("AudioSourceManager", currentUser) ? (
-        <>
-          <SearchBoxWrapper>
-            <SearchBoxTable
-              onFetchData={handleFetchData}
-              placeholder="Tìm kiếm theo tên tệp tin"
-            />
-          </SearchBoxWrapper>
-          <Table
-            data={listFileAudio}
-            columns={columns}
-            page={page}
-            totalSize={totalCount}
-            onPageChange={handleChangePage}
-            onSizeChange={handleChangeSize}
-            isRemote
-          />
-        </>
-      ) : (
-        <div className="h-30 flex items-center justify-center font-bold text-20">
-          Bạn không có quyền truy cập trang này
-        </div>
-      )}
+      <SearchBoxWrapper>
+        <SearchBoxTable
+          onFetchData={handleFetchData}
+          placeholder="Tìm kiếm theo tên tệp tin"
+        />
+      </SearchBoxWrapper>
+      <Table
+        data={listFileAudio}
+        columns={columns}
+        page={page}
+        totalSize={totalCount}
+        onPageChange={handleChangePage}
+        onSizeChange={handleChangeSize}
+        isRemote
+      />
     </TableLayout>
   );
 };
