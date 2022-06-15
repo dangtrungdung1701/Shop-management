@@ -81,10 +81,39 @@ const LinkDialog: React.FC<IDialogProps> = ({
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
       name: yup.string().required("Vui lòng nhập tên kênh FM").trim(),
-      frequency: yup.number().required("Vui lòng nhập tần số!"),
-      rssi: yup.number().required("Vui lòng nhập thông số RSSI!"),
-      c: yup.number().required("Vui lòng nhập thông số C!"),
-      g: yup.number().required("Vui lòng nhập thông số G!"),
+      frequency: yup
+        .number()
+        .required("Vui lòng nhập tần số!")
+        .min(
+          54,
+          "Tần số phải nằm trong khoảng từ 54.0 - 108.0, vui lòng nhập lại!",
+        )
+        .max(
+          108.0,
+          "Tần số phải nằm trong khoảng từ 54.0 - 108.0, vui lòng nhập lại!",
+        )
+        .test(
+          "is-decimal",
+          "Tần số chỉ được có một số sau dấu phẩy, vui lòng nhập lại",
+          value => {
+            return (value + "").match(/^\d+(\.[0-9])?$/) ? true : false;
+          },
+        ),
+      rssi: yup
+        .number()
+        .required("Vui lòng nhập thông số RSSI!")
+        .min(0, "Thông số RSSI nằm trong khoảng 0 - 127, vui lòng nhập lại!")
+        .max(127, "Thông số RSSI nằm trong khoảng 0 - 127, vui lòng nhập lại!"),
+      c: yup
+        .number()
+        .required("Vui lòng nhập thông số C!")
+        .min(0, "Thông số C nằm trong khoảng 0 - 31, vui lòng nhập lại!")
+        .max(31, "Thông số C nằm trong khoảng 0 - 31, vui lòng nhập lại!"),
+      g: yup
+        .number()
+        .required("Vui lòng nhập thông số G!")
+        .min(0, "Thông số G nằm trong khoảng 0 - 15, vui lòng nhập lại!")
+        .max(15, "Thông số G nằm trong khoảng 0 - 15, vui lòng nhập lại!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
@@ -98,7 +127,6 @@ const LinkDialog: React.FC<IDialogProps> = ({
           c: value?.c,
           g: value?.g,
         };
-        console.log(payload);
         const res = await axiosClient.put(
           `/AudioFmSource/${editField?.id}`,
           payload,

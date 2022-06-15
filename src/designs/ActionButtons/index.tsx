@@ -124,7 +124,7 @@ const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
     <>
       <Dropdown
         className="flex justify-end "
-        dropdownContainerClassName="w-18 top-2"
+        dropdownContainerClassName="w-18 bottom-2"
         MenuButton={<SVG name="common/3dot" width={16} height={16} />}
         options={selectedOptions}
         renderItem={option => (
