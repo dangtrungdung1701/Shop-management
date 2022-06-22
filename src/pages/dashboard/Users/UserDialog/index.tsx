@@ -593,6 +593,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         placeholder="Chọn quyền hạn"
                         required
                         disabled={isPermission ? false : true}
+                        optionTarget="name"
                       />
                     </FormRightWrapper>
                   </FormTopWrapper>

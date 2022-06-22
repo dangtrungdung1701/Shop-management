@@ -19,6 +19,7 @@ type IActionType =
   | "config";
 
 interface IActionButtonsProps {
+  isFirstItem: boolean;
   buttons: {
     delete?: {
       DialogContent?: React.FC<{ onClose: () => void }>; // An dialog
@@ -105,7 +106,10 @@ const options: {
   },
 };
 
-const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
+const ActionButtons: React.FC<IActionButtonsProps> = ({
+  buttons,
+  isFirstItem,
+}) => {
   const [optionSelected, setOptionSelected] = useState<IOption | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedOptions] = useState(() => {
@@ -126,7 +130,9 @@ const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
     <>
       <Dropdown
         className="flex justify-end "
-        dropdownContainerClassName="w-18 bottom-2"
+        dropdownContainerClassName={`w-18 ${
+          isFirstItem ? "top-2" : "bottom-2"
+        }`}
         MenuButton={<SVG name="common/3dot" width={16} height={16} />}
         options={selectedOptions}
         renderItem={option => (

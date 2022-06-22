@@ -100,8 +100,10 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
   };
 
   const renderAction = (record: ILink) => {
+    const isFirstItem = record?.id === listLinks[0]?.id;
     return (
       <ActionButtons
+        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (
@@ -177,7 +179,7 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
         formatter: (_: string, record: ILink) => renderAction(record),
       },
     ],
-    [page],
+    [page, listLinks, searchText, sizePerPage],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {

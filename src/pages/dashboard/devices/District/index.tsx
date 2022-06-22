@@ -198,8 +198,10 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const renderAction = (record: IDevice) => {
+    const isFirstItem = record?.id === listDevice[0]?.id;
     return (
       <ActionButtons
+        isFirstItem={isFirstItem}
         buttons={{
           config: {
             DialogContent: props => (
@@ -271,18 +273,22 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
         }),
       },
       {
-        text: "Kết nối",
-        dataField: "connectionStatus",
-        formatter: (connectionStatus: IConnectionStatus) => {
-          const type = connectionStatus?.connectionType;
-          if (type === ETHERNET_ID) return <SVG name="device/ethernet" />;
-          if (type === DATA_ID) return <SVG name="device/4g" />;
-          if (type === WIFI_ID) return <SVG name="device/wifi" />;
-          return <SVG name="device/wifi-off" />;
+        text: "Tín hiệu",
+        dataField: "connectionStatus.signalStrength",
+        formatter: (signalStrength: number) => {
+          switch (signalStrength) {
+            case 1:
+              return <SVG name="device/connect-1" />;
+            case 2:
+              return <SVG name="device/connect-2" />;
+            case 3:
+              return <SVG name="device/connect-3" />;
+            case 4:
+              return <SVG name="device/connect-4" />;
+            default:
+              return <SVG name="device/bad-status" />;
+          }
         },
-        headerStyle: () => ({
-          width: "18%",
-        }),
       },
       {
         text: "Trạng thái",
@@ -304,7 +310,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
         formatter: (_: string, record: IDevice) => renderAction(record),
       },
     ],
-    [page],
+    [page, listDevice],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {
@@ -328,7 +334,11 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       buttonMenu={
         currentUser?.userInfo?.region?.levelId <= DISTRICT_ID && (
           <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
-            <CSVLink data={CSVData} filename="danh-sach-thiet-bi.csv">
+            <CSVLink
+              data={CSVData}
+              filename="danh-sach-thiet-bi.csv"
+              className="w-full phone:w-auto"
+            >
               <TopButton>Xuất báo cáo</TopButton>
             </CSVLink>
             <RestartDialog
