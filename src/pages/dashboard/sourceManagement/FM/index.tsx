@@ -100,8 +100,10 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   };
 
   const renderAction = (record: IFM) => {
+    const isFirstItem = record?.id === listFmAudio[0]?.id;
     return (
       <ActionButtons
+        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (
@@ -201,7 +203,7 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
         formatter: (_: string, record: IFM) => renderAction(record),
       },
     ],
-    [page],
+    [page, searchText, sizePerPage, listFmAudio],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {

@@ -158,8 +158,10 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
 
   const renderAction = (record: IUser) => {
     const isCurrentAccount = currentUser?.userInfo?.id === record?.id;
+    const isFirstItem = record?.id === listUsers[0]?.id;
     return (
       <ActionButtons
+        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props =>
@@ -267,7 +269,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
         formatter: (_: string, record: IUser) => renderAction(record),
       },
     ],
-    [page, searchText, regionId, sizePerPage],
+    [page, searchText, regionId, sizePerPage, listUsers],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {
