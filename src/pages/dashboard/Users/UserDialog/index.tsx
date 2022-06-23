@@ -7,6 +7,7 @@ import {
   CLASS_LIST_OF_DISTRICT,
   CLASS_LIST,
   CLASS_LIST_OF_WARD,
+  INVALID_LOCATION_ID,
 } from "common/constants/user";
 import axiosClient from "common/utils/api";
 import { filterPermission } from "common/functions";
@@ -37,6 +38,7 @@ import {
   FormRightWrapper,
   FormTopWrapper,
 } from "./styles";
+import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
 
 type IDialogProps = {
   editField?: IUser;
@@ -108,9 +110,9 @@ const NormalDialog: React.FC<IDialogProps> = ({
 
   useEffect(() => {
     getProvinceListService();
-    currentUser?.userInfo?.region?.provinceId !== -1 &&
+    currentUser?.userInfo?.region?.provinceId !== INVALID_LOCATION_ID &&
       getDistrictListService(currentUser?.userInfo?.region?.provinceId);
-    currentUser?.userInfo?.region?.districtId !== -1 &&
+    currentUser?.userInfo?.region?.districtId !== INVALID_LOCATION_ID &&
       getWardListService(currentUser?.userInfo?.region?.districtId);
     if (editField) {
       setInitialValues({
@@ -372,7 +374,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
         !district && getDistrictListService(province?.id!);
         !ward && district
           ? getWardListService(district?.id!)
-          : getWardListService(editField?.region?.districtId!);
+          : editField?.region?.districtId !== INVALID_LOCATION_ID &&
+            getWardListService(editField?.region?.districtId!);
         formik.setFieldValue("province", "SELECTED");
         district
           ? formik.setFieldValue("district", "SELECTED")
@@ -451,9 +454,10 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         label="Phân cấp"
                         optionSelected={selectedLevel}
                         options={
-                          currentUser?.userInfo?.region?.levelId === 2
+                          currentUser?.userInfo?.region?.levelId === PROVINCE_ID
                             ? CLASS_LIST
-                            : currentUser?.userInfo?.region?.levelId === 3
+                            : currentUser?.userInfo?.region?.levelId ===
+                              DISTRICT_ID
                             ? CLASS_LIST_OF_DISTRICT
                             : CLASS_LIST_OF_WARD
                         }
@@ -466,7 +470,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         disabled={isPermission ? false : true}
                       />
 
-                      {selectedLevel?.id === 2 && (
+                      {selectedLevel?.id === PROVINCE_ID && (
                         <Select
                           name="province"
                           label="Tên tỉnh/ thành phố"
@@ -479,7 +483,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           disabled
                         />
                       )}
-                      {selectedLevel?.id === 3 && (
+                      {selectedLevel?.id === DISTRICT_ID && (
                         <>
                           <Select
                             name="province"
@@ -506,7 +510,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             }}
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
-                              currentUser?.userInfo?.region?.districtId === -1
+                              currentUser?.userInfo?.region?.districtId ===
+                              INVALID_LOCATION_ID
                                 ? isPermission
                                   ? false
                                   : true
@@ -517,7 +522,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           />
                         </>
                       )}
-                      {selectedLevel?.id === 4 && (
+                      {selectedLevel?.id === WARD_ID && (
                         <>
                           <Select
                             name="province"
@@ -547,7 +552,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
                             }}
                             placeholder="Chọn quận/ huyện/ thị xã"
                             disabled={
-                              currentUser?.userInfo?.region?.districtId === -1
+                              currentUser?.userInfo?.region?.districtId ===
+                              INVALID_LOCATION_ID
                                 ? isPermission
                                   ? false
                                   : true
@@ -568,7 +574,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
                                 return true;
                               }
                               if (
-                                currentUser?.userInfo?.region?.wardId !== -1
+                                currentUser?.userInfo?.region?.wardId !==
+                                INVALID_LOCATION_ID
                               ) {
                                 return true;
                               } else {

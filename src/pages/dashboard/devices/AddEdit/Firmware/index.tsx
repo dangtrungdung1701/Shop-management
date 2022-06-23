@@ -50,7 +50,6 @@ const Firmware: React.FC<IFirmwareProps> = ({ editField }) => {
   }, [editField]);
 
   const handleUpdate = () => {};
-
   return (
     <TableLayout>
       <Title>Phiên bản</Title>
