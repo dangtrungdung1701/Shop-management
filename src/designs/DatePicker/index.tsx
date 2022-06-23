@@ -41,6 +41,7 @@ const DatePicker: React.FC<IInput> = props => {
     maximumDate,
     required = false,
     onDateChange,
+    disabled,
     ...rest
   } = props;
   const [field, meta] = useField(props);
@@ -76,7 +77,7 @@ const DatePicker: React.FC<IInput> = props => {
         minimumDate={minimumDate}
       >
         {({ inputProps }) => (
-          <DateInputContainer isError={isError}>
+          <DateInputContainer isError={isError} disabled={disabled}>
             <InputField
               autoComplete="off"
               {...(rest as any)}

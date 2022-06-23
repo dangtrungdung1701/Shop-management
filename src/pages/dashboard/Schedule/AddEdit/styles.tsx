@@ -30,3 +30,11 @@ export const ButtonWrapper = styled.div`
 export const Button = styled(_Button)`
   ${tw`py-1 flex justify-center ml-1.5 w-15`}
 `;
+
+export const ButtonAddTime = styled(_Button)`
+  ${tw`py-1 flex justify-center w-full`}
+`;
+
+export const ButtonRemove = styled(_Button)`
+  ${tw`py-1.5 flex justify-center w-10 h-fit px-0`}
+`;

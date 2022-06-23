@@ -7,8 +7,9 @@ export const DashboardContainer = styled.div`
 `;
 
 export const Viewpoint = styled.div<{ isExtendDrawer: boolean }>`
-  ${tw`z-0 h-screen overflow-auto transition-all duration-300 `}
-  @media screen and (min-width: ${AUTO_CLOSE_POINT}px) {
+  overflow-x: clip;
+  ${tw`z-0 h-screen overflow-y-auto transition-all duration-300 `} @media
+    screen and (min-width: ${AUTO_CLOSE_POINT}px) {
     padding-left: ${({ isExtendDrawer }) =>
       isExtendDrawer ? DRAWER_WIDTH : "0"};
   }

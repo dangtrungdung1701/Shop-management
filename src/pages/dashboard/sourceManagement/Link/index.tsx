@@ -100,10 +100,8 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
   };
 
   const renderAction = (record: ILink) => {
-    const isFirstItem = record?.id === listLinks[0]?.id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (

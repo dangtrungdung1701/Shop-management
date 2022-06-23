@@ -100,10 +100,8 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   };
 
   const renderAction = (record: IFM) => {
-    const isFirstItem = record?.id === listFmAudio[0]?.id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (

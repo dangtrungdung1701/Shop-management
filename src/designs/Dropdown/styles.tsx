@@ -3,7 +3,7 @@ import tw from "twin.macro";
 import { Menu, Transition } from "@headlessui/react";
 
 export const MenuButtonContainer = styled(Menu.Button)`
-  ${tw`relative text-left cursor-pointer focus:outline-none `}
+  ${tw`text-left cursor-pointer focus:outline-none `}
 `;
 
 export const MenuItems = styled.div`

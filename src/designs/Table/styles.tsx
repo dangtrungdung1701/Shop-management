@@ -2,7 +2,7 @@ import styled from "styled-components";
 import tw from "twin.macro";
 
 export const TableContainer = styled.div`
-  ${tw`overflow-x-auto`}
+  ${tw``}
 `;
 
 export const Header = styled.div`

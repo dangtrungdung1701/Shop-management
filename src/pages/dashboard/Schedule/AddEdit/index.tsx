@@ -4,21 +4,33 @@ import * as yup from "yup";
 import { Formik, FormikProps, FormikValues } from "formik";
 
 import { PATH } from "common/constants/routes";
-import { ISource, optionSource } from "common/constants/source";
+import {
+  FILE_SOURCE_ID,
+  ISource,
+  MIC_SOURCE_ID,
+  optionSource,
+} from "common/constants/source";
 import axiosClient from "common/utils/api";
-import { optionWeek } from "common/constants/date";
+import {
+  IRepeatType,
+  optionMonth,
+  optionWeek,
+  repeatType,
+} from "common/constants/date";
 import {
   CLASS_LIST,
   CLASS_LIST_OF_DISTRICT,
   CLASS_LIST_OF_WARD,
 } from "common/constants/user";
 import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
+import { calSecondFromTime, formatTime, getTheNextDay } from "common/functions";
 
 import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
 import Select from "designs/Select";
 import DatePicker from "designs/DatePicker";
 import TimePicker from "designs/TimePicker";
+import SVG from "designs/SVG";
 
 import TableLayout from "layouts/Table";
 
@@ -45,6 +57,8 @@ import {
   ButtonWrapper,
   Button,
   FormRightWrapper,
+  ButtonAddTime,
+  ButtonRemove,
 } from "./styles";
 
 interface IConfigureScheduleProps extends RouteComponentProps {}
@@ -65,8 +79,9 @@ interface IFormValue {
   endDay?: string;
   startTime?: string;
   endTime?: string;
-  weekDay?: string;
+  repeatDate?: string;
   repeatTime?: string;
+  repeatType?: string;
 }
 
 const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
@@ -80,6 +95,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const [schedule, setSchedule] = useState<any | null>(null);
 
   const [listDevices, setListDevices] = useState<IDevice[]>([]);
+
   const [provinceList, setProvinceList] = useState<IRegion[]>([]);
   const [districtList, setDistrictList] = useState<IRegion[]>([]);
   const [wardList, setWardList] = useState<IRegion[]>([]);
@@ -97,11 +113,19 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const [fileSelected, setFileSelected] = useState<
     IFileAudio | ILink | IFM | null
   >(null);
+
   const [options, setOptions] = useState<IFileAudio[] | ILink[] | IFM[]>([]);
   const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
-  const [selectedWeek, setSelectedWeek] = useState<any[]>([]);
-  const [timeEnd, setTimeEnd] = useState<Date>();
-  const [timeStart, setTimeStart] = useState<Date>();
+
+  const [selectedRepeatType, setSelectedRepeatType] = useState<IRepeatType>();
+  const [selectedRepeatDate, setSelectedRepeatDate] = useState<any[]>([]);
+
+  const [timeEnd, setTimeEnd] = useState<(number | null)[]>([null]);
+  const [timeStart, setTimeStart] = useState<(number | null)[]>([null]);
+
+  const [broadcastTime, setBroadcastTime] = useState<
+    { startTime: Date | null; endTime: Date | null }[]
+  >([{ startTime: null, endTime: null }]);
 
   const [initialValues, setInitialValues] = useState<IFormValue>({
     name: "",
@@ -116,8 +140,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     endDay: "",
     startTime: "",
     endTime: "",
-    weekDay: "",
+    repeatDate: "",
     repeatTime: "",
+    repeatType: "",
   });
 
   useBreadcrumb([
@@ -145,13 +170,15 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       startDay: yup.date().required("Vui lòng chọn ngày bắt đầu"),
       endDay: yup
         .date()
+        .required("Vui lòng chọn ngày kết thúc")
         .min(
           yup.ref("startDay"),
           "Vui lòng chọn ngày kết thúc muộn hơn ngày bắt đầu!",
         ),
-      startTime: yup.string().required("Vui lòng chọn thời gian bắt đầu"),
-      endTime: yup.string().required("Vui lòng chọn thời gian kết thúc"),
-      weekDay: yup.string().required("Vui lòng chọn thứ trong tuần"),
+      startTime: yup.string().required("Vui lòng chọn thời điểm bắt đầu"),
+      endTime: yup.string().required("Vui lòng chọn thời điểm kết thúc"),
+      repeatType: yup.string().required("Vui lòng chọn kiểu lịch"),
+      repeatDate: yup.string().required("Vui lòng chọn ngày lặp lại"),
       repeatTime: yup.number().required("Vui lòng chọn số lần lặp"),
     });
 
@@ -407,6 +434,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     }
   };
 
+  const renderTimePicker = () => {};
+
   return (
     <TableLayout>
       <Title>{params.id ? "Chỉnh sửa lịch phát" : "Thêm lịch phát"}</Title>
@@ -414,7 +443,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       <Formik
         initialValues={initialValues}
         // enableReinitialize
-        validationSchema={validationSchema}
+        // validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
         {formik => {
@@ -596,65 +625,233 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     label="Nguồn phát"
                     optionSelected={sourceSelected}
                     options={optionSource}
-                    onSelect={value => setSourceSelected(value)}
+                    onSelect={value => {
+                      setSourceSelected(value);
+                      setFileSelected(null);
+                      if (value?.id === FILE_SOURCE_ID) {
+                        params?.id
+                          ? formik?.setFieldValue("repeatTime", 0)
+                          : formik?.setFieldValue("repeatTime", undefined);
+                        return;
+                      }
+                      formik?.setFieldValue("repeatTime", 1);
+                    }}
                     placeholder="Chọn nguồn phát"
                     required
                   />
-                  <Select
-                    name="file"
-                    label="Nguồn phát tương ứng"
-                    optionSelected={fileSelected}
-                    options={options}
-                    onSelect={value => setFileSelected(value)}
-                    placeholder="Chọn Tệp tin/Link tiếp sóng/FM"
-                    required
-                    disabled={sourceSelected ? false : true}
-                  />
+                  {sourceSelected?.id !== MIC_SOURCE_ID && (
+                    <Select
+                      name="file"
+                      label="Nguồn phát tương ứng"
+                      optionSelected={fileSelected}
+                      options={options}
+                      onSelect={value => setFileSelected(value)}
+                      placeholder="Chọn Tệp tin/Link tiếp sóng/FM"
+                      required
+                      disabled={sourceSelected ? false : true}
+                    />
+                  )}
+
+                  {sourceSelected && (
+                    <Input
+                      name="repeatTime"
+                      label="Số lần lặp lại tệp tin"
+                      placeholder="Nhập số lần lặp (tệp tin)"
+                      type="number"
+                      required
+                      disabled={
+                        sourceSelected?.id === FILE_SOURCE_ID ? false : true
+                      }
+                    />
+                  )}
                 </FormLeftWrapper>
                 <FormRightWrapper>
                   <DatePicker
-                    label="Ngày bắt đầu gói cước"
+                    label="Ngày bắt đầu"
                     name="startDay"
                     required
+                    onDateChange={newDate => {
+                      if (
+                        selectedRepeatType &&
+                        selectedRepeatType.id === "once"
+                      ) {
+                        formik.setFieldValue(
+                          "endDay",
+                          String(getTheNextDay(newDate)),
+                        );
+                      }
+                    }}
                   />
-                  <DatePicker
-                    minimumDate={new Date(formik.values.startDay || "")}
-                    label="Ngày kết thúc gói cước"
-                    name="endDay"
+                  {selectedRepeatType?.id !== "once" && (
+                    <DatePicker
+                      minimumDate={new Date(formik.values.startDay || "")}
+                      label="Ngày kết thúc"
+                      name="endDay"
+                      required
+                      disabled={formik.values.startDay ? false : true}
+                    />
+                  )}
+
+                  {broadcastTime.map((item: any, index: number) => {
+                    return (
+                      <div className="flex flex-row gap-1 items-end">
+                        <div className="flex flex-col tablet:flex-row laptop:flex-col desktop:flex-row gap-1 w-full">
+                          <TimePicker
+                            name="startTime"
+                            label="Thời điểm bắt đầu"
+                            placeholder="HH:MM:SS"
+                            onTimeChange={time => {
+                              const newTime = timeStart.map(
+                                (item, indexTime) => {
+                                  if (indexTime === index)
+                                    return calSecondFromTime(time);
+                                  return item;
+                                },
+                              );
+                              const newBroadcastTime = broadcastTime.map(
+                                (item: any, indexBroadcastTime: number) => {
+                                  if (indexBroadcastTime === index)
+                                    return { ...item, startTime: time };
+                                  return item;
+                                },
+                              );
+                              setBroadcastTime(newBroadcastTime);
+                              setTimeStart(newTime);
+                            }}
+                            required
+                            minTime={
+                              index > 0
+                                ? formatTime(broadcastTime[index - 1].endTime!)
+                                : ""
+                            }
+                          />
+                          <TimePicker
+                            name="endTime"
+                            label="Thời điểm kết thúc"
+                            placeholder="HH:MM:SS"
+                            minTime={formatTime(
+                              broadcastTime[index].startTime!,
+                            )}
+                            onTimeChange={time => {
+                              const newTime = timeEnd.map((item, indexTime) => {
+                                if (indexTime === index)
+                                  return calSecondFromTime(time);
+                                return item;
+                              });
+                              const newBroadcastTime = broadcastTime.map(
+                                (item: any, indexBroadcastTime: number) => {
+                                  if (indexBroadcastTime === index)
+                                    return { ...item, endTime: time };
+                                  return item;
+                                },
+                              );
+                              setBroadcastTime(newBroadcastTime);
+                              setTimeEnd(newTime);
+                            }}
+                            disabled={timeStart[index] ? false : true}
+                            required
+                          />
+                        </div>
+                        {index > 0 && (
+                          <ButtonRemove
+                            type="button"
+                            variant="secondary"
+                            onClick={() => {
+                              const copyAndDelete = (
+                                array: any,
+                                index: number,
+                              ) => {
+                                const copyArray = [...array];
+                                copyArray.splice(index, 1);
+                                return copyArray;
+                              };
+                              setBroadcastTime(
+                                copyAndDelete(broadcastTime, index),
+                              );
+                              setTimeStart(copyAndDelete(timeStart, index));
+                              setTimeEnd(copyAndDelete(timeEnd, index));
+                              formik.setFieldValue(
+                                "startTime",
+                                formatTime(broadcastTime[index - 1].startTime!),
+                              );
+                              formik.setFieldValue(
+                                "endTime",
+                                formatTime(broadcastTime[index - 1].endTime!),
+                              );
+                            }}
+                          >
+                            <SVG
+                              name="product/clear-all"
+                              width={20}
+                              height={20}
+                            />
+                          </ButtonRemove>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  <ButtonAddTime
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setBroadcastTime([
+                        ...broadcastTime,
+                        { startTime: null, endTime: null },
+                      ]);
+                      setTimeStart([...timeStart, null]);
+                      setTimeEnd([...timeEnd, null]);
+                      formik.setFieldValue("startTime", "");
+                      formik.setFieldValue("endTime", "");
+                    }}
+                    className="w-full"
+                    disabled={(() => {
+                      if (timeStart.includes(null) || timeEnd.includes(null))
+                        return true;
+                      return false;
+                    })()}
+                  >
+                    <SVG name="product/add-row" />
+                    Thêm thời gian phát
+                  </ButtonAddTime>
+                  <Select
+                    name="repeatType"
+                    label="Kiểu lịch"
+                    optionSelected={selectedRepeatType}
+                    options={repeatType}
+                    onSelect={value => {
+                      if (value.id === "once") {
+                        formik.setFieldValue("repeatDate", "SELECTED");
+                        if (formik.values.startDay) {
+                          const theNextDay = new Date(formik.values.startDay!);
+                          formik.setFieldValue(
+                            "endDay",
+                            String(getTheNextDay(theNextDay)),
+                          );
+                        }
+                      } else {
+                        formik.setFieldValue("endDay", "");
+                      }
+                      setSelectedRepeatType(value);
+                    }}
+                    placeholder="Chọn kiểu lịch"
                     required
                   />
-                  <TimePicker
-                    name="startTime"
-                    label="Thời gian bắt đầu"
-                    placeholder="Chọn thời gian bắt đầu"
-                    onTimeChange={time => setTimeStart(time)}
-                    required
-                  />
-                  <TimePicker
-                    name="endTime"
-                    label="Thời gian kết thúc"
-                    placeholder="Chọn thời gian kết thúc"
-                    minTime={formik.values.startTime}
-                    onTimeChange={time => setTimeEnd(time)}
-                    disabled={timeStart ? false : true}
-                    required
-                  />
-                  <MultipleSelect
-                    name="weekDay"
-                    label="Thứ trong tuần"
-                    listOptionsSelected={selectedWeek}
-                    options={optionWeek}
-                    onSelect={value => setSelectedWeek(value)}
-                    placeholder="Chọn thứ trong tuần"
-                    required
-                  />
-                  <Input
-                    name="repeatTime"
-                    label="Số lần lặp"
-                    placeholder="Nhập số lần lặp (tệp tin)"
-                    type="number"
-                    required
-                  />
+                  {selectedRepeatType && selectedRepeatType.id !== "once" && (
+                    <MultipleSelect
+                      name="repeatDate"
+                      label="Ngày lặp lại"
+                      listOptionsSelected={selectedRepeatDate}
+                      options={
+                        selectedRepeatType.id === "weekly"
+                          ? optionWeek
+                          : optionMonth()
+                      }
+                      onSelect={value => setSelectedRepeatDate(value)}
+                      placeholder="Chọn thứ trong tuần"
+                      required
+                    />
+                  )}
                 </FormRightWrapper>
               </BottomWrapper>
               <ButtonWrapper>

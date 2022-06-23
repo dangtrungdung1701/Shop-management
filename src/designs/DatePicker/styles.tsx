@@ -16,8 +16,12 @@ export const DateInputContainer = styled.label<{
   grid-template-columns: 1fr 24px;
 `;
 
-export const InputField = styled.input`
-  ${tw`p-0 font-medium text-neutral-1 text-md placeholder-neutral-3 focus:outline-none focus:ring-transparent`}
+export const InputField = styled.input<{
+  isError: boolean;
+  disabled?: boolean;
+}>`
+  /* ${({ isError, disabled }) => formControlCommon(isError, disabled)} */
+  ${tw`p-0 font-medium text-neutral-1 text-md placeholder-neutral-3 focus:outline-none focus:ring-transparent bg-transparent`}
   ::placeholder {
     font-weight: normal;
   }

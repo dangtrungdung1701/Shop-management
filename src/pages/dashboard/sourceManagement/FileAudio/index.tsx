@@ -100,10 +100,8 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
   };
 
   const renderAction = (record: IFileAudio) => {
-    const isFirstItem = record?.id === listFileAudio[0]?.id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (

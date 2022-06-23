@@ -45,10 +45,8 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
   // }, [page, sizePerPage, searchText, provinceSelected]);
 
   const renderAction = (record: any) => {
-    const isFirstItem = record?.id === listSchedule[0]?.id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           edit: {
             DialogContent: props => (
