@@ -7,8 +7,12 @@ import { Formik, FormikProps, FormikValues } from "formik";
 
 import axiosClient from "common/utils/api";
 import { PATH } from "common/constants/routes";
-import { CLASS_LIST, CLASS_LIST_OF_DISTRICT } from "common/constants/user";
-import { PROVINCE_ID, WARD_ID } from "common/constants/region";
+import {
+  CLASS_LIST,
+  CLASS_LIST_OF_DISTRICT,
+  INVALID_LOCATION_ID,
+} from "common/constants/user";
+import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
 
 import AlertDialog from "components/AlertDialog";
 
@@ -337,7 +341,8 @@ const Details: React.FC<IDetailsProps> = props => {
         !district && getDistrictListService(province?.id!);
         !ward && district
           ? getWardListService(district?.id!)
-          : getWardListService(editField?.region?.districtId!);
+          : editField?.region?.districtId !== INVALID_LOCATION_ID &&
+            getWardListService(editField?.region?.districtId!);
         formik.setFieldValue("province", "SELECTED");
         district
           ? formik.setFieldValue("district", "SELECTED")
@@ -353,7 +358,6 @@ const Details: React.FC<IDetailsProps> = props => {
         break;
     }
   };
-
   return (
     <TableLayout>
       <Title>Cấu hình thiết bị</Title>
@@ -441,7 +445,7 @@ const Details: React.FC<IDetailsProps> = props => {
                     label="Cấp sở hữu"
                     optionSelected={selectedClass}
                     options={
-                      currentUser?.userInfo?.region?.levelId === 2
+                      currentUser?.userInfo?.region?.levelId === PROVINCE_ID
                         ? CLASS_LIST
                         : CLASS_LIST_OF_DISTRICT
                     }
@@ -458,24 +462,22 @@ const Details: React.FC<IDetailsProps> = props => {
                     }
                   />
 
-                  {selectedClass?.id === 2 &&
-                    provinceList.length !== 0 &&
-                    selectedProvince && (
-                      <Select
-                        name="province"
-                        label="Tên tỉnh/ thành phố"
-                        optionSelected={selectedProvince}
-                        options={provinceList}
-                        onSelect={value => setSelectedProvince(value)}
-                        placeholder="Chọn tỉnh/thành phố"
-                        required
-                        optionTarget="displayName"
-                        disabled
-                      />
-                    )}
-                  {selectedClass?.id === 3 && (
+                  {selectedClass?.id === PROVINCE_ID && selectedProvince && (
+                    <Select
+                      name="province"
+                      label="Tên tỉnh/ thành phố"
+                      optionSelected={selectedProvince}
+                      options={provinceList}
+                      onSelect={value => setSelectedProvince(value)}
+                      placeholder="Chọn tỉnh/thành phố"
+                      required
+                      optionTarget="displayName"
+                      disabled
+                    />
+                  )}
+                  {selectedClass?.id === DISTRICT_ID && (
                     <>
-                      {provinceList.length !== 0 && selectedProvince && (
+                      {selectedProvince && (
                         <Select
                           name="province"
                           label="Tên tỉnh/ thành phố"
@@ -488,28 +490,26 @@ const Details: React.FC<IDetailsProps> = props => {
                           disabled
                         />
                       )}
-                      {districtList.length !== 0 && selectedDistrict && (
-                        <Select
-                          name="district"
-                          label="Tên quận/ huyện/ thị xã"
-                          optionSelected={selectedDistrict}
-                          options={districtList}
-                          onSelect={value => setSelectedDistrict(value)}
-                          placeholder="Chọn quận/ huyện/ thị xã"
-                          disabled={
-                            currentUser?.userInfo?.region?.levelId > PROVINCE_ID
-                              ? true
-                              : false
-                          }
-                          required
-                          optionTarget="displayName"
-                        />
-                      )}
+                      <Select
+                        name="district"
+                        label="Tên quận/ huyện/ thị xã"
+                        optionSelected={selectedDistrict}
+                        options={districtList}
+                        onSelect={value => setSelectedDistrict(value)}
+                        placeholder="Chọn quận/ huyện/ thị xã"
+                        disabled={
+                          currentUser?.userInfo?.region?.levelId > PROVINCE_ID
+                            ? true
+                            : false
+                        }
+                        required
+                        optionTarget="displayName"
+                      />
                     </>
                   )}
-                  {selectedClass?.id === 4 && (
+                  {selectedClass?.id === WARD_ID && (
                     <>
-                      {provinceList.length !== 0 && selectedProvince && (
+                      {selectedProvince && (
                         <Select
                           name="province"
                           label="Tên tỉnh/ thành phố"
@@ -522,46 +522,42 @@ const Details: React.FC<IDetailsProps> = props => {
                           disabled
                         />
                       )}
-                      {districtList.length !== 0 && selectedDistrict && (
-                        <Select
-                          name="district"
-                          label="Tên quận/ huyện/ thị xã"
-                          optionSelected={selectedDistrict}
-                          options={districtList}
-                          onSelect={value => {
-                            getWardListService(value?.id!);
-                            setSelectedWard(null);
-                            setSelectedDistrict(value);
-                          }}
-                          placeholder="Chọn quận/ huyện/ thị xã"
-                          disabled={
-                            currentUser?.userInfo?.region?.levelId > PROVINCE_ID
-                              ? true
-                              : false
-                          }
-                          required
-                          optionTarget="displayName"
-                        />
-                      )}
-                      {wardList.length !== 0 && selectedWard && (
-                        <Select
-                          name="ward"
-                          label="Tên phường/ xã/ thị trấn"
-                          optionSelected={selectedWard}
-                          options={wardList}
-                          onSelect={value => setSelectedWard(value)}
-                          placeholder="Chọn phường/ xã/ thị trấn"
-                          disabled={
-                            currentUser?.userInfo?.region?.levelId === WARD_ID
-                              ? true
-                              : selectedDistrict
-                              ? false
-                              : true
-                          }
-                          required
-                          optionTarget="displayName"
-                        />
-                      )}
+                      <Select
+                        name="district"
+                        label="Tên quận/ huyện/ thị xã"
+                        optionSelected={selectedDistrict}
+                        options={districtList}
+                        onSelect={value => {
+                          getWardListService(value?.id!);
+                          setSelectedWard(null);
+                          setSelectedDistrict(value);
+                        }}
+                        placeholder="Chọn quận/ huyện/ thị xã"
+                        disabled={
+                          currentUser?.userInfo?.region?.levelId > PROVINCE_ID
+                            ? true
+                            : false
+                        }
+                        required
+                        optionTarget="displayName"
+                      />
+                      <Select
+                        name="ward"
+                        label="Tên phường/ xã/ thị trấn"
+                        optionSelected={selectedWard}
+                        options={wardList}
+                        onSelect={value => setSelectedWard(value)}
+                        placeholder="Chọn phường/ xã/ thị trấn"
+                        disabled={
+                          currentUser?.userInfo?.region?.levelId === WARD_ID
+                            ? true
+                            : selectedDistrict
+                            ? false
+                            : true
+                        }
+                        required
+                        optionTarget="displayName"
+                      />
                     </>
                   )}
                   <Input
@@ -580,20 +576,31 @@ const Details: React.FC<IDetailsProps> = props => {
                 />
               </NoteWrapper>
               <ButtonWrapper>
-                <Button type="button" variant="secondary" onClick={handleBack}>
-                  Quay lại
-                </Button>
                 {editField?.id && (
                   <AlertDialog
                     title="Khởi động lại"
                     message="Bạn có chắc chắn muốn khởi động lại thiết bị này?"
-                    ButtonMenu={<Button variant="blue">Khởi động lại</Button>}
+                    ButtonMenu={
+                      <Button variant="blue" className="w-full">
+                        Khởi động lại
+                      </Button>
+                    }
                     onConfirm={onClose => handleRestart(onClose)}
                   />
                 )}
-                <Button loading={loading} type="submit">
-                  Lưu
-                </Button>
+                <div className="flex flex-row gap-1 w-full phone:w-auto">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleBack}
+                    className="w-full"
+                  >
+                    Quay lại
+                  </Button>
+                  <Button loading={loading} type="submit">
+                    Lưu
+                  </Button>
+                </div>
               </ButtonWrapper>
             </Form>
           );

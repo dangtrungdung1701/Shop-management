@@ -41,3 +41,5 @@ export const CLASS_LIST_OF_WARD: any[] = [
     displayName: "Phường/Xã/Thị Trấn",
   },
 ];
+
+export const INVALID_LOCATION_ID = -1;
