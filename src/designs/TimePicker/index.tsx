@@ -86,6 +86,22 @@ const TimePickers: React.FC<IInput> = props => {
     return minutes;
   };
 
+  const getDisabledSeconds = () => {
+    if (dispatchTime) {
+      const hour = moment(dispatchTime).hours();
+      if (+minTime.substring(0, 2) === hour) {
+        const minute = moment(dispatchTime).minutes();
+        if (+minTime.substring(3, 5) === minute) {
+          var seconds = [];
+          for (let i = 0; i <= +minTime.substring(6, 8); i++) {
+            seconds.push(i);
+          }
+        }
+      }
+    }
+    return seconds;
+  };
+
   return (
     <Container className={`${className}`}>
       <FormControlLabel isError={isError} required={required}>
@@ -102,6 +118,7 @@ const TimePickers: React.FC<IInput> = props => {
         clearIcon={<div></div>}
         disabledHours={getDisabledHours}
         disabledMinutes={getDisabledMinutes}
+        disabledSeconds={getDisabledSeconds}
         inputIcon={
           <TimePickerIcon className="cursor-pointer absolute right-1.5 top-1/2 transform -translate-y-1/2" />
         }

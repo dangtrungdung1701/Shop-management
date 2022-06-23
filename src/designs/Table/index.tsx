@@ -87,7 +87,7 @@ const Table = ({
             <BootstrapTable
               {...props.baseProps}
               bordered={false}
-              wrapperClasses="table-responsive col-span-12"
+              wrapperClasses="table-responsive col-span-12 overflow-x-auto"
               rowEvents={rowEvents}
               remote={
                 isRemote && {

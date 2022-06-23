@@ -220,10 +220,8 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const renderAction = (record: IDevice) => {
-    const isFirstItem = record?.id === listDevice[0]?.id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           config: {
             DialogContent: props => (

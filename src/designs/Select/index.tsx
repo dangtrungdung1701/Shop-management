@@ -20,6 +20,7 @@ import {
   Placeholder,
   EmptyData,
 } from "./styles";
+import { HTMLdecode } from "common/functions";
 
 export interface ISelectData {
   _id: string;
@@ -139,7 +140,7 @@ const Select = <T,>(props: ISelectProps<T>) => {
                     <Text>
                       {renderOption
                         ? renderOption(optionSelected, false)
-                        : (optionSelected as any)?.[optionTarget]}
+                        : HTMLdecode((optionSelected as any)?.[optionTarget])}
                     </Text>
                   ) : (
                     <Placeholder className="placeholder">
@@ -189,7 +190,7 @@ const Select = <T,>(props: ISelectProps<T>) => {
                           <MenuItem active={active || selected}>
                             {renderOption
                               ? renderOption(option, active || selected)
-                              : (option as any)?.[optionTarget]}
+                              : HTMLdecode((option as any)?.[optionTarget])}
                           </MenuItem>
                         )}
                       </Listbox.Option>

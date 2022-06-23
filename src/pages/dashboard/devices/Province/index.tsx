@@ -163,10 +163,8 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   const renderAction = (record: IDevice) => {
-    const isFirstItem = record.id === listDevice[listDevice.length - 1].id;
     return (
       <ActionButtons
-        isFirstItem={isFirstItem}
         buttons={{
           config: {
             DialogContent: props => (
@@ -275,7 +273,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
         formatter: (_: string, record: IDevice) => renderAction(record),
       },
     ],
-    [page],
+    [page, listDevice],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {

@@ -26,7 +26,7 @@ const Dropdown = <T,>(props: IListBoxProps<T>) => {
     <div>
       <Menu as="div">
         {({ open }) => (
-          <div className={"relative " + className}>
+          <div className={className}>
             <MenuButtonContainer>{MenuButton}</MenuButtonContainer>
             {open && (
               <Transition
