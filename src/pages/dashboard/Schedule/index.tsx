@@ -1,10 +1,21 @@
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
+import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 import { PATH } from "common/constants/routes";
-import { getQueryFromLocation } from "common/functions";
+import { getQueryFromLocation, HTMLdecode } from "common/functions";
+import axiosClient from "common/utils/api";
+import {
+  FILE_SOURCE_ID,
+  FM_SOURCE_ID,
+  ISourceType,
+  LINK_SOURCE_ID,
+  optionSource,
+} from "common/constants/source";
 
 import SearchBoxTable from "components/SearchBoxTable";
+import StatusTag from "components/StatusTagV2";
 
 import Table, { IColumns } from "designs/Table";
 import ActionButtons from "designs/ActionButtons";
@@ -18,21 +29,35 @@ import { useBreadcrumb } from "hooks/useBreadcrumb";
 
 import { IRegion } from "typings";
 
+import useStore from "zustand/store";
+
 import { TopButton, SearchBoxWrapper } from "./styles";
+import SimpleSelect from "designs/SimpleSelect";
+import {
+  IApprovedStatus,
+  optionApproveStatus,
+} from "common/constants/schedule";
 
 const LOAD_DATA = "LOAD_DATA";
+const DELETE_DATA = "DELETE_DATA";
 
 interface IScheduleProps extends RouteComponentProps {}
 
 const Schedule: React.FC<IScheduleProps> = ({ location }) => {
+  const { currentUser } = useStore();
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
 
-  const [listCategories, setListCategories] = useState<IRegion[]>([]);
+  const [listSchedule, setListSchedule] = useState<any[]>([]);
 
-  const [totalCount, setTotalCount] = useState<number>(listSchedule.length);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const { startLoading, stopLoading } = useLoading();
+
+  const [selectedApprovedStatus, setSelectedApprovedStatus] =
+    useState<IApprovedStatus | null>(null);
+  const [selectedSourceType, setSelectedSourceType] =
+    useState<ISourceType | null>(null);
 
   useBreadcrumb([
     {
@@ -41,8 +66,42 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
     },
   ]);
 
-  // useEffect(() => {
-  // }, [page, sizePerPage, searchText, provinceSelected]);
+  useEffect(() => {
+    getAllScheduleService();
+  }, [
+    page,
+    sizePerPage,
+    searchText,
+    selectedApprovedStatus,
+    selectedSourceType,
+  ]);
+
+  const getAllScheduleService = async () => {
+    const payload: any = {
+      regionId: currentUser?.userInfo?.region?.id,
+      page,
+      size: sizePerPage,
+      searchString: searchText,
+      approvalStatus: selectedApprovedStatus?.id,
+      sourceType: Number(selectedSourceType?.id) || undefined,
+    };
+    try {
+      startLoading(LOAD_DATA);
+
+      const res: any = await axiosClient.get("/Schedule", {
+        params: payload,
+      });
+      if (res) {
+        console.log(res);
+        setListSchedule(res.schedules);
+        setTotalCount(res.totalCount);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      stopLoading(LOAD_DATA);
+    }
+  };
 
   const renderAction = (record: any) => {
     return (
@@ -61,8 +120,23 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
             title: "Xóa lịch phát",
             message: `Bạn có chắc chắn muốn xóa lịch phát này?`,
             onDelete: async () => {
-              // await deleteBlogAPI({ id: record._id });
-              // invokeGetAllBlogList();
+              try {
+                startLoading(DELETE_DATA);
+                const res = await axiosClient.delete(`/Schedule/${record?.id}`);
+                if (res) {
+                  toast.dark("Xóa lịch phát thành công !", {
+                    type: toast.TYPE.SUCCESS,
+                  });
+                  getAllScheduleService();
+                }
+              } catch (error) {
+                console.log(error);
+                toast.dark("Xóa lịch phát không thành công !", {
+                  type: toast.TYPE.ERROR,
+                });
+              } finally {
+                stopLoading(DELETE_DATA);
+              }
             },
           },
         }}
@@ -74,35 +148,65 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
     () => [
       {
         text: "Nguồn phát",
-        dataField: "source",
-        headerStyle: () => ({
-          width: "20%",
-        }),
+        dataField: "sourceType",
+        formatter: (sourceType: number) => {
+          if (sourceType === Number(FILE_SOURCE_ID)) {
+            return <div>Tệp tin</div>;
+          }
+          if (sourceType === Number(FM_SOURCE_ID)) {
+            return <div>Kênh FM</div>;
+          }
+          if (sourceType === Number(LINK_SOURCE_ID)) {
+            return <div>Link tiếp sóng</div>;
+          }
+          return <div>Mic</div>;
+        },
       },
       {
         text: "Tên chương trình",
-        dataField: "name",
-        headerStyle: () => ({
-          width: "20%",
-        }),
+        dataField: "displayName",
+        formatter: (displayName: string) => {
+          return <div>{HTMLdecode(displayName)}</div>;
+        },
       },
       {
         text: "Ngày phát",
-        dataField: "date",
-        headerStyle: () => ({
-          width: "20%",
-        }),
+        dataField: "startDate",
+        formatter: (startDate: number) => {
+          return dayjs.unix(startDate).format("DD/MM/YYYY");
+        },
       },
       {
-        text: "Thời lượng (ph)",
-        dataField: "time",
-        headerStyle: () => ({
-          width: "20%",
-        }),
+        text: "Thời lượng",
+        dataField: "oneDayTotalDuration",
       },
       {
         text: "Người tạo",
-        dataField: "user",
+        dataField: "createdByUser.userName",
+      },
+      {
+        text: "Trạng thái duyệt",
+        dataField: "approvalStatus",
+        formatter: (approvalStatus: number) => {
+          switch (approvalStatus) {
+            case 1:
+              return <StatusTag active="pending" />;
+            case 2:
+              return <StatusTag active="approved" />;
+            case 3:
+              return <StatusTag active="refuse" />;
+            default:
+              return <StatusTag active="approved" />;
+          }
+        },
+      },
+      {
+        text: "Người duyệt",
+        dataField: "approvalUser.displayName",
+        formatter: (approvalUser: any) => {
+          if (!approvalUser) return <div>Chưa được duyệt</div>;
+          return <div>{approvalUser?.displayName}</div>;
+        },
       },
       {
         text: "Hành động",
@@ -143,6 +247,26 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
           placeholder="Tìm kiếm theo tên chương trình"
           className="w-full phone:max-w-35"
         />
+        <SimpleSelect
+          options={optionApproveStatus}
+          optionSelected={selectedApprovedStatus}
+          onSelect={value => {
+            setSelectedApprovedStatus(value);
+          }}
+          placeholder="Trạng thái phê duyệt"
+          className="w-full phone:max-w-35"
+          optionTarget="displayName"
+        />
+        <SimpleSelect
+          options={optionSource}
+          optionSelected={selectedSourceType}
+          onSelect={value => {
+            setSelectedSourceType(value);
+          }}
+          placeholder="Kiểu nguồn phát"
+          className="w-full phone:max-w-35"
+          optionTarget="displayName"
+        />
       </SearchBoxWrapper>
 
       <Table
@@ -159,46 +283,3 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
 };
 
 export default Schedule;
-
-const listSchedule: any[] = [
-  {
-    id: "1",
-    source: "Tệp tin",
-    name: "Dịch Covid",
-    date: "12/2/2000",
-    time: "20",
-    user: "Luan ECB",
-  },
-  {
-    id: "2",
-    source: "Tệp tin",
-    name: "Dịch Covid",
-    date: "12/2/2000",
-    time: "20",
-    user: "Luan ECB",
-  },
-  {
-    id: "3",
-    source: "Tệp tin",
-    name: "Dịch Covid",
-    date: "12/2/2000",
-    time: "20",
-    user: "Luan ECB",
-  },
-  {
-    id: "4",
-    source: "Tệp tin",
-    name: "Dịch Covid",
-    date: "12/2/2000",
-    time: "20",
-    user: "Luan ECB",
-  },
-  {
-    id: "5",
-    source: "Tệp tin",
-    name: "Dịch Covid",
-    date: "12/2/2000",
-    time: "20",
-    user: "Luan ECB",
-  },
-];

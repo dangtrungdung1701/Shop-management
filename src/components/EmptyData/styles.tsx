@@ -2,7 +2,7 @@ import styled from "styled-components";
 import tw from "twin.macro";
 
 export const EmptyDataContainer = styled.div`
-  ${tw`flex flex-col items-center justify-center w-full py-5 text-center border-t border-solid border-neutral-4`}
+  ${tw`flex flex-col items-center justify-center w-full py-5 text-center`}
 `;
 
 export const Title = styled.h1`

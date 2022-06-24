@@ -15,5 +15,5 @@ export const Heading = {
 };
 
 export const TableWrapper = styled.div`
-  ${tw`p-2 mt-2 phone:p-4 bg-primary-3 `}
+  ${tw`p-2 mt-2 phone:p-4 bg-primary-3 flex flex-col gap-2 `}
 `;
