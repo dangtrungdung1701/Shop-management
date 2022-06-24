@@ -7,7 +7,7 @@ export const MenuButtonContainer = styled(Menu.Button)`
 `;
 
 export const MenuItems = styled.div`
-  ${tw`absolute z-40 flex flex-col py-1 mt-1 overflow-auto rounded-md shadow-lg bg-primary-3 max-h-60 focus:outline-none`}
+  ${tw`absolute z-40 flex flex-col py-1 mt-2 overflow-auto rounded-md shadow-lg bg-primary-3 max-h-60 focus:outline-none`}
 `;
 
 export const Button = styled.button<{ active: boolean }>`

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Formik, FormikValues } from "formik";
 import * as yup from "yup";
 
-import { ISource, optionSource } from "common/constants/source";
+import { ISourceType, optionSource } from "common/constants/source";
 import axiosClient from "common/utils/api";
 
 import DialogHeader from "components/Dialog/Header";
@@ -68,7 +68,9 @@ const EmergencyBroadcastDialog: React.FC<IDialogProps> = ({
   const [listDevices, setListDevices] = useState<IDevice[]>([]);
 
   const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
-  const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
+  const [sourceSelected, setSourceSelected] = useState<ISourceType | null>(
+    null,
+  );
   const [fileSelected, setFileSelected] = useState<
     IFileAudio | ILink | IFM | null
   >(null);

@@ -25,7 +25,7 @@ const PageLoading: React.FC<IPageLoadingProps> = props => {
 
 export default PageLoading;
 
-const Spinner: React.FC<{}> = props => {
+export const Spinner: React.FC<{}> = props => {
   return (
     <SpinnerContainer>
       <svg className="spinner" viewBox="0 0 50 50">

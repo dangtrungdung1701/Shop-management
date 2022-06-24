@@ -6,13 +6,14 @@ import { Formik, FormikProps, FormikValues } from "formik";
 import { PATH } from "common/constants/routes";
 import {
   FILE_SOURCE_ID,
-  ISource,
+  ISourceType,
   MIC_SOURCE_ID,
   optionSource,
 } from "common/constants/source";
 import axiosClient from "common/utils/api";
 import {
   IRepeatType,
+  IDay,
   optionMonth,
   optionWeek,
   repeatType,
@@ -23,7 +24,12 @@ import {
   CLASS_LIST_OF_WARD,
 } from "common/constants/user";
 import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
-import { calSecondFromTime, formatTime, getTheNextDay } from "common/functions";
+import {
+  calSecondFromDateTime,
+  calSecondFromTimeString,
+  formatTime,
+  getTheNextDay,
+} from "common/functions";
 
 import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
@@ -60,6 +66,7 @@ import {
   ButtonAddTime,
   ButtonRemove,
 } from "./styles";
+import { duration } from "@material-ui/core";
 
 interface IConfigureScheduleProps extends RouteComponentProps {}
 interface IParams {
@@ -109,16 +116,18 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const [selectedWard, setSelectedWard] = useState<IRegion | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<any | null>(null);
 
-  const [listDeviceSelected, setListDeviceSelected] = useState<any[]>([]);
+  const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
   const [fileSelected, setFileSelected] = useState<
     IFileAudio | ILink | IFM | null
   >(null);
 
   const [options, setOptions] = useState<IFileAudio[] | ILink[] | IFM[]>([]);
-  const [sourceSelected, setSourceSelected] = useState<ISource | null>(null);
+  const [sourceSelected, setSourceSelected] = useState<ISourceType | null>(
+    null,
+  );
 
   const [selectedRepeatType, setSelectedRepeatType] = useState<IRepeatType>();
-  const [selectedRepeatDate, setSelectedRepeatDate] = useState<any[]>([]);
+  const [selectedRepeatDate, setSelectedRepeatDate] = useState<IDay[]>([]);
 
   const [timeEnd, setTimeEnd] = useState<(number | null)[]>([null]);
   const [timeStart, setTimeStart] = useState<(number | null)[]>([null]);
@@ -373,8 +382,28 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   };
 
   const handleSubmit = async (value: FormikValues) => {
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : undefined;
     const input: any = {
-      ...value,
+      regionId: regionId,
+      audioSourceId: fileSelected?.id,
+      sourceType: Number(sourceSelected?.id),
+      displayName: value?.name,
+      summary: "",
+      scheduleType: selectedRepeatType?.uid,
+      repeatDate: selectedRepeatDate.map(item => item?.id),
+      startDate: new Date(value?.startDay).getTime(),
+      endDate: new Date(value?.endDay).getTime(),
+      startTime: timeStart,
+      endTime: timeEnd,
+      fileLoopCount: value?.repeatTime,
+      volume: 100,
+      deviceIds: listDeviceSelected.map(item => item?.id),
     };
     console.log(input);
   };
@@ -443,7 +472,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       <Formik
         initialValues={initialValues}
         // enableReinitialize
-        // validationSchema={validationSchema}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
         {formik => {
@@ -701,22 +730,63 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                             label="Thời điểm bắt đầu"
                             placeholder="HH:MM:SS"
                             onTimeChange={time => {
-                              const newTime = timeStart.map(
+                              const newTimeStart = timeStart.map(
                                 (item, indexTime) => {
                                   if (indexTime === index)
-                                    return calSecondFromTime(time);
+                                    return calSecondFromDateTime(time); // startTime
                                   return item;
                                 },
                               );
-                              const newBroadcastTime = broadcastTime.map(
+                              const newBroadcastTimeStart = broadcastTime.map(
                                 (item: any, indexBroadcastTime: number) => {
                                   if (indexBroadcastTime === index)
                                     return { ...item, startTime: time };
                                   return item;
                                 },
                               );
-                              setBroadcastTime(newBroadcastTime);
-                              setTimeStart(newTime);
+                              setTimeStart(newTimeStart);
+                              if (
+                                sourceSelected?.id === FILE_SOURCE_ID &&
+                                fileSelected &&
+                                formik.values.repeatTime
+                              ) {
+                                const durationOfFile = calSecondFromTimeString(
+                                  (fileSelected as IFileAudio)?.duration!,
+                                );
+                                const repeatTimes = Number(
+                                  formik.values.repeatTime,
+                                );
+                                const startTime = calSecondFromDateTime(time);
+                                const startTimeInMilisecond = time.getTime(); //start time in milisecond
+
+                                const newTimeEnd = timeEnd.map(
+                                  (item, indexTime) => {
+                                    if (indexTime === index) {
+                                      return (
+                                        startTime + durationOfFile * repeatTimes
+                                      );
+                                    }
+                                    return item;
+                                  },
+                                );
+                                const newBroadcastTimeEnd =
+                                  newBroadcastTimeStart.map(
+                                    (item: any, indexBroadcastTime: number) => {
+                                      if (indexBroadcastTime === index) {
+                                        const newTime = new Date(
+                                          startTimeInMilisecond +
+                                            durationOfFile * 1000 * repeatTimes, // time for 1000 to change unit from second to milisecond
+                                        );
+                                        return { ...item, endTime: newTime };
+                                      }
+                                      return item;
+                                    },
+                                  );
+                                setBroadcastTime(newBroadcastTimeEnd);
+                                setTimeEnd(newTimeEnd);
+                                return;
+                              }
+                              setBroadcastTime(newBroadcastTimeStart);
                             }}
                             required
                             minTime={
@@ -725,32 +795,36 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                 : ""
                             }
                           />
-                          <TimePicker
-                            name="endTime"
-                            label="Thời điểm kết thúc"
-                            placeholder="HH:MM:SS"
-                            minTime={formatTime(
-                              broadcastTime[index].startTime!,
-                            )}
-                            onTimeChange={time => {
-                              const newTime = timeEnd.map((item, indexTime) => {
-                                if (indexTime === index)
-                                  return calSecondFromTime(time);
-                                return item;
-                              });
-                              const newBroadcastTime = broadcastTime.map(
-                                (item: any, indexBroadcastTime: number) => {
-                                  if (indexBroadcastTime === index)
-                                    return { ...item, endTime: time };
-                                  return item;
-                                },
-                              );
-                              setBroadcastTime(newBroadcastTime);
-                              setTimeEnd(newTime);
-                            }}
-                            disabled={timeStart[index] ? false : true}
-                            required
-                          />
+                          {sourceSelected?.id !== FILE_SOURCE_ID && (
+                            <TimePicker
+                              name="endTime"
+                              label="Thời điểm kết thúc"
+                              placeholder="HH:MM:SS"
+                              minTime={formatTime(
+                                broadcastTime[index].startTime!,
+                              )}
+                              onTimeChange={time => {
+                                const newTime = timeEnd.map(
+                                  (item, indexTime) => {
+                                    if (indexTime === index)
+                                      return calSecondFromDateTime(time);
+                                    return item;
+                                  },
+                                );
+                                const newBroadcastTime = broadcastTime.map(
+                                  (item: any, indexBroadcastTime: number) => {
+                                    if (indexBroadcastTime === index)
+                                      return { ...item, endTime: time };
+                                    return item;
+                                  },
+                                );
+                                setBroadcastTime(newBroadcastTime);
+                                setTimeEnd(newTime);
+                              }}
+                              disabled={timeStart[index] ? false : true}
+                              required
+                            />
+                          )}
                         </div>
                         {index > 0 && (
                           <ButtonRemove

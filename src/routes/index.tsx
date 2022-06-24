@@ -14,6 +14,7 @@ import DashboardLayout from "layouts/Dashboard";
 import AuthLayout from "layouts/Auth";
 
 import { flattenedRoutes as routes, notFoundRoute } from "./Routes";
+import PageLoading, { Spinner } from "components/PageLoading";
 
 const Routers: React.FC = props => {
   const [privateRoutes] = useState(() =>
@@ -32,7 +33,13 @@ const Routers: React.FC = props => {
         />
         <Route path={PATH.AUTH.LOGIN}>
           <AuthLayout>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense
+              fallback={
+                <div>
+                  <Spinner />
+                </div>
+              }
+            >
               <Switch>
                 {publicRoutes.map(({ Component, path }) => {
                   return (
@@ -52,7 +59,13 @@ const Routers: React.FC = props => {
         </Route>
         <Route path="/">
           <DashboardLayout {...props}>
-            <Suspense fallback={<div>Loading</div>}>
+            <Suspense
+              fallback={
+                <div>
+                  <Spinner />
+                </div>
+              }
+            >
               <Switch>
                 {privateRoutes.map(route => {
                   return (

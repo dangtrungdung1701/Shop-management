@@ -84,32 +84,34 @@ const Table = ({
         {(props: any) => (
           <>
             <Header>{headerElement}</Header>
-            <BootstrapTable
-              {...props.baseProps}
-              bordered={false}
-              wrapperClasses="table-responsive col-span-12 overflow-x-auto"
-              rowEvents={rowEvents}
-              remote={
-                isRemote && {
-                  pagination: true,
-                  filter: false,
-                  sort: false,
-                }
-              }
-              onTableChange={handleTableChange}
-            />
-
-            {totalSize === 0 && <EmptyData />}
-            {totalSize > 0 && (
-              <PaginationWrapper>
-                <Pagination
-                  onSizeChange={handleChangeSize}
-                  onChangePageNext={handleChangePageNext}
-                  onChangePagePrev={handleChangePagePrev}
-                  totalSize={totalSize}
-                  page={page}
+            {totalSize === 0 ? (
+              <EmptyData />
+            ) : (
+              <>
+                <BootstrapTable
+                  {...props.baseProps}
+                  bordered={false}
+                  wrapperClasses="table-responsive col-span-12 overflow-x-auto"
+                  rowEvents={rowEvents}
+                  remote={
+                    isRemote && {
+                      pagination: true,
+                      filter: false,
+                      sort: false,
+                    }
+                  }
+                  onTableChange={handleTableChange}
                 />
-              </PaginationWrapper>
+                <PaginationWrapper>
+                  <Pagination
+                    onSizeChange={handleChangeSize}
+                    onChangePageNext={handleChangePageNext}
+                    onChangePagePrev={handleChangePagePrev}
+                    totalSize={totalSize}
+                    page={page}
+                  />
+                </PaginationWrapper>
+              </>
             )}
           </>
         )}
