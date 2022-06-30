@@ -6,7 +6,7 @@ import { Formik, FormikProps, FormikValues } from "formik";
 import { PATH } from "common/constants/routes";
 import {
   FILE_SOURCE_ID,
-  ISourceType,
+  ISourceOption,
   MIC_SOURCE_ID,
   optionSource,
 } from "common/constants/source";
@@ -22,13 +22,16 @@ import {
   CLASS_LIST,
   CLASS_LIST_OF_DISTRICT,
   CLASS_LIST_OF_WARD,
+  ILevelOption,
 } from "common/constants/user";
 import { DISTRICT_ID, PROVINCE_ID, WARD_ID } from "common/constants/region";
 import {
+  calDateFromSecond,
   calSecondFromDateTime,
   calSecondFromTimeString,
   formatTime,
   getTheNextDay,
+  HTMLdecode,
 } from "common/functions";
 
 import Input from "designs/Input";
@@ -67,6 +70,8 @@ import {
   ButtonRemove,
 } from "./styles";
 import { duration } from "@material-ui/core";
+import { ISchedule } from "typings/Schedule";
+import dayjs from "dayjs";
 
 interface IConfigureScheduleProps extends RouteComponentProps {}
 interface IParams {
@@ -99,7 +104,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const [schedule, setSchedule] = useState<any | null>(null);
+  const [schedule, setSchedule] = useState<ISchedule | null>(null);
 
   const [listDevices, setListDevices] = useState<IDevice[]>([]);
 
@@ -114,7 +119,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     null,
   );
   const [selectedWard, setSelectedWard] = useState<IRegion | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<any | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<ILevelOption | null>(null);
 
   const [listDeviceSelected, setListDeviceSelected] = useState<IDevice[]>([]);
   const [fileSelected, setFileSelected] = useState<
@@ -122,7 +127,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   >(null);
 
   const [options, setOptions] = useState<IFileAudio[] | ILink[] | IFM[]>([]);
-  const [sourceSelected, setSourceSelected] = useState<ISourceType | null>(
+  const [sourceSelected, setSourceSelected] = useState<ISourceOption | null>(
     null,
   );
 
@@ -191,28 +196,130 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       repeatTime: yup.number().required("Vui lòng chọn số lần lặp"),
     });
 
-  // const getScheduleService = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await axiosClient.get(`/Schedule/${params.id}`);
-  //     if (res) {
-  //       setSchedule(res);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const getScheduleService = async () => {
+    try {
+      setLoading(true);
+      const res: any = await axiosClient.get(`/Schedule/${params.id}`);
+      if (res) {
+        setSchedule(res);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (params.id) {
+      getScheduleService();
+    }
+  }, [params.id]);
 
   useEffect(() => {
     getProvinceListService();
-    currentUser?.userInfo?.region?.provinceId !== -1 &&
-      getDistrictListService(currentUser?.userInfo?.region?.provinceId);
-    currentUser?.userInfo?.region?.districtId !== -1 &&
-      getWardListService(currentUser?.userInfo?.region?.districtId);
-  }, []);
 
+    if (schedule) {
+      setInitialValues({
+        name: HTMLdecode(schedule?.displayName!) || "",
+        level: schedule?.region?.levelId?.toString(),
+        province: "SELECTED",
+        district: "SELECTED",
+        ward: "SELECTED",
+        devices: schedule?.devices.length > 0 ? "SELECTED" : "",
+        sources: schedule?.sourceType?.toString(),
+        file:
+          schedule?.audioFileSource?.id ||
+          schedule?.audioLinkSource?.id ||
+          schedule?.audioFmSource?.id ||
+          schedule?.sourceType === 4
+            ? "SELECTED"
+            : "",
+        startDay: dayjs.unix(schedule?.startDate!).toDate().toString(),
+        endDay: dayjs.unix(schedule?.endDate!).toDate().toString(),
+        startTime: schedule?.startTime?.length! > 0 ? "SELECTED" : "",
+        endTime:
+          schedule?.startTime?.length === schedule?.endTime?.length
+            ? "SELECTED"
+            : "",
+        repeatDate:
+          schedule?.scheduleType !== 1
+            ? schedule?.repeatDays?.join(", ")
+            : "SELECTED",
+        repeatTime: schedule?.fileLoopCount?.toString(),
+        repeatType: schedule?.scheduleType?.toString(),
+      });
+      setSourceSelected(
+        optionSource.filter(
+          option => option?.id === schedule?.sourceType?.toString(),
+        )[0],
+      );
+      setFileSelected(
+        (() => {
+          switch (schedule?.sourceType) {
+            case 1:
+              getAllFileService();
+              return schedule?.audioFileSource || null;
+            case 2:
+              getAllLinkService();
+              return schedule?.audioLinkSource || null;
+            case 3:
+              getAllFmService();
+              return schedule?.audioFmSource || null;
+            case 4:
+              return null;
+            default:
+              return schedule?.audioFileSource || null;
+          }
+        })(),
+      );
+      setSelectedLevel(
+        CLASS_LIST.filter(item => item?.id === schedule?.region?.levelId)[0],
+      );
+      setListDeviceSelected(schedule?.devices);
+      setSelectedRepeatType(
+        repeatType.filter(item => item?.uid === schedule?.scheduleType)[0],
+      );
+      setTimeStart(schedule?.startTime!);
+      setTimeEnd(schedule?.endTime!);
+      if (schedule?.region?.levelId === DISTRICT_ID) {
+        getDistrictListService(schedule?.region?.provinceId!);
+      }
+      if (schedule?.region?.levelId === WARD_ID) {
+        getDistrictListService(schedule?.region?.provinceId!);
+        getWardListService(schedule?.region?.districtId!);
+      }
+      setBroadcastTime(
+        (() => {
+          return schedule?.startTime?.map((item: number, index: number) => {
+            return {
+              startTime: calDateFromSecond(item),
+              endTime: calDateFromSecond(schedule?.endTime?.[index]!),
+            };
+          });
+        })()!,
+      );
+      setSelectedRepeatDate(
+        (() => {
+          switch (schedule?.scheduleType) {
+            case 1:
+              return [];
+            case 2:
+              return schedule?.repeatDays?.map(
+                item => optionWeek.filter(option => option?.id === item)[0],
+              );
+            case 3:
+              return schedule?.repeatDays?.map(
+                item => optionMonth.filter(option => option?.id === item)[0],
+              );
+            default:
+              return [];
+          }
+        })()!,
+      );
+    }
+  }, [schedule]);
+  // get device options
   useEffect(() => {
     const regionId = selectedWard
       ? selectedWard?.id
@@ -222,7 +329,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       ? selectedProvince?.id
       : undefined;
     if (regionId) {
-      getAllDeviceService();
+      getAllDeviceService(regionId);
     }
   }, [selectedProvince, selectedDistrict, selectedWard]);
 
@@ -270,14 +377,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   };
   //
 
-  const getAllDeviceService = async () => {
-    const regionId = selectedWard
-      ? selectedWard?.id
-      : selectedDistrict
-      ? selectedDistrict?.id
-      : selectedProvince
-      ? selectedProvince?.id
-      : undefined;
+  const getAllDeviceService = async (regionId: number | undefined) => {
     const input: IGetAllDevice = {
       regionId: regionId,
       excludeRegionId: 1,
@@ -394,7 +494,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       audioSourceId: fileSelected?.id,
       sourceType: Number(sourceSelected?.id),
       displayName: value?.name,
-      summary: "",
+      summary: schedule?.summary || "",
       scheduleType: selectedRepeatType?.uid,
       repeatDate: selectedRepeatDate.map(item => item?.id),
       startDate: new Date(value?.startDay).getTime(),
@@ -402,10 +502,23 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       startTime: timeStart,
       endTime: timeEnd,
       fileLoopCount: value?.repeatTime,
-      volume: 100,
+      volume: schedule?.volume || 100,
       deviceIds: listDeviceSelected.map(item => item?.id),
     };
-    console.log(input);
+    try {
+      if (schedule) {
+        const res = await axiosClient.put(`/Schedule/${params.id}`, input);
+        if (res) {
+          console.log(res);
+        }
+      }
+      const res = await axiosClient.post("/Schedule", input);
+      if (res) {
+        console.log(res);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleBack = () => {
@@ -463,15 +576,13 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     }
   };
 
-  const renderTimePicker = () => {};
-
   return (
     <TableLayout>
       <Title>{params.id ? "Chỉnh sửa lịch phát" : "Thêm lịch phát"}</Title>
 
       <Formik
         initialValues={initialValues}
-        // enableReinitialize
+        enableReinitialize
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -729,6 +840,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                             name="startTime"
                             label="Thời điểm bắt đầu"
                             placeholder="HH:MM:SS"
+                            initValue={item?.startTime}
                             onTimeChange={time => {
                               const newTimeStart = timeStart.map(
                                 (item, indexTime) => {
@@ -800,6 +912,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                               name="endTime"
                               label="Thời điểm kết thúc"
                               placeholder="HH:MM:SS"
+                              initValue={item?.endTime}
                               minTime={formatTime(
                                 broadcastTime[index].startTime!,
                               )}
@@ -821,12 +934,14 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                 setBroadcastTime(newBroadcastTime);
                                 setTimeEnd(newTime);
                               }}
-                              disabled={timeStart[index] ? false : true}
+                              disabled={
+                                timeStart[index] !== null ? false : true
+                              }
                               required
                             />
                           )}
                         </div>
-                        {index > 0 && (
+                        {broadcastTime.length > 1 && (
                           <ButtonRemove
                             type="button"
                             variant="secondary"
@@ -846,11 +961,15 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                               setTimeEnd(copyAndDelete(timeEnd, index));
                               formik.setFieldValue(
                                 "startTime",
-                                formatTime(broadcastTime[index - 1].startTime!),
+                                formatTime(
+                                  calDateFromSecond(timeStart[index - 1]!)!,
+                                ),
                               );
                               formik.setFieldValue(
                                 "endTime",
-                                formatTime(broadcastTime[index - 1].endTime!),
+                                formatTime(
+                                  calDateFromSecond(timeStart[index - 1]!)!,
+                                ),
                               );
                             }}
                           >
@@ -906,6 +1025,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       } else {
                         formik.setFieldValue("endDay", "");
                       }
+                      setSelectedRepeatDate([]);
                       setSelectedRepeatType(value);
                     }}
                     placeholder="Chọn kiểu lịch"
@@ -919,10 +1039,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       options={
                         selectedRepeatType.id === "weekly"
                           ? optionWeek
-                          : optionMonth()
+                          : optionMonth
                       }
                       onSelect={value => setSelectedRepeatDate(value)}
-                      placeholder="Chọn thứ trong tuần"
+                      placeholder="Chọn ngày lặp lại"
                       required
                     />
                   )}

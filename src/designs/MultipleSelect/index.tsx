@@ -178,7 +178,7 @@ const MultipleSelect = <T,>(props: IMultipleSelectProps<T>) => {
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   {listOptionsSelected?.length > 0 ? (
-                    <TagContainer>
+                    <TagContainer className="pretty-scroll">
                       {listOptionsSelected.map((option: any, index) => (
                         <Tag key={index}>
                           <TagText>{option?.[optionTarget]}</TagText>

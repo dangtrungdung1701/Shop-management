@@ -9,7 +9,7 @@ import axiosClient from "common/utils/api";
 import {
   FILE_SOURCE_ID,
   FM_SOURCE_ID,
-  ISourceType,
+  ISourceOption,
   LINK_SOURCE_ID,
   optionSource,
 } from "common/constants/source";
@@ -57,7 +57,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
   const [selectedApprovedStatus, setSelectedApprovedStatus] =
     useState<IApprovedStatus | null>(null);
   const [selectedSourceType, setSelectedSourceType] =
-    useState<ISourceType | null>(null);
+    useState<ISourceOption | null>(null);
 
   useBreadcrumb([
     {
@@ -202,7 +202,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
       },
       {
         text: "Người duyệt",
-        dataField: "approvalUser.displayName",
+        dataField: "approvalUser",
         formatter: (approvalUser: any) => {
           if (!approvalUser) return <div>Chưa được duyệt</div>;
           return <div>{approvalUser?.displayName}</div>;

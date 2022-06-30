@@ -26,7 +26,7 @@ export const MenuButton = styled.div<{ isError: boolean; disabled: boolean }>`
 `;
 
 export const TagContainer = styled.ul`
-  ${tw`flex w-full flex-row flex-wrap gap-0.5 my-1`}
+  ${tw`flex w-full flex-row flex-wrap gap-y-1 gap-x-0.5 my-1 overflow-y-auto max-h-10`}
 `;
 
 export const Tag = styled.li`

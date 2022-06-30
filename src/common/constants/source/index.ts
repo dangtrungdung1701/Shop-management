@@ -1,9 +1,9 @@
-export interface ISourceType {
+export interface ISourceOption {
   id: string;
   displayName: string;
 }
 
-export const optionSource: ISourceType[] = [
+export const optionSource: ISourceOption[] = [
   {
     id: "1",
     displayName: "Tệp tin",
