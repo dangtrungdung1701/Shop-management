@@ -38,3 +38,7 @@ export const ButtonAddTime = styled(_Button)`
 export const ButtonRemove = styled(_Button)`
   ${tw`py-1.5 flex justify-center w-10 h-fit px-0`}
 `;
+
+export const AudioWrapper = styled.div`
+  ${tw`flex flex-col gap-1 h-auto`}
+`;

@@ -108,7 +108,7 @@ const Details: React.FC<IDetailsProps> = props => {
     description: "",
     dayLeft: undefined,
   });
-  console.log(initialValues);
+
   useBreadcrumb([
     {
       name: "Quản lý thiết bị",

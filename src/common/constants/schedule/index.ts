@@ -1,5 +1,7 @@
+import { IApprovalStatusType } from "typings/Schedule";
+
 export interface IApprovedStatus {
-  id: number;
+  id: IApprovalStatusType;
   displayName: string;
 }
 
@@ -17,3 +19,7 @@ export const optionApproveStatus: IApprovedStatus[] = [
     displayName: "Từ chối",
   },
 ];
+
+export const PENDING_STATUS = 1;
+export const APPROVED_STATUS = 2;
+export const REFUSE_STATUS = 3;

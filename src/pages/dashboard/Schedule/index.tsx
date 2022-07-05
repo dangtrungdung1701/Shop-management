@@ -14,29 +14,36 @@ import {
   optionSource,
 } from "common/constants/source";
 
+import {
+  APPROVED_STATUS,
+  IApprovedStatus,
+  optionApproveStatus,
+  PENDING_STATUS,
+  REFUSE_STATUS,
+} from "common/constants/schedule";
+
 import SearchBoxTable from "components/SearchBoxTable";
 import StatusTag from "components/StatusTagV2";
 
 import Table, { IColumns } from "designs/Table";
 import ActionButtons from "designs/ActionButtons";
 import Link from "designs/Link";
+import SimpleSelect from "designs/SimpleSelect";
 
 import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
+import useCheckPermission from "hooks/useCheckPermission";
 
-import { IRegion } from "typings";
+import { ISchedule } from "typings/Schedule";
 
 import useStore from "zustand/store";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
-import SimpleSelect from "designs/SimpleSelect";
-import {
-  IApprovedStatus,
-  optionApproveStatus,
-} from "common/constants/schedule";
+
+import ApprovalDialog from "./ApprovalDialog";
 
 const LOAD_DATA = "LOAD_DATA";
 const DELETE_DATA = "DELETE_DATA";
@@ -92,7 +99,6 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
         params: payload,
       });
       if (res) {
-        console.log(res);
         setListSchedule(res.schedules);
         setTotalCount(res.totalCount);
       }
@@ -103,42 +109,105 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
     }
   };
 
-  const renderAction = (record: any) => {
+  const renderAction = (record: ISchedule) => {
     return (
       <ActionButtons
         buttons={{
-          edit: {
-            DialogContent: props => (
-              <Redirect
-                to={{
-                  pathname: PATH.SCHEDULE.EDIT.replace(":id", record.id!),
-                }}
-              />
-            ),
-          },
-          delete: {
-            title: "Xóa lịch phát",
-            message: `Bạn có chắc chắn muốn xóa lịch phát này?`,
-            onDelete: async () => {
-              try {
-                startLoading(DELETE_DATA);
-                const res = await axiosClient.delete(`/Schedule/${record?.id}`);
-                if (res) {
-                  toast.dark("Xóa lịch phát thành công !", {
-                    type: toast.TYPE.SUCCESS,
-                  });
-                  getAllScheduleService();
-                }
-              } catch (error) {
-                console.log(error);
-                toast.dark("Xóa lịch phát không thành công !", {
-                  type: toast.TYPE.ERROR,
-                });
-              } finally {
-                stopLoading(DELETE_DATA);
+          ...((() => {
+            if (record?.approvalStatus !== PENDING_STATUS) {
+              return true;
+            }
+            if (record?.createdByUser?.id !== currentUser?.userInfo?.id) {
+              return true;
+            }
+            return false;
+          })()
+            ? {
+                info: {
+                  DialogContent: props => (
+                    <Redirect
+                      to={{
+                        pathname: PATH.SCHEDULE.EDIT.replace(":id", record.id!),
+                      }}
+                    />
+                  ),
+                },
               }
+            : {
+                edit: {
+                  DialogContent: props => (
+                    <Redirect
+                      to={{
+                        pathname: PATH.SCHEDULE.EDIT.replace(":id", record.id!),
+                      }}
+                    />
+                  ),
+                },
+              }),
+          ...(useCheckPermission("ScheduleApproval", currentUser) &&
+            record?.approvalStatus === PENDING_STATUS && {
+              approve: {
+                DialogContent: props => (
+                  <ApprovalDialog
+                    approvalType={APPROVED_STATUS}
+                    editField={record}
+                    onSuccess={() => {
+                      getAllScheduleService();
+                    }}
+                    open
+                    {...props}
+                  />
+                ),
+              },
+              refuse: {
+                DialogContent: props => (
+                  <ApprovalDialog
+                    approvalType={REFUSE_STATUS}
+                    editField={record}
+                    onSuccess={() => {
+                      getAllScheduleService();
+                    }}
+                    open
+                    {...props}
+                  />
+                ),
+              },
+            }),
+          ...((() => {
+            if (record?.createdByUser?.id === currentUser?.userInfo?.id) {
+              if (record?.approvalStatus !== APPROVED_STATUS) {
+                return true;
+              }
+            }
+
+            return false;
+          })() && {
+            delete: {
+              title: "Xóa lịch phát",
+              message: `Bạn có chắc chắn muốn xóa lịch phát này?`,
+              onDelete: async () => {
+                try {
+                  startLoading(DELETE_DATA);
+                  const res = await axiosClient.delete(
+                    `/Schedule/${record?.id}`,
+                  );
+                  if (res) {
+                    toast.dark("Xóa lịch phát thành công !", {
+                      type: toast.TYPE.SUCCESS,
+                    });
+                    getAllScheduleService();
+                  }
+                } catch (error) {
+                  console.log(error);
+                  toast.dark("Xóa lịch phát không thành công !", {
+                    type: toast.TYPE.ERROR,
+                  });
+                } finally {
+                  stopLoading(DELETE_DATA);
+                }
+              },
             },
-          },
+          }),
         }}
       />
     );
@@ -211,7 +280,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
       {
         text: "Hành động",
         dataField: "actions",
-        formatter: (_: string, record: IRegion) => renderAction(record),
+        formatter: (_: string, record: ISchedule) => renderAction(record),
       },
     ],
     [page, listSchedule],
@@ -251,6 +320,9 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
           options={optionApproveStatus}
           optionSelected={selectedApprovedStatus}
           onSelect={value => {
+            if (page > 1) {
+              setPage(1);
+            }
             setSelectedApprovedStatus(value);
           }}
           placeholder="Trạng thái phê duyệt"
@@ -261,6 +333,9 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
           options={optionSource}
           optionSelected={selectedSourceType}
           onSelect={value => {
+            if (page > 1) {
+              setPage(1);
+            }
             setSelectedSourceType(value);
           }}
           placeholder="Kiểu nguồn phát"

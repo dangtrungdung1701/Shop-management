@@ -51,8 +51,6 @@ const DatePicker: React.FC<IInput> = props => {
 
   useEffect(() => {
     if (field?.value) {
-      console.log(new Date(field.value));
-
       setDate(new Date(field.value));
     }
   }, [field?.value]);

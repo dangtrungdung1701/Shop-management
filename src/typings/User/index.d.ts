@@ -9,7 +9,8 @@ export type IPermissionV2Id =
   | "DeviceManager"
   | "RegionManager"
   | "ScheduleManager"
-  | "EmergencyOperator";
+  | "EmergencyOperator"
+  | "ScheduleApproval";
 
 export interface IPermissionV2 {
   id?: IPermissionV2Id;

@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps, useHistory, useParams } from "react-router";
 import * as yup from "yup";
 import { Formik, FormikProps, FormikValues } from "formik";
+import dayjs from "dayjs";
+import { toast } from "react-toastify";
+import AudioPlayer from "material-ui-audio-player";
+import ReactHlsPlayer from "react-hls-player/dist";
 
 import { PATH } from "common/constants/routes";
 import {
   FILE_SOURCE_ID,
   ISourceOption,
+  LINK_SOURCE_ID,
   MIC_SOURCE_ID,
   optionSource,
 } from "common/constants/source";
@@ -33,6 +38,7 @@ import {
   getTheNextDay,
   HTMLdecode,
 } from "common/functions";
+import { PENDING_STATUS } from "common/constants/schedule";
 
 import Input from "designs/Input";
 import MultipleSelect from "designs/MultipleSelect";
@@ -40,6 +46,7 @@ import Select from "designs/Select";
 import DatePicker from "designs/DatePicker";
 import TimePicker from "designs/TimePicker";
 import SVG from "designs/SVG";
+import VolumeSlider from "designs/Slider";
 
 import TableLayout from "layouts/Table";
 
@@ -55,6 +62,7 @@ import {
   ILink,
   IRegion,
 } from "typings";
+import { ISchedule } from "typings/Schedule";
 
 import useStore from "zustand/store";
 
@@ -68,10 +76,10 @@ import {
   FormRightWrapper,
   ButtonAddTime,
   ButtonRemove,
+  AudioWrapper,
 } from "./styles";
-import { duration } from "@material-ui/core";
-import { ISchedule } from "typings/Schedule";
-import dayjs from "dayjs";
+
+import ListConflictedSchedule from "./ListConflictedSchedule";
 
 interface IConfigureScheduleProps extends RouteComponentProps {}
 interface IParams {
@@ -105,6 +113,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   const [loading, setLoading] = useState(false);
 
   const [schedule, setSchedule] = useState<ISchedule | null>(null);
+  const [listConflictedSchedule, setListConflictedSchedule] = useState<
+    ISchedule[]
+  >([]);
 
   const [listDevices, setListDevices] = useState<IDevice[]>([]);
 
@@ -141,6 +152,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     { startTime: Date | null; endTime: Date | null }[]
   >([{ startTime: null, endTime: null }]);
 
+  const [disable, setDisable] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(100);
+
   const [initialValues, setInitialValues] = useState<IFormValue>({
     name: "",
     level: "",
@@ -158,6 +172,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     repeatTime: "",
     repeatType: "",
   });
+
+  const playerRef = useRef<any>(null);
 
   useBreadcrumb([
     {
@@ -220,6 +236,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
     getProvinceListService();
 
     if (schedule) {
+      setVolume(schedule?.volume || 100);
+      setDisable(getPermissionToEdit());
       setInitialValues({
         name: HTMLdecode(schedule?.displayName!) || "",
         level: schedule?.region?.levelId?.toString(),
@@ -319,6 +337,16 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       );
     }
   }, [schedule]);
+
+  const getPermissionToEdit = () => {
+    if (schedule?.approvalStatus !== PENDING_STATUS) {
+      return true;
+    }
+    if (schedule?.createdByUser?.id !== currentUser?.userInfo?.id) {
+      return true;
+    }
+    return false;
+  };
   // get device options
   useEffect(() => {
     const regionId = selectedWard
@@ -496,28 +524,47 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       displayName: value?.name,
       summary: schedule?.summary || "",
       scheduleType: selectedRepeatType?.uid,
-      repeatDate: selectedRepeatDate.map(item => item?.id),
-      startDate: new Date(value?.startDay).getTime(),
-      endDate: new Date(value?.endDay).getTime(),
+      repeatDays: selectedRepeatDate.map(item => item?.id),
+      startDate: Math.floor(new Date(value?.startDay).getTime() / 1000),
+      endDate: Math.floor(new Date(value?.endDay).getTime() / 1000),
       startTime: timeStart,
       endTime: timeEnd,
       fileLoopCount: value?.repeatTime,
-      volume: schedule?.volume || 100,
+      volume: volume,
       deviceIds: listDeviceSelected.map(item => item?.id),
     };
     try {
       if (schedule) {
         const res = await axiosClient.put(`/Schedule/${params.id}`, input);
         if (res) {
-          console.log(res);
+          handleBack();
+          toast.dark("Chỉnh sửa lịch phát thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
+        }
+      } else {
+        const res = await axiosClient.post("/Schedule", input);
+        if (res) {
+          handleBack();
+          toast.dark("Tạo mới lịch phát thành công !", {
+            type: toast.TYPE.SUCCESS,
+          });
         }
       }
-      const res = await axiosClient.post("/Schedule", input);
-      if (res) {
-        console.log(res);
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        setListConflictedSchedule(error?.response?.data?.schedules);
+        toast.dark(
+          "Thời gian lịch phát bị xung đột, vui lòng điều chỉnh lại thời gian phát !",
+          {
+            type: toast.TYPE.ERROR,
+          },
+        );
+        return;
       }
-    } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -579,6 +626,11 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
   return (
     <TableLayout>
       <Title>{params.id ? "Chỉnh sửa lịch phát" : "Thêm lịch phát"}</Title>
+      {disable && (
+        <div className="w-full text-center">
+          Bạn chỉ có thể xem, không có quyền thay đổi!
+        </div>
+      )}
 
       <Formik
         initialValues={initialValues}
@@ -597,6 +649,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     placeholder="Nhập tên lịch phát"
                     type="text"
                     required
+                    disabled={disable}
                   />
                   <Select
                     name="level"
@@ -615,6 +668,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     }}
                     placeholder="Chọn phân cấp"
                     required
+                    disabled={disable}
                   />
                   {selectedLevel?.id === 2 && (
                     <Select
@@ -656,6 +710,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                         }}
                         placeholder="Chọn quận/ huyện/ thị xã"
                         disabled={
+                          disable ||
                           currentUser?.userInfo?.region?.districtId === -1
                             ? false
                             : true
@@ -695,6 +750,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                         }}
                         placeholder="Chọn quận/ huyện/ thị xã"
                         disabled={
+                          disable ||
                           currentUser?.userInfo?.region?.districtId === -1
                             ? false
                             : true
@@ -710,6 +766,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                         onSelect={value => setSelectedWard(value)}
                         placeholder="Chọn phường/ xã/ thị trấn"
                         disabled={(() => {
+                          if (disable) {
+                            return true;
+                          }
                           if (currentUser?.userInfo?.region?.wardId !== -1) {
                             return true;
                           } else {
@@ -733,6 +792,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     placeholder="Chọn thiết bị"
                     required
                     disabled={(() => {
+                      if (disable) {
+                        return true;
+                      }
                       if (!selectedLevel) {
                         return true;
                       }
@@ -778,6 +840,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     }}
                     placeholder="Chọn nguồn phát"
                     required
+                    disabled={disable}
                   />
                   {sourceSelected?.id !== MIC_SOURCE_ID && (
                     <Select
@@ -785,10 +848,13 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       label="Nguồn phát tương ứng"
                       optionSelected={fileSelected}
                       options={options}
-                      onSelect={value => setFileSelected(value)}
+                      onSelect={value => {
+                        console.log(value);
+                        setFileSelected(value);
+                      }}
                       placeholder="Chọn Tệp tin/Link tiếp sóng/FM"
                       required
-                      disabled={sourceSelected ? false : true}
+                      disabled={disable || (sourceSelected ? false : true)}
                     />
                   )}
 
@@ -800,7 +866,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       type="number"
                       required
                       disabled={
-                        sourceSelected?.id === FILE_SOURCE_ID ? false : true
+                        disable ||
+                        (sourceSelected?.id === FILE_SOURCE_ID ? false : true)
                       }
                     />
                   )}
@@ -821,6 +888,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                         );
                       }
                     }}
+                    disabled={disable}
                   />
                   {selectedRepeatType?.id !== "once" && (
                     <DatePicker
@@ -828,7 +896,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       label="Ngày kết thúc"
                       name="endDay"
                       required
-                      disabled={formik.values.startDay ? false : true}
+                      disabled={
+                        disable || (formik.values.startDay ? false : true)
+                      }
                     />
                   )}
 
@@ -894,6 +964,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                       return item;
                                     },
                                   );
+                                formik?.setFieldValue(
+                                  "endTime",
+                                  String(newTimeEnd[newTimeEnd.length - 1]),
+                                );
                                 setBroadcastTime(newBroadcastTimeEnd);
                                 setTimeEnd(newTimeEnd);
                                 return;
@@ -906,6 +980,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                 ? formatTime(broadcastTime[index - 1].endTime!)
                                 : ""
                             }
+                            disabled={disable}
                           />
                           {sourceSelected?.id !== FILE_SOURCE_ID && (
                             <TimePicker
@@ -935,7 +1010,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                 setTimeEnd(newTime);
                               }}
                               disabled={
-                                timeStart[index] !== null ? false : true
+                                disable ||
+                                (timeStart[index] !== null ? false : true)
                               }
                               required
                             />
@@ -972,6 +1048,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                                 ),
                               );
                             }}
+                            disabled={disable}
                           >
                             <SVG
                               name="product/clear-all"
@@ -999,6 +1076,9 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     }}
                     className="w-full"
                     disabled={(() => {
+                      if (disable) {
+                        return true;
+                      }
                       if (timeStart.includes(null) || timeEnd.includes(null))
                         return true;
                       return false;
@@ -1021,15 +1101,16 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                             "endDay",
                             String(getTheNextDay(theNextDay)),
                           );
+                        } else {
+                          formik.setFieldValue("endDay", "");
                         }
-                      } else {
-                        formik.setFieldValue("endDay", "");
                       }
                       setSelectedRepeatDate([]);
                       setSelectedRepeatType(value);
                     }}
                     placeholder="Chọn kiểu lịch"
                     required
+                    disabled={disable}
                   />
                   {selectedRepeatType && selectedRepeatType.id !== "once" && (
                     <MultipleSelect
@@ -1044,22 +1125,80 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       onSelect={value => setSelectedRepeatDate(value)}
                       placeholder="Chọn ngày lặp lại"
                       required
+                      disabled={disable}
                     />
                   )}
                 </FormRightWrapper>
               </BottomWrapper>
+              <AudioWrapper>
+                <VolumeSlider
+                  title="Âm lượng"
+                  initValue={volume}
+                  onChange={value => setVolume(value)}
+                />
+                {fileSelected &&
+                  (fileSelected as any)?.url &&
+                  (() => {
+                    if (sourceSelected?.id === LINK_SOURCE_ID) {
+                      if ((fileSelected as any)?.url.includes(".m3u8")) {
+                        return (
+                          <div className="custom-hls-player">
+                            <ReactHlsPlayer
+                              src={(fileSelected as any)?.url}
+                              autoPlay={false}
+                              controls={true}
+                              width="100%"
+                              height={100}
+                              playerRef={playerRef}
+                            />
+                          </div>
+                        );
+                      }
+                      if ((fileSelected as any)?.url.includes(".mp3")) {
+                        return (
+                          <div className="custom-audio-player">
+                            <AudioPlayer
+                              elevation={1}
+                              width="100%"
+                              variation="primary"
+                              debug={false}
+                              src={(fileSelected as any)?.url}
+                            />
+                          </div>
+                        );
+                      }
+                      return <div>Chưa hỗ trợ định dạng audio này</div>;
+                    }
+                    return (
+                      <div className="custom-audio-player">
+                        <AudioPlayer
+                          elevation={1}
+                          width="100%"
+                          variation="primary"
+                          debug={false}
+                          src={(fileSelected as any)?.url}
+                        />
+                      </div>
+                    );
+                  })()}
+              </AudioWrapper>
               <ButtonWrapper>
                 <Button type="button" variant="secondary" onClick={handleBack}>
                   Quay lại
                 </Button>
-                <Button loading={loading} type="submit">
-                  Lưu
-                </Button>
+                {!disable && (
+                  <Button loading={loading} type="submit">
+                    Lưu
+                  </Button>
+                )}
               </ButtonWrapper>
             </Form>
           );
         }}
       </Formik>
+      {listConflictedSchedule.length > 0 && (
+        <ListConflictedSchedule editField={listConflictedSchedule} />
+      )}
     </TableLayout>
   );
 };

@@ -36,6 +36,7 @@ const Table = ({
   onClickRow,
   onTableChange,
   onSizeChange,
+  isShowChangeSize = true,
 }: ITableProps) => {
   const prevTotalSize = useRef<number>(totalSize);
 
@@ -109,6 +110,7 @@ const Table = ({
                     onChangePagePrev={handleChangePagePrev}
                     totalSize={totalSize}
                     page={page}
+                    isShowChangeSize={isShowChangeSize}
                   />
                 </PaginationWrapper>
               </>
