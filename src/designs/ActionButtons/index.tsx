@@ -16,7 +16,9 @@ type IActionType =
   | "switch"
   | "restart"
   | "volume"
-  | "config";
+  | "config"
+  | "refuse"
+  | "approve";
 
 interface IActionButtonsProps {
   buttons: {
@@ -36,6 +38,12 @@ interface IActionButtonsProps {
       DialogContent: React.FC<any>; // An dialog
     };
     volume?: {
+      DialogContent: React.FC<any>; // An dialog
+    };
+    approve?: {
+      DialogContent: React.FC<any>; // An dialog
+    };
+    refuse?: {
       DialogContent: React.FC<any>; // An dialog
     };
     update?: {
@@ -102,6 +110,16 @@ const options: {
     type: "volume",
     iconName: "actions/volume",
     name: "Âm lượng",
+  },
+  approve: {
+    type: "approve",
+    iconName: "actions/approve",
+    name: "Phê duyệt",
+  },
+  refuse: {
+    type: "refuse",
+    iconName: "actions/refuse",
+    name: "Từ chối",
   },
 };
 
@@ -215,6 +233,12 @@ const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
       )}
       {optionSelected?.type === "volume" && buttons.volume && (
         <buttons.volume.DialogContent onClose={handleClose} />
+      )}
+      {optionSelected?.type === "approve" && buttons.approve && (
+        <buttons.approve.DialogContent onClose={handleClose} />
+      )}
+      {optionSelected?.type === "refuse" && buttons.refuse && (
+        <buttons.refuse.DialogContent onClose={handleClose} />
       )}
       {optionSelected?.type === "info" && buttons.info && (
         <buttons.info.DialogContent onClose={handleClose} />

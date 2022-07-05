@@ -1,4 +1,9 @@
-export const CLASS_LIST: any[] = [
+export interface ILevelOption {
+  id: number;
+  displayName: string;
+}
+
+export const CLASS_LIST: ILevelOption[] = [
   {
     id: 2,
     displayName: "Tỉnh/Thành phố",
@@ -13,7 +18,7 @@ export const CLASS_LIST: any[] = [
   },
 ];
 
-export const CLASS_LIST_OF_PROVINCE: any[] = [
+export const CLASS_LIST_OF_PROVINCE: ILevelOption[] = [
   {
     id: 2,
     displayName: "Tỉnh/Thành phố",
@@ -24,7 +29,7 @@ export const CLASS_LIST_OF_PROVINCE: any[] = [
   },
 ];
 
-export const CLASS_LIST_OF_DISTRICT: any[] = [
+export const CLASS_LIST_OF_DISTRICT: ILevelOption[] = [
   {
     id: 3,
     displayName: "Quận/Huyện/Thị Xã",
@@ -35,7 +40,7 @@ export const CLASS_LIST_OF_DISTRICT: any[] = [
   },
 ];
 
-export const CLASS_LIST_OF_WARD: any[] = [
+export const CLASS_LIST_OF_WARD: ILevelOption[] = [
   {
     id: 4,
     displayName: "Phường/Xã/Thị Trấn",

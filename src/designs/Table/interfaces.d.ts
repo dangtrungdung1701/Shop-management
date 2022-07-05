@@ -13,6 +13,7 @@ export interface ITableProps {
   onPageChange?: (page: number) => void;
   page: number;
   onSizeChange?: (size: number) => void;
+  isShowChangeSize?: boolean;
 
   /**
    * @description You have to enable this prop if you want to call API whenever page index changed

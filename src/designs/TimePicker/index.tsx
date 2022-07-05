@@ -54,9 +54,9 @@ const TimePickers: React.FC<IInput> = props => {
   useEffect(() => {
     if (initValue) {
       setDispatchTime(moment(initValue));
-      setFieldValue(name, initValue);
+      setFieldValue(name, initValue.toString());
     }
-  }, []);
+  }, [initValue]);
 
   const handleChange = (value: Moment) => {
     setDispatchTime(value);

@@ -12,6 +12,7 @@ interface IPaginationProps {
   onSizeChange: (size: number) => void;
   totalSize: number;
   page: number;
+  isShowChangeSize: boolean;
 }
 
 interface ISize {
@@ -19,8 +20,14 @@ interface ISize {
 }
 
 const Pagination: React.FC<IPaginationProps> = props => {
-  const { onSizeChange, onChangePageNext, onChangePagePrev, totalSize, page } =
-    props;
+  const {
+    onSizeChange,
+    onChangePageNext,
+    onChangePagePrev,
+    totalSize,
+    page,
+    isShowChangeSize,
+  } = props;
   const [sizeStart, setSizeStart] = useState(1);
   const [sizeEnd, setSizeEnd] = useState(10);
   const [sizePerPage, setSizePerPage] = useState(10);
@@ -50,10 +57,12 @@ const Pagination: React.FC<IPaginationProps> = props => {
 
   return (
     <PaginationContainer>
-      <SizePerPage.Container>
-        <SizePerPage.Text>Số hàng mỗi trang :</SizePerPage.Text>
-        <Select onSelect={option => handleSelect(option)} />
-      </SizePerPage.Container>
+      {isShowChangeSize && (
+        <SizePerPage.Container>
+          <SizePerPage.Text>Số hàng mỗi trang :</SizePerPage.Text>
+          <Select onSelect={option => handleSelect(option)} />
+        </SizePerPage.Container>
+      )}
       <SizeOnTotal.Container>
         {page > 1 && (
           <SVG
