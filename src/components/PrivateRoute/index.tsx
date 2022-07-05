@@ -25,6 +25,16 @@ export default function PrivateRoute(props: IRoute): JSX.Element {
             />
           );
         }
+        if (!rest.name) {
+          return (
+            <Redirect
+              to={{
+                pathname: PATH.NOT_PERMISSION,
+                state: { from: props.location },
+              }}
+            />
+          );
+        }
 
         return (
           <ErrorBoundary>

@@ -25,14 +25,16 @@ import {
   LogoContainer,
   LogoName,
 } from "./styles";
+import useCheckPermission from "hooks/useCheckPermission";
 
 interface IMenuListProps extends RouteComponentProps {}
 
-const dashboardItemsOfNestedMenu = renderItemsForNestedMenu(dashboardRoutes);
-
 const MenuList: React.FC<IMenuListProps> = ({ location }) => {
+  const [dashboardItemsOfNestedMenu, setDashboardItemsOfNestedMenu] = useState(
+    renderItemsForNestedMenu(dashboardRoutes),
+  );
   const [currentPath, setCurrentPath] = useState("");
-  const { toggleExtendDrawer, isMobile } = useStore();
+  const { toggleExtendDrawer, isMobile, currentUser } = useStore();
 
   useLayoutEffect(() => {
     setCurrentPath(location.pathname);
@@ -45,6 +47,46 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
     }, 300);
   }, []);
 
+  useEffect(() => {
+    if (currentUser && dashboardItemsOfNestedMenu.length > 0) {
+      const newDashboardItemsOfNestedMenu = dashboardItemsOfNestedMenu.map(
+        item => {
+          if (
+            item.data.path.includes(PATH.DEVICE.SELF) &&
+            !useCheckPermission("DeviceManager", currentUser)
+          ) {
+            return { ...item, data: { ...item.data, name: "" } };
+          }
+          if (
+            item.data.path.includes(PATH.SOURCE_MANAGEMENT.SELF) &&
+            !useCheckPermission("AudioSourceManager", currentUser)
+          ) {
+            return { ...item, data: { ...item.data, name: "" } };
+          }
+          if (
+            item.data.path.includes(PATH.SCHEDULE.SELF) &&
+            !useCheckPermission("ScheduleManager", currentUser)
+          ) {
+            return { ...item, data: { ...item.data, name: "" } };
+          }
+          if (
+            item.data.path.includes(PATH.EMERGENCY.SELF) &&
+            !useCheckPermission("EmergencyOperator", currentUser)
+          ) {
+            return { ...item, data: { ...item.data, name: "" } };
+          }
+          if (
+            item.data.path.includes(PATH.USER) &&
+            !useCheckPermission("UserManager", currentUser)
+          ) {
+            return { ...item, data: { ...item.data, name: "" } };
+          }
+          return item;
+        },
+      );
+      setDashboardItemsOfNestedMenu(newDashboardItemsOfNestedMenu);
+    }
+  }, [currentUser]);
   return (
     <MenuListContainer>
       <Link to={PATH.DASHBOARD}>
@@ -55,7 +97,7 @@ const MenuList: React.FC<IMenuListProps> = ({ location }) => {
       </Link>
       <List>
         {dashboardItemsOfNestedMenu.map(({ data, items }) => {
-          if (data.hiddenRoute) return <></>;
+          if (data.hiddenRoute || data.name === "") return <></>;
           return (
             <NestedMenu
               key={data.path}

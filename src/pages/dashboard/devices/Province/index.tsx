@@ -293,7 +293,6 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   return (
     <TableLayout
       title="Thiết bị cấp Tỉnh/TP"
-      permission="DeviceManager"
       buttonMenu={
         currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
           <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">

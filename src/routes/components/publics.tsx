@@ -6,6 +6,7 @@ import { PATH } from "common/constants/routes";
 import { IRoutes } from "typings";
 
 import NotFound from "pages/NotFound";
+import NotPermission from "pages/NotPermission";
 
 const Login = lazy(() => import("pages/Login"));
 

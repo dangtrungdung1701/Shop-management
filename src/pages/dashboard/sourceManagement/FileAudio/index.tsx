@@ -200,7 +200,6 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý tệp tin"
-      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm tệp tin</ButtonAddFileAudio>}
