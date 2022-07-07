@@ -32,7 +32,7 @@ const ConfigureDevice: React.FC<IConfigureDeviceProps> = ({ location }) => {
     if (params?.id) {
       getDeviceService();
     }
-  }, [params]);
+  }, []);
 
   const getDeviceService = async () => {
     try {
