@@ -289,13 +289,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
       title="Người dùng"
       buttonMenu={
         <NormalDialog
-          ButtonMenu={
-            useCheckPermission("UserManager", currentUser) ? (
-              <ButtonAdd>Thêm người dùng</ButtonAdd>
-            ) : (
-              <></>
-            )
-          }
+          ButtonMenu={<ButtonAdd>Thêm người dùng</ButtonAdd>}
           onSuccess={() => {
             getAllUserService();
           }}

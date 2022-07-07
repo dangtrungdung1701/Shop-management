@@ -1,5 +1,6 @@
 export const PATH = {
   NOT_FOUND: "/not-found",
+  NOT_PERMISSION: "/not-permission",
   DASHBOARD: "/dashboard",
   AUTH: {
     SELF: "/auth",

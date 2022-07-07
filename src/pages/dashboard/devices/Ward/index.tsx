@@ -350,7 +350,6 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
   return (
     <TableLayout
       title="Thiết bị cấp Phường/Xã/Thị Trấn"
-      permission="DeviceManager"
       buttonMenu={
         <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
           <CSVLink

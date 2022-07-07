@@ -197,7 +197,6 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý link tiếp sóng"
-      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={

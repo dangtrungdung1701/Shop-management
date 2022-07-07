@@ -221,7 +221,6 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
   return (
     <TableLayout
       title="Quản lý kênh FM"
-      permission="AudioSourceManager"
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm kênh FM</ButtonAddFileAudio>}
