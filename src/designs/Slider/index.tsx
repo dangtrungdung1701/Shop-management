@@ -14,11 +14,25 @@ interface ISliderProps {
 const CustomSlider = withStyles({
   root: {
     color: "#33CCCC",
+    height: "4px",
+  },
+  thumb: {
+    marginTop: 0,
+    width: "20px",
+    height: "20px",
+  },
+  track: {
+    height: "inherit",
+    borderRadius: "inherit",
+  },
+  rail: {
+    height: "inherit",
+    borderRadius: "inherit",
   },
 })(Slider);
 
 const VolumeSlider: React.FC<ISliderProps> = props => {
-  const { onChange, title = "Âm lượng", initValue } = props;
+  const { onChange, title = "Âm lượng", initValue, className = "" } = props;
   const [value, setValue] = React.useState<number | number[]>(initValue);
 
   useEffect(() => {
@@ -31,7 +45,7 @@ const VolumeSlider: React.FC<ISliderProps> = props => {
   };
 
   return (
-    <Box sx={{ width: 500 }}>
+    <Box sx={{ width: 500 }} className={className}>
       <Grid container spacing={3} alignItems="center">
         <Grid item>
           <span className="font-medium">{title}</span>

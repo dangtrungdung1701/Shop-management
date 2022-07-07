@@ -3,11 +3,19 @@ import L from "leaflet";
 import { Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { isIOS, osVersion } from "react-device-detect";
 
-import ActiveIcon from "assets/svg/device/active.svg";
-import InActiveIcon from "assets/svg/device/inactive.svg";
-import ErrorIcon from "assets/svg/device/error.svg";
+import {
+  EMERGENCY_PLAYING_ID,
+  EMERGENCY_STOPPED_ID,
+  ERROR_ID,
+  IDLE_ID,
+  SCHEDULED_PLAYING_ID,
+} from "common/constants/device";
 
-import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
+import ScheduledPlayingIcon from "assets/svg/device/scheduled-playing.svg";
+import EmergencyPlayingIcon from "assets/svg/device/emergency-playing.svg";
+import EmergencyStoppedIcon from "assets/svg/device/emergency-stopped.svg";
+import IdleIcon from "assets/svg/device/idle.svg";
+import ErrorIcon from "assets/svg/device/error.svg";
 
 import {
   AddressItem,
@@ -41,12 +49,22 @@ const MapMarker: React.FC<IMapMarkerProps> = props => {
   const getIcon = useCallback(
     (status: number) => {
       return L.icon({
-        iconUrl:
-          status === ACTIVE_ID
-            ? ActiveIcon
-            : status === INACTIVE_ID
-            ? InActiveIcon
-            : ErrorIcon,
+        iconUrl: (() => {
+          switch (status) {
+            case IDLE_ID:
+              return IdleIcon;
+            case SCHEDULED_PLAYING_ID:
+              return ScheduledPlayingIcon;
+            case ERROR_ID:
+              return ErrorIcon;
+            case EMERGENCY_PLAYING_ID:
+              return EmergencyPlayingIcon;
+            case EMERGENCY_STOPPED_ID:
+              return EmergencyStoppedIcon;
+            default:
+              return IdleIcon;
+          }
+        })(),
         iconSize: [
           zoomScale ? 3 * zoomScale : 3,
           zoomScale ? 2.5 * zoomScale : 2.5,

@@ -3,7 +3,14 @@ import { MapContainer, TileLayer } from "react-leaflet";
 
 import { PATH } from "common/constants/routes";
 import axiosClient from "common/utils/api";
-import { ACTIVE_ID, INACTIVE_ID } from "common/constants/device";
+import {
+  EMERGENCY_PLAYING_ID,
+  EMERGENCY_STOPPED_ID,
+  ERROR_ID,
+  IDLE_ID,
+  SCHEDULED_PLAYING_ID,
+  STATUS,
+} from "common/constants/device";
 
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
@@ -64,14 +71,44 @@ const Map: React.FC = () => {
     }
   };
 
-  const getDeviceStatus = (statusId: number) => {
-    if (statusId === ACTIVE_ID) {
-      return "Đang phát";
+  const getStatusFromStatusId = (statusId: number) => {
+    switch (statusId) {
+      case IDLE_ID:
+        return {
+          activeType: STATUS[IDLE_ID].activeType,
+          label: STATUS[IDLE_ID].label,
+        };
+      case SCHEDULED_PLAYING_ID:
+        return {
+          activeType: STATUS[SCHEDULED_PLAYING_ID].activeType,
+
+          label: STATUS[SCHEDULED_PLAYING_ID].label,
+        };
+      case ERROR_ID:
+        return {
+          activeType: STATUS[ERROR_ID].activeType,
+
+          label: STATUS[ERROR_ID].label,
+        };
+      case EMERGENCY_PLAYING_ID:
+        return {
+          activeType: STATUS[EMERGENCY_PLAYING_ID].activeType,
+
+          label: STATUS[EMERGENCY_PLAYING_ID].label,
+        };
+      case EMERGENCY_STOPPED_ID:
+        return {
+          activeType: STATUS[EMERGENCY_STOPPED_ID].activeType,
+
+          label: STATUS[EMERGENCY_STOPPED_ID].label,
+        };
+
+      default:
+        return {
+          activeType: STATUS[IDLE_ID].activeType,
+          label: STATUS[0].label,
+        };
     }
-    if (statusId === INACTIVE_ID) {
-      return "Đang nghỉ";
-    }
-    return "Bị lỗi";
   };
 
   return (
@@ -94,7 +131,9 @@ const Map: React.FC = () => {
               lat={device?.location?.latitude!}
               long={device?.location?.longitude!}
               deviceName={device?.displayName!}
-              deviceStatus={getDeviceStatus(device?.mediaStatus?.status!)}
+              deviceStatus={
+                getStatusFromStatusId(device?.mediaStatus?.status!).label
+              }
               deviceAddress={device?.location?.locationDescription!}
               status={device?.mediaStatus?.status!}
             />

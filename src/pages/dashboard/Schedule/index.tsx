@@ -23,7 +23,7 @@ import {
 } from "common/constants/schedule";
 
 import SearchBoxTable from "components/SearchBoxTable";
-import StatusTag from "components/StatusTagV2";
+import StatusTagV2 from "components/StatusTagV2";
 
 import Table, { IColumns } from "designs/Table";
 import ActionButtons from "designs/ActionButtons";
@@ -251,7 +251,7 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
       },
       {
         text: "Người tạo",
-        dataField: "createdByUser.userName",
+        dataField: "createdByUser.displayName",
       },
       {
         text: "Trạng thái duyệt",
@@ -259,13 +259,13 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
         formatter: (approvalStatus: number) => {
           switch (approvalStatus) {
             case 1:
-              return <StatusTag active="pending" />;
+              return <StatusTagV2 active="pending" />;
             case 2:
-              return <StatusTag active="approved" />;
+              return <StatusTagV2 active="approved" />;
             case 3:
-              return <StatusTag active="refuse" />;
+              return <StatusTagV2 active="refuse" />;
             default:
-              return <StatusTag active="approved" />;
+              return <StatusTagV2 active="approved" />;
           }
         },
       },

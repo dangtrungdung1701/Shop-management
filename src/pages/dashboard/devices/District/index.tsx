@@ -6,7 +6,6 @@ import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 import axiosClient from "common/utils/api";
 import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
-import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
 
 import SearchBoxTable from "components/SearchBoxTable";
 import StatusTag from "components/StatusTag";
@@ -23,13 +22,7 @@ import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
 import useGetLocation from "hooks/useGetLocation";
 
-import {
-  IRegion,
-  IDevice,
-  IConnectionStatus,
-  IMediaStatus,
-  IGetAllDevice,
-} from "typings";
+import { IRegion, IDevice, IMediaStatus, IGetAllDevice } from "typings";
 
 import useStore from "zustand/store";
 
@@ -293,13 +286,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
         dataField: "mediaStatus",
         formatter: (mediaStatus: IMediaStatus) => {
           const status = mediaStatus?.status;
-          return (
-            <StatusTag
-              active={status!}
-              activeLabel="Đang phát"
-              inactiveLabel="Đang nghỉ"
-            />
-          );
+          return <StatusTag statusId={status || 0} />;
         },
       },
       {
