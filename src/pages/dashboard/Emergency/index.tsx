@@ -261,13 +261,7 @@ const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
         dataField: "mediaStatus",
         formatter: (mediaStatus: IMediaStatus) => {
           const status = mediaStatus?.status;
-          return (
-            <StatusTag
-              active={status!}
-              activeLabel="Đang phát"
-              inactiveLabel="Đang nghỉ"
-            />
-          );
+          return <StatusTag statusId={status || 0} />;
         },
       },
       {

@@ -80,11 +80,17 @@ const LoginPage: React.FC = () => {
       const res = await axiosClient.post(URL, payload);
       login(res);
     } catch (error: any) {
-      if (error.response.data === "User is not found") {
-        setError("Tài khoản hoặc mật khẩu không chính xác, vui lòng thử lại!");
-      } else {
-        setError("Lỗi hệ thống, vui lòng thử lại sau!");
+      if (error.response.status === 409) {
+        setError(
+          "Bạn đã đăng nhập sai quá 5 lần, vui lòng thử lại sau 15 phút!",
+        );
+        return;
       }
+      if (error.response.status === 404) {
+        setError("Tài khoản hoặc mật khẩu không chính xác, vui lòng thử lại!");
+        return;
+      }
+      setError("Lỗi hệ thống, vui lòng thử lại sau!");
     } finally {
       setLoading(false);
     }

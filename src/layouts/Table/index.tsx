@@ -17,6 +17,7 @@ const LayoutTable: React.FC<ILayoutTableProps> = ({
     <LayoutTableContainer>
       <Heading.Wrapper>
         <Heading.Title>{title && title}</Heading.Title>
+        {buttonMenu && buttonMenu}
       </Heading.Wrapper>
       <TableWrapper>{children}</TableWrapper>
     </LayoutTableContainer>
