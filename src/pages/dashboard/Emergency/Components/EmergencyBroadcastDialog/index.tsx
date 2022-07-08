@@ -223,7 +223,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
   const getProvinceListService = async () => {
     try {
       const res: any = await axiosClient.get("Region", {
-        params: { level: 2 },
+        params: { level: PROVINCE_ID },
       });
       if (res) {
         setProvinceList(res.regions);
