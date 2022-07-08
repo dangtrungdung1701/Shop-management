@@ -301,7 +301,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
   return (
     <>
       <TableLayout
-        title="Danh sách khẩn cấp đã cấu hình"
+        title="Danh sách khẩn cấp"
         buttonMenu={
           <div className="flex flex-row gap-2 w-full phone:w-auto">
             <Link

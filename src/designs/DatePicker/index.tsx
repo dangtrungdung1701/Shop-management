@@ -44,6 +44,7 @@ const DatePicker: React.FC<IInput> = props => {
     onDateChange,
     disabled,
     dateData = null,
+    placeholder = "",
     ...rest
   } = props;
   const [field, meta] = useField(props);
@@ -96,6 +97,7 @@ const DatePicker: React.FC<IInput> = props => {
               {...(rest as any)}
               {...field}
               {...inputProps}
+              placeholder={placeholder}
             />
             <DatePickerIcon />
           </DateInputContainer>
