@@ -214,15 +214,8 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
 
   // get device options
   useEffect(() => {
-    const regionId = selectedWard
-      ? selectedWard?.id
-      : selectedDistrict
-      ? selectedDistrict?.id
-      : selectedProvince
-      ? selectedProvince?.id
-      : undefined;
-    if (regionId) {
-      getAllDeviceService(regionId);
+    if (selectedWard || selectedDistrict || selectedProvince) {
+      getAllDeviceService();
     }
   }, [selectedProvince, selectedDistrict, selectedWard]);
 
@@ -269,16 +262,18 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
   };
   //
 
-  const getAllDeviceService = async (regionId: number | undefined) => {
-    const input: IGetAllDevice = {
-      regionId: regionId,
-      excludeRegionId: 1,
-      level: selectedLevel?.id,
-    };
+  const getAllDeviceService = async () => {
+    const regionId = selectedWard
+      ? selectedWard?.id
+      : selectedDistrict
+      ? selectedDistrict?.id
+      : selectedProvince
+      ? selectedProvince?.id
+      : undefined;
     try {
-      setLoading(true);
       const payload: any = {
-        ...input,
+        mediaStatusCodes: [0, 1, 2],
+        regionId,
       };
       const response: any = await axiosClient.get("/Device", {
         params: payload,
@@ -288,8 +283,6 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
