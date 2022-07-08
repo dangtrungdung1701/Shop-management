@@ -11,7 +11,11 @@ import {
   createScheduleRoute,
   editScheduleRoute,
 } from "./components/schedule";
-import { detailEmergencyRoute, emergencyRoute } from "./components/emergency";
+import {
+  detailEmergencyRoute,
+  emergencyBroadcastRoute,
+  emergencyRoute,
+} from "./components/emergency";
 import { notPermissionRoute } from "./components/notPermission";
 
 const flattenRoutes = (routes: IRoutes[]): IRoute[] => {
@@ -37,6 +41,7 @@ const dashboardRoutes: IRoutes[] = [
   editScheduleRoute,
   emergencyRoute,
   detailEmergencyRoute,
+  emergencyBroadcastRoute,
 ];
 
 const otherRoutes: IRoutes[] = [

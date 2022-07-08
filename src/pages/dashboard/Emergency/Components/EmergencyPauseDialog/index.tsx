@@ -115,7 +115,7 @@ const EmergencyPauseDialog: React.FC<IDialogProps> = ({
                     name="device"
                     label="Thiết bị"
                     listOptionsSelected={listDeviceSelected}
-                    options={optionDevice}
+                    options={[]}
                     onSelect={value => setListDeviceSelected(value)}
                     className="border rounded border-neutral-4"
                     placeholder="Chọn thiết bị"
@@ -144,18 +144,3 @@ const EmergencyPauseDialog: React.FC<IDialogProps> = ({
 };
 
 export default EmergencyPauseDialog;
-
-const optionDevice: IDevice[] = [
-  {
-    id: "1",
-    name: "device 1",
-  },
-  {
-    id: "2",
-    name: "device 2",
-  },
-  {
-    id: "3",
-    name: "device 3",
-  },
-];

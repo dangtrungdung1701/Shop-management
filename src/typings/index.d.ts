@@ -6,3 +6,5 @@ export * from "./Blog";
 export * from "./DeviceManagement";
 export * from "./User";
 export * from "./Location";
+export * from "./Schedule";
+export * from "./Emergency";

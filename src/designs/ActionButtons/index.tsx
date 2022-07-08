@@ -18,7 +18,8 @@ type IActionType =
   | "volume"
   | "config"
   | "refuse"
-  | "approve";
+  | "approve"
+  | "cancel";
 
 interface IActionButtonsProps {
   buttons: {
@@ -27,6 +28,12 @@ interface IActionButtonsProps {
       title?: string;
       message?: string;
       onDelete?: () => Promise<void>;
+    };
+    cancel?: {
+      DialogContent?: React.FC<{ onClose: () => void }>; // An dialog
+      title?: string;
+      message?: string;
+      onCancel?: () => Promise<void>;
     };
     edit?: {
       DialogContent: React.FC<{ onClose: () => void }>; // An dialog
@@ -120,6 +127,11 @@ const options: {
     type: "refuse",
     iconName: "actions/refuse",
     name: "Từ chối",
+  },
+  cancel: {
+    type: "cancel",
+    iconName: "actions/refuse",
+    name: "Hủy",
   },
 };
 
@@ -216,6 +228,30 @@ const ActionButtons: React.FC<IActionButtonsProps> = ({ buttons }) => {
             try {
               setLoading(true);
               await buttons.delete?.onDelete?.();
+              setLoading(false);
+              setOptionSelected(null);
+            } catch (error) {
+              setOptionSelected(null);
+              setLoading(false);
+            }
+          }}
+        />
+      )}
+      {optionSelected?.type === "cancel" &&
+      buttons.cancel &&
+      buttons.cancel.DialogContent ? (
+        <buttons.cancel.DialogContent onClose={handleClose} />
+      ) : (
+        <AlertDialogV2
+          loading={loading}
+          isOpen={optionSelected?.type === "cancel"}
+          onClose={() => setOptionSelected(null)}
+          title={buttons.cancel?.title || ""}
+          message={buttons?.cancel?.message}
+          onConfirm={async () => {
+            try {
+              setLoading(true);
+              await buttons.cancel?.onCancel?.();
               setLoading(false);
               setOptionSelected(null);
             } catch (error) {

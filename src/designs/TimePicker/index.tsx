@@ -31,7 +31,7 @@ interface IInput
   placeholder?: string;
   required?: boolean;
   minTime?: string;
-  initValue?: Date;
+  initValue?: Date | null;
   onTimeChange?: (newTime: Date) => void;
 }
 
@@ -54,7 +54,10 @@ const TimePickers: React.FC<IInput> = props => {
   useEffect(() => {
     if (initValue) {
       setDispatchTime(moment(initValue));
-      setFieldValue(name, initValue.toString());
+      setFieldValue(name, moment(initValue).format("HH:mm:ss"));
+    } else {
+      setDispatchTime(undefined);
+      setFieldValue(name, "");
     }
   }, [initValue]);
 
