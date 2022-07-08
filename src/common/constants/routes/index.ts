@@ -37,6 +37,7 @@ export const PATH = {
   EMERGENCY: {
     SELF: "/emergency",
     DETAIL: "/emergency/detail/:id",
+    EMERGENCY_BROADCAST: "/emergency/broadcast",
   },
 };
 

@@ -22,11 +22,12 @@ interface IInput
   > {
   name: string;
   className?: string;
-  label: string;
+  label?: string;
   disabled?: boolean;
   placeholder?: string;
   maximumDate?: Date;
   minimumDate?: Date;
+  dateData?: Date;
   onDateChange?: (newDate: Date) => void;
   autoComplete?: "on" | "off";
   required?: boolean;
@@ -36,12 +37,14 @@ const DatePicker: React.FC<IInput> = props => {
   const {
     name,
     className,
-    label,
+    label = "",
     minimumDate,
     maximumDate,
     required = false,
     onDateChange,
     disabled,
+    dateData = null,
+    placeholder = "",
     ...rest
   } = props;
   const [field, meta] = useField(props);
@@ -55,6 +58,15 @@ const DatePicker: React.FC<IInput> = props => {
     }
   }, [field?.value]);
 
+  useEffect(() => {
+    if (dateData) {
+      setFieldValue(name, String(dateData));
+    } else {
+      setDate(dateData);
+      setFieldValue(name, "");
+    }
+  }, [dateData]);
+
   const handleChange = (newDate: Date | null) => {
     setDate(newDate);
     if (newDate) {
@@ -65,9 +77,11 @@ const DatePicker: React.FC<IInput> = props => {
 
   return (
     <Container className={`datePicker ${className}`}>
-      <FormControlLabel isError={isError} required={required}>
-        {label}
-      </FormControlLabel>
+      {label && (
+        <FormControlLabel isError={isError} required={required}>
+          {label}
+        </FormControlLabel>
+      )}
       <NiceDatePicker
         date={date as Date}
         onDateChange={handleChange}
@@ -83,6 +97,7 @@ const DatePicker: React.FC<IInput> = props => {
               {...(rest as any)}
               {...field}
               {...inputProps}
+              placeholder={placeholder}
             />
             <DatePickerIcon />
           </DateInputContainer>

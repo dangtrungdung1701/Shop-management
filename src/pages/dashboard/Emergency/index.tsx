@@ -1,115 +1,137 @@
-import React, { useMemo, useState, lazy, useCallback, useEffect } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
+
+import { Formik } from "formik";
+import dayjs from "dayjs";
 
 import { PATH } from "common/constants/routes";
 import { getQueryFromLocation } from "common/functions";
 import axiosClient from "common/utils/api";
-import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
-import { DATA_ID, ETHERNET_ID, WIFI_ID } from "common/constants/device";
+import { ISourceOption, optionSource } from "common/constants/source";
 
 import SearchBoxTable from "components/SearchBoxTable";
-import StatusTag from "components/StatusTag";
+import EmergencyTag from "components/EmergencyTag";
 
 import Table, { IColumns } from "designs/Table";
 import ActionButtons from "designs/ActionButtons";
+import DatePicker from "designs/DatePicker";
 import SimpleSelect from "designs/SimpleSelect";
-import SVG from "designs/SVG";
 
 import TableLayout from "layouts/Table";
 
 import { usePage } from "hooks/usePage";
 import { useLoading } from "hooks/useLoading";
 import { useBreadcrumb } from "hooks/useBreadcrumb";
-import useGetLocation from "hooks/useGetLocation";
+import { useRedirect } from "hooks/useRedirect";
 
-import {
-  IRegion,
-  IDevice,
-  IConnectionStatus,
-  IMediaStatus,
-  IGetAllDevice,
-} from "typings";
-
-import useStore from "zustand/store";
+import { IEmergencyPrograms, IRegion } from "typings";
 
 import { TopButton, SearchBoxWrapper } from "./styles";
 
-const EmergencyBroadcastDialog = lazy(
-  () => import("./Components/EmergencyBroadcastDialog"),
-);
+import useStore from "zustand/store";
+import { toast } from "react-toastify";
 
-const EmergencyPauseDialog = lazy(
-  () => import("./Components/EmergencyPauseDialog"),
-);
+import EmergencyBroadcastDialog from "./Components/EmergencyBroadcastDialog";
+import EmergencyPauseDialog from "./Components/EmergencyPauseDialog";
+import DuplicateDialog from "./Components/DialogDuplicate";
+import { DISTRICT_ID, PROVINCE_ID } from "common/constants/region";
+import { BROADCASTING_ID } from "common/constants/emergency";
+import Link from "designs/Link";
 
 const LOAD_DATA = "LOAD_DATA";
+const CANCEL_DATA = "CANCEL_DATA";
+const ROLE = "EmergencyOperator";
 
-interface IRegionDeviceProps extends RouteComponentProps {}
+interface IFormValue {
+  startDay?: string;
+  endDay?: string;
+}
 
-const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
+interface IEmergencyProps extends RouteComponentProps {}
+
+const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
   const { currentUser, setCurrentUser } = useStore();
+  const redirect = useRedirect();
+
+  const [initialValues, setInitialValues] = useState<IFormValue>({
+    startDay: "",
+    endDay: "",
+  });
+  const [startDay, setStartDay] = useState<Date | null>(null);
+  const [endDay, setEndDay] = useState<Date | null>(null);
+  const [sourceTypeSelected, setSourceTypeSelected] =
+    useState<ISourceOption | null>(null);
 
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
   const [searchText, setSearchText] = useState<string>("");
 
+  const [provinceList, setProvinceList] = useState<IRegion[]>([]);
   const [districtList, setDistrictList] = useState<IRegion[]>([]);
-  const [listDevice, setListDevice] = useState<IDevice[]>([]);
+  const [wardList, setWardList] = useState<IRegion[]>([]);
 
+  const [provinceSelected, setProvinceSelected] = useState<IRegion | null>(
+    null,
+  );
   const [districtSelected, setDistrictSelected] = useState<IRegion | null>(
     null,
   );
+  const [wardSelected, setWardSelected] = useState<IRegion | null>(null);
 
-  const [totalCount, setTotalCount] = useState<number>(listDevice.length);
+  const [regionId, setRegionId] = useState(0);
+
+  const [listEmergencyProgram, setListEmergencyProgram] = useState<
+    IEmergencyPrograms[]
+  >([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const { startLoading, stopLoading } = useLoading();
-
-  const [CSVData, setCSVData] = useState<any[]>([]);
-
-  const getDefaultRegionId = (): number => {
-    const provinceId = currentUser?.userInfo?.region?.provinceId;
-    const districtId = currentUser?.userInfo?.region?.districtId;
-    const wardId = currentUser?.userInfo?.region?.wardId;
-
-    if (wardId !== -1) {
-      return wardId;
-    }
-    if (districtId !== -1) {
-      return districtId;
-    }
-    return provinceId;
-  };
-
-  const [regionId, setRegionId] = useState(getDefaultRegionId());
 
   useBreadcrumb([
     {
-      name: "Quản lý khẩn cấp",
-      href: "#",
-    },
-    {
       name: "Khẩn cấp",
+    },
+
+    {
+      name: "Danh sách khẩn cấp",
+
       href: PATH.EMERGENCY.SELF,
     },
   ]);
 
   useEffect(() => {
-    getAllDistrictDevices();
-  }, [page, sizePerPage, searchText, regionId]);
-
-  useEffect(() => {
-    const provinceId: number = currentUser?.userInfo?.region?.provinceId;
-
-    if (districtList.length) {
-      const newRegionId = districtSelected ? districtSelected?.id : provinceId;
-      setRegionId(newRegionId!);
-    }
-  }, [districtSelected]);
-
-  useEffect(() => {
     getUserInfoService();
-    const provinceId = currentUser?.userInfo?.region?.provinceId;
-    getDistrictListService(provinceId);
+    if (currentUser?.userInfo?.region?.levelId === PROVINCE_ID) {
+      const provinceId = currentUser?.userInfo?.region?.provinceId;
+      getDistrictListService(provinceId);
+    }
+    if (currentUser?.userInfo?.region?.levelId === DISTRICT_ID) {
+      const districtId = currentUser?.userInfo?.region?.districtId;
+      getWardListService(districtId);
+    }
   }, []);
+
+  useEffect(() => {
+    const newRegionId = wardSelected
+      ? wardSelected?.id
+      : districtSelected
+      ? districtSelected?.id
+      : provinceSelected
+      ? provinceSelected?.id
+      : 0;
+    setRegionId(newRegionId || 0);
+  }, [provinceSelected, districtSelected, wardSelected]);
+
+  useEffect(() => {
+    getAllEmergencyProgramConfiguredService();
+  }, [
+    page,
+    sizePerPage,
+    searchText,
+    sourceTypeSelected,
+    startDay,
+    endDay,
+    regionId,
+  ]);
 
   const getUserInfoService = async () => {
     try {
@@ -124,71 +146,29 @@ const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
     }
   };
 
-  const getDistrictListService = async (id: number) => {
-    try {
-      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
-      if (res) {
-        setDistrictList(res.regions);
-        setDistrictSelected(
-          useGetLocation(
-            currentUser?.userInfo?.region?.districtId!,
-            res.regions,
-          ),
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getAllDistrictDevices = async () => {
-    const input: IGetAllDevice = {
-      page,
-      size: sizePerPage,
-      regionId,
-      searchString: searchText,
-      excludeRegionId: 1,
-      level: DISTRICT_ID,
-    };
+  const getAllEmergencyProgramConfiguredService = async () => {
     try {
       startLoading(LOAD_DATA);
+
       const payload: any = {
-        ...input,
+        sourceType: sourceTypeSelected?.id,
+        ...(startDay && {
+          fromDate: dayjs(startDay).unix(),
+        }),
+        ...(endDay && {
+          toDate: dayjs(endDay).unix(),
+        }),
+        page,
+        size: sizePerPage,
+        searchString: searchText,
+        regionId: regionId ? regionId : currentUser?.userInfo?.region?.id,
+        excludeRegionId: 1,
       };
-      const response: any = await axiosClient.get("/Device", {
+      const response: any = await axiosClient.get("/EmergencyProgram", {
         params: payload,
       });
-      const response2: any = await axiosClient.get("/Device", {
-        params: { ...payload, page: 0, size: 0 },
-      });
-      if (response2) {
-        const exportData = response2?.devices?.map((device: IDevice) => {
-          const newDevice = { ...device };
-          delete newDevice.connectionStatus;
-          delete newDevice.mediaStatus;
-          delete newDevice.region;
-          delete newDevice.sim;
-          delete newDevice.location;
-
-          return {
-            ...newDevice,
-            locationName: device?.location?.locationDescription,
-            locationLatitude: device?.location?.latitude,
-            locationLongitude: device?.location?.longitude,
-            simNumber: device?.sim?.number,
-            connectionType: device?.connectionStatus?.connectionType,
-            connectionName: device?.connectionStatus?.WiFiName,
-            connectionStrength: device?.connectionStatus?.signalStrength,
-            mediaStatus: device?.mediaStatus?.status,
-            mediaVolume: device?.mediaStatus?.currentVolume,
-            regionId: device?.region?.id,
-            regionLevel: device?.region?.levelId,
-          };
-        });
-        setCSVData(exportData);
-      }
       if (response) {
-        setListDevice(response.devices);
+        setListEmergencyProgram(response.emergencyPrograms);
         setTotalCount(response.totalCount);
       }
     } catch (error) {
@@ -198,22 +178,69 @@ const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
     }
   };
 
-  const renderAction = (record: IDevice) => {
+  const getDistrictListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setDistrictList(res.regions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getWardListService = async (id: number) => {
+    try {
+      const res: any = await axiosClient.get(`Region/${id}/Subregions`);
+      if (res) {
+        setWardList(res.regions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renderAction = (record: IEmergencyPrograms) => {
     return (
       <ActionButtons
         buttons={{
-          config: {
+          info: {
             DialogContent: props => (
               <Redirect
                 to={{
-                  pathname: PATH.DEVICE.EDIT_DEVICE.replace(
+                  pathname: PATH.EMERGENCY.DETAIL.replace(
                     ":id",
                     record.id!,
-                  ).replace(":class", "district"),
+                  ).replace(":type", "configured"),
                 }}
               />
             ),
           },
+          ...(record.status === BROADCASTING_ID && {
+            cancel: {
+              title: "Hủy phát chương trình",
+              message: "Bạn có chắc chắn muốn hủy phát chương trình này?",
+              onCancel: async () => {
+                try {
+                  startLoading(CANCEL_DATA);
+                  await axiosClient.put(
+                    `/EmergencyProgram/${record?.id}/Cancel`,
+                  );
+                  toast.dark("Hủy phát thành công !", {
+                    type: toast.TYPE.SUCCESS,
+                  });
+                } catch (error) {
+                  console.log(error);
+                  toast.dark("Hủy phát không thành công !", {
+                    type: toast.TYPE.ERROR,
+                  });
+                } finally {
+                  getAllEmergencyProgramConfiguredService();
+                  stopLoading(CANCEL_DATA);
+                }
+              },
+            },
+          }),
         }}
       />
     );
@@ -222,55 +249,39 @@ const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
   const columns: IColumns = useMemo(
     () => [
       {
-        text: "Tên thiết bị",
+        text: "Tên chương trình",
         dataField: "displayName",
-        headerStyle: () => ({
-          width: "18%",
-        }),
       },
       {
-        text: "Mã thiết bị",
-        dataField: "id",
-        headerStyle: () => ({
-          width: "18%",
-        }),
-      },
-      {
-        text: "Âm lượng",
-        dataField: "volume",
-        headerStyle: () => ({
-          width: "18%",
-        }),
-      },
-      {
-        text: "Kết nối",
-        dataField: "connectionStatus",
-        formatter: (connectionStatus: IConnectionStatus) => {
-          const type = connectionStatus?.connectionType;
-          if (type === ETHERNET_ID) return <SVG name="device/ethernet" />;
-          if (type === DATA_ID) return <SVG name="device/4g" />;
-          if (type === WIFI_ID) return <SVG name="device/wifi" />;
-          return <SVG name="device/wifi-off" />;
+        text: "Thời gian",
+        dataField: "startTime",
+        formatter: (timeStamp: number) => {
+          const date = dayjs.unix(timeStamp).format("DD/MM/YYYY");
+          const time = dayjs.unix(timeStamp).format("HH:mm:ss");
+          return `${date} - ${time}`;
         },
-        headerStyle: () => ({
-          width: "18%",
-        }),
+      },
+      {
+        text: "Thời lượng",
+        dataField: "totalDuration",
+      },
+      {
+        text: "Người tạo",
+        dataField: "createdByUser.displayName",
       },
       {
         text: "Trạng thái",
-        dataField: "mediaStatus",
-        formatter: (mediaStatus: IMediaStatus) => {
-          const status = mediaStatus?.status;
-          return <StatusTag statusId={status || 0} />;
-        },
+        dataField: "status",
+        formatter: (status: number) => <EmergencyTag active={status} />,
       },
       {
         text: "Hành động",
         dataField: "actions",
-        formatter: (_: string, record: IDevice) => renderAction(record),
+        formatter: (_: string, record: IEmergencyPrograms) =>
+          renderAction(record),
       },
     ],
-    [page, listDevice],
+    [page],
   );
 
   const handleChangePage = useCallback((nextPage: number) => {
@@ -288,64 +299,139 @@ const Emergency: React.FC<IRegionDeviceProps> = ({ location }) => {
   };
 
   return (
-    <TableLayout
-      title="Quản lý lịch phát khẩn cấp"
-      buttonMenu={
-        <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
-          <EmergencyBroadcastDialog
-            level={DISTRICT_ID}
-            ButtonMenu={<TopButton variant="primary">Phát khẩn cấp</TopButton>}
-          />
-          <EmergencyPauseDialog
-            ButtonMenu={
-              <TopButton variant="danger" className="w-full">
-                Dừng khẩn cấp
-              </TopButton>
-            }
-          />
-        </div>
-      }
-    >
-      {currentUser?.userInfo?.region?.levelId <= DISTRICT_ID ? (
-        <>
-          <SearchBoxWrapper>
-            <SearchBoxTable
-              onFetchData={handleFetchData}
-              placeholder="Tìm kiếm theo tên thiết bị"
-              className="w-full phone:max-w-35"
+    <>
+      <TableLayout
+        title="Danh sách khẩn cấp"
+        buttonMenu={
+          <div className="flex flex-row gap-2 w-full phone:w-auto">
+            <Link
+              to={PATH.EMERGENCY.EMERGENCY_BROADCAST}
+              className="w-full phone:w-auto"
+            >
+              <TopButton variant="primary">Phát khẩn cấp</TopButton>
+            </Link>
+            <EmergencyPauseDialog
+              ButtonMenu={
+                <TopButton variant="danger" className="w-full">
+                  Dừng khẩn cấp
+                </TopButton>
+              }
             />
-            {currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
-              <SimpleSelect
-                options={districtList}
-                optionSelected={districtSelected}
-                onSelect={value => {
-                  setDistrictSelected(value);
-                  setPage(1);
-                }}
-                placeholder="Quận/Huyện/Thị Xã"
-                className="w-full phone:max-w-35"
-                optionTarget="displayName"
-              />
-            )}
-          </SearchBoxWrapper>
+          </div>
+        }
+      >
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          onSubmit={() => {}}
+        >
+          {formik => {
+            return (
+              <SearchBoxWrapper>
+                <div className="w-full">
+                  <SearchBoxTable
+                    onFetchData={handleFetchData}
+                    placeholder="Tìm kiếm theo tên chương trình"
+                    className="w-full phone:w-35 mb-2"
+                  />
+                  <SimpleSelect
+                    options={optionSource}
+                    optionSelected={sourceTypeSelected}
+                    onSelect={value => {
+                      setSourceTypeSelected(value);
+                    }}
+                    placeholder="Nguồn phát"
+                    className="w-full phone:w-35"
+                    optionTarget="displayName"
+                  />
+                </div>
+                <div className="w-full">
+                  <DatePicker
+                    dateData={startDay!}
+                    onDateChange={value => {
+                      setStartDay(value);
+                      setEndDay(null);
+                    }}
+                    name="startDay"
+                    placeholder="Từ ngày"
+                    className="mb-2"
+                  />
+                  <DatePicker
+                    dateData={endDay!}
+                    onDateChange={value => {
+                      setEndDay(value);
+                    }}
+                    name="endDay"
+                    disabled={formik.values.startDay === ""}
+                    placeholder="Đến ngày"
+                    minimumDate={new Date(formik.values.startDay || "")}
+                  />
+                </div>
+                <div className="w-full flex flex-col gap-1">
+                  {currentUser?.userInfo?.region?.levelId === 2 && (
+                    <>
+                      <SimpleSelect
+                        options={districtList}
+                        optionSelected={districtSelected}
+                        onSelect={value => {
+                          setWardSelected(null);
+                          if (value) {
+                            getWardListService(value?.id!);
+                          }
+                          setDistrictSelected(value);
+                          setPage(1);
+                        }}
+                        placeholder="Quận/Huyện/Thị Xã"
+                        className="w-full phone:max-w-35"
+                        optionTarget="displayName"
+                      />
+                      <SimpleSelect
+                        options={wardList}
+                        optionSelected={wardSelected}
+                        onSelect={value => {
+                          setWardSelected(value);
+                          setPage(1);
+                        }}
+                        placeholder="Phường/Xã/Thị Trấn"
+                        disabled={districtSelected ? false : true}
+                        className="w-full phone:max-w-35"
+                        optionTarget="displayName"
+                      />
+                    </>
+                  )}
+                  {currentUser?.userInfo?.region?.levelId === 3 && (
+                    <SimpleSelect
+                      options={wardList}
+                      optionSelected={wardSelected}
+                      onSelect={value => {
+                        setWardSelected(value);
+                        setPage(1);
+                      }}
+                      placeholder="Phường/Xã/Thị Trấn"
+                      className="w-full phone:max-w-35"
+                      optionTarget="displayName"
+                    />
+                  )}
+                </div>
+              </SearchBoxWrapper>
+            );
+          }}
+        </Formik>
 
-          <Table
-            data={listDevice}
-            columns={columns}
-            page={page}
-            totalSize={totalCount}
-            onPageChange={handleChangePage}
-            onSizeChange={handleChangeSize}
-            isRemote
-          />
-        </>
-      ) : (
-        <div className="h-30 flex items-center justify-center font-bold text-20">
-          Bạn không có quyền truy cập trang này
-        </div>
-      )}
-    </TableLayout>
+        <Table
+          data={listEmergencyProgram}
+          columns={columns}
+          page={page}
+          totalSize={totalCount}
+          onPageChange={handleChangePage}
+          onSizeChange={handleChangeSize}
+          isRemote
+        />
+      </TableLayout>
+
+      <DuplicateDialog />
+    </>
   );
 };
 
-export default Emergency;
+export default EmergencyConfigured;
