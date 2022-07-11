@@ -127,7 +127,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       const res = await axiosClient.post("/AudioFileSource", formData);
 
       if (res) {
-        setUploadProgress(false);
         handleCloseDialog();
         onSuccess?.();
         toast.update(uploadToast, {
@@ -168,7 +167,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
-            setUploadProgress(false);
             handleCloseDialog();
             toast.dark("Tạo tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
@@ -177,6 +175,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         }
       }
     } finally {
+      setUploadProgress(false);
       setLoading(false);
     }
   };
