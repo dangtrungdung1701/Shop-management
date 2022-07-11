@@ -99,6 +99,10 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       formData.append("RegionId", currentUser?.userInfo?.region?.id);
       formData.append("DisplayName", value?.displayName);
     }
+    const uploadToast = toast.loading("Đang upload tệp tin !", {
+      type: toast.TYPE.WARNING,
+      theme: "dark",
+    });
     try {
       setLoading(true);
       if (editField) {
@@ -120,10 +124,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       }
       setOpen(false);
       setUploadProgress(true);
-      const uploadToast = toast.loading("Đang upload tệp tin !", {
-        type: toast.TYPE.WARNING,
-        theme: "dark",
-      });
+
       const res = await axiosClient.post("/AudioFileSource", formData);
 
       if (res) {
@@ -134,7 +135,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
           type: toast.TYPE.SUCCESS,
           theme: "dark",
           isLoading: false,
-          autoClose: 4000,
+          autoClose: 3000,
           closeOnClick: true,
         });
       }
@@ -151,6 +152,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             break;
           default:
             handleCloseDialog();
+
             toast.dark("Cập nhật tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
             });
@@ -159,17 +161,25 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       } else {
         switch (err.response.status) {
           case 409:
-            toast.dark(
-              "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
-              {
-                type: toast.TYPE.ERROR,
-              },
-            );
+            toast.update(uploadToast, {
+              render:
+                "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              type: toast.TYPE.ERROR,
+              theme: "dark",
+              isLoading: false,
+              autoClose: 3000,
+              closeOnClick: true,
+            });
             break;
           default:
             handleCloseDialog();
-            toast.dark("Tạo tệp tin không thành công !", {
+            toast.update(uploadToast, {
+              render: "Tạo tệp tin không thành công !",
               type: toast.TYPE.ERROR,
+              theme: "dark",
+              isLoading: false,
+              autoClose: 3000,
+              closeOnClick: true,
             });
             break;
         }
