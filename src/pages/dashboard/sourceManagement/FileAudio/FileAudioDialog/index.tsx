@@ -53,7 +53,8 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { currentUser, setUploadProgress, uploadProgress } = useStore();
+  const { currentUser, setUploadProgress, uploadProgress, setActionSuccess } =
+    useStore();
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
   const [fileSelected, setFileSelected] = useState<File>();
@@ -127,7 +128,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       const res = await axiosClient.post("/AudioFileSource", formData);
 
       if (res) {
-        onSuccess?.();
+        setActionSuccess();
         toast.update(uploadToast, {
           render: "Tạo tệp tin thành công !",
           type: toast.TYPE.SUCCESS,

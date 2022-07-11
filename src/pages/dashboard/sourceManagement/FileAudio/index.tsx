@@ -32,7 +32,8 @@ const DELETE_DATA = "DELETE_DATA";
 interface IRegionProps extends RouteComponentProps {}
 
 const FileAudio: React.FC<IRegionProps> = ({ location }) => {
-  const { setCurrentUser, currentUser, uploadProgress } = useStore();
+  const { setCurrentUser, currentUser, actionSuccess, resetAction } =
+    useStore();
 
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);
@@ -73,6 +74,13 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
   useEffect(() => {
     getAllFileAudioService();
   }, [page, sizePerPage, searchText]);
+
+  useEffect(() => {
+    if (actionSuccess) {
+      resetAction();
+      getAllFileAudioService();
+    }
+  }, [actionSuccess]);
 
   const getAllFileAudioService = async () => {
     const payload: IGetAllSource = {
@@ -203,8 +211,8 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
       buttonMenu={
         <FileAudioDialog
           ButtonMenu={<ButtonAddFileAudio>Thêm tệp tin</ButtonAddFileAudio>}
-          onSuccess={() => {
-            getAllFileAudioService();
+          onSuccess={async () => {
+            await getAllFileAudioService();
           }}
         />
       }
