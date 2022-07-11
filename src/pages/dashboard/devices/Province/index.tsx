@@ -79,6 +79,11 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   useEffect(() => {
     getAllProvinceDevices();
+    getProvinceDeviceReport();
+    const deviceInterval = setInterval(() => {
+      getAllProvinceDevicesWithoutLoadingEffect();
+    }, 1500);
+    return () => clearInterval(deviceInterval);
   }, [page, sizePerPage, searchText, regionId]);
 
   useEffect(() => {
@@ -98,8 +103,48 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
     }
   };
 
-  const getAllProvinceDevices = async () => {
-    const input: IGetAllDevice = {
+  const getProvinceDeviceReport = async () => {
+    const payload: IGetAllDevice = {
+      page: 0,
+      size: 0,
+      regionId,
+      searchString: searchText,
+      excludeRegionId: 1,
+      level: PROVINCE_ID,
+    };
+    const response: any = await axiosClient.get("/Device", {
+      params: payload,
+    });
+    if (response) {
+      const exportData = response?.devices?.map((device: IDevice) => {
+        const newDevice = { ...device };
+        delete newDevice.connectionStatus;
+        delete newDevice.mediaStatus;
+        delete newDevice.region;
+        delete newDevice.sim;
+        delete newDevice.location;
+
+        return {
+          ...newDevice,
+          locationName: device?.location?.locationDescription,
+          locationLatitude: device?.location?.latitude,
+          locationLongitude: device?.location?.longitude,
+          simNumber: device?.sim?.number,
+          connectionType: device?.connectionStatus?.connectionType,
+          connectionName: device?.connectionStatus?.WiFiName,
+          connectionStrength: device?.connectionStatus?.signalStrength,
+          mediaStatus: device?.mediaStatus?.status,
+          mediaVolume: device?.mediaStatus?.currentVolume,
+          regionId: device?.region?.id,
+          regionLevel: device?.region?.levelId,
+        };
+      });
+      setCSVData(exportData);
+    }
+  };
+
+  const getAllProvinceDevicesWithoutLoadingEffect = async () => {
+    const payload: IGetAllDevice = {
       page,
       size: sizePerPage,
       regionId,
@@ -107,47 +152,19 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       excludeRegionId: 1,
       level: PROVINCE_ID,
     };
+    const response: any = await axiosClient.get("/Device", {
+      params: payload,
+    });
+    if (response) {
+      setListDevice(response.devices);
+      setTotalCount(response.totalCount);
+    }
+  };
+
+  const getAllProvinceDevices = async () => {
     try {
       startLoading(LOAD_DATA);
-      const payload: any = {
-        ...input,
-      };
-      const response: any = await axiosClient.get("/Device", {
-        params: payload,
-      });
-      const response2: any = await axiosClient.get("/Device", {
-        params: { ...payload, page: 0, size: 0 },
-      });
-      if (response2) {
-        const exportData = response2?.devices?.map((device: IDevice) => {
-          const newDevice = { ...device };
-          delete newDevice.connectionStatus;
-          delete newDevice.mediaStatus;
-          delete newDevice.region;
-          delete newDevice.sim;
-          delete newDevice.location;
-
-          return {
-            ...newDevice,
-            locationName: device?.location?.locationDescription,
-            locationLatitude: device?.location?.latitude,
-            locationLongitude: device?.location?.longitude,
-            simNumber: device?.sim?.number,
-            connectionType: device?.connectionStatus?.connectionType,
-            connectionName: device?.connectionStatus?.WiFiName,
-            connectionStrength: device?.connectionStatus?.signalStrength,
-            mediaStatus: device?.mediaStatus?.status,
-            mediaVolume: device?.mediaStatus?.currentVolume,
-            regionId: device?.region?.id,
-            regionLevel: device?.region?.levelId,
-          };
-        });
-        setCSVData(exportData);
-      }
-      if (response) {
-        setListDevice(response.devices);
-        setTotalCount(response.totalCount);
-      }
+      await getAllProvinceDevicesWithoutLoadingEffect();
     } catch (error) {
       console.log(error);
     } finally {
@@ -187,7 +204,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
             DialogContent: props => (
               <VolumeDialog
                 onSuccess={() => {
-                  getAllProvinceDevices();
+                  getAllProvinceDevicesWithoutLoadingEffect();
                 }}
                 editField={record}
                 open
@@ -282,7 +299,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       title="Thiết bị cấp Tỉnh/TP"
       buttonMenu={
         currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
-          <div className="flex flex-row phone:flex-col tablet:flex-row gap-2 items-end w-full phone:w-auto">
+          <div className="flex flex-row items-end w-full gap-2 phone:flex-col tablet:flex-row phone:w-auto">
             <CSVLink
               data={CSVData}
               filename="danh-sach-thiet-bi.csv"
@@ -321,7 +338,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
           />
         </>
       ) : (
-        <div className="h-30 flex items-center justify-center font-bold text-20">
+        <div className="flex items-center justify-center font-bold h-30 text-20">
           Bạn không có quyền truy cập trang này
         </div>
       )}
