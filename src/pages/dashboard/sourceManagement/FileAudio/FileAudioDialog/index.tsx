@@ -115,7 +115,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         );
         if (res) {
           onSuccess?.();
-          handleCloseDialog();
           toast.dark("Cập nhật tệp tin thành công !", {
             type: toast.TYPE.SUCCESS,
           });
@@ -128,7 +127,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       const res = await axiosClient.post("/AudioFileSource", formData);
 
       if (res) {
-        handleCloseDialog();
         onSuccess?.();
         toast.update(uploadToast, {
           render: "Tạo tệp tin thành công !",
@@ -151,8 +149,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
-            handleCloseDialog();
-
             toast.dark("Cập nhật tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
             });
@@ -172,7 +168,6 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             });
             break;
           default:
-            handleCloseDialog();
             toast.update(uploadToast, {
               render: "Tạo tệp tin không thành công !",
               type: toast.TYPE.ERROR,
@@ -185,6 +180,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         }
       }
     } finally {
+      handleCloseDialog();
       setUploadProgress(false);
       setLoading(false);
     }
