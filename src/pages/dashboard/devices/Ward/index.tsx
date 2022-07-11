@@ -89,6 +89,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   useEffect(() => {
     getAllWardDevices();
+    getWardDeviceReport();
     const deviceInterval = setInterval(() => {
       getAllWardDevicesWithoutLoadingEffect();
     }, 1500);
@@ -159,26 +160,20 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
     }
   };
 
-  const getAllWardDevicesWithoutLoadingEffect = async () => {
-    const input: IGetAllDevice = {
-      page,
-      size: sizePerPage,
+  const getWardDeviceReport = async () => {
+    const payload: IGetAllDevice = {
+      page: 0,
+      size: 0,
       regionId,
       searchString: searchText,
       excludeRegionId: 1,
       level: WARD_ID,
     };
-    const payload: any = {
-      ...input,
-    };
     const response: any = await axiosClient.get("/Device", {
       params: payload,
     });
-    const response2: any = await axiosClient.get("/Device", {
-      params: { ...payload, page: 0, size: 0 },
-    });
-    if (response2) {
-      const exportData = response2?.devices?.map((device: IDevice) => {
+    if (response) {
+      const exportData = response?.devices?.map((device: IDevice) => {
         const newDevice = { ...device };
         delete newDevice.connectionStatus;
         delete newDevice.mediaStatus;
@@ -203,6 +198,21 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       });
       setCSVData(exportData);
     }
+  };
+
+  const getAllWardDevicesWithoutLoadingEffect = async () => {
+    const payload: IGetAllDevice = {
+      page,
+      size: sizePerPage,
+      regionId,
+      searchString: searchText,
+      excludeRegionId: 1,
+      level: WARD_ID,
+    };
+    const response: any = await axiosClient.get("/Device", {
+      params: payload,
+    });
+
     if (response) {
       setListDevice(response.devices);
       setTotalCount(response.totalCount);
