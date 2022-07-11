@@ -54,8 +54,8 @@ const AdminLayout: React.FC = props => {
         e.preventDefault();
         const message =
           "Tệp tin vẫn đang được tải lên, bạn có chắc chắn muốn thoát trang ?";
-        console.log(e);
-        return (e.returnValue = message);
+        e.returnValue = message;
+        return message;
       };
       window.addEventListener("beforeunload", listener);
     }
