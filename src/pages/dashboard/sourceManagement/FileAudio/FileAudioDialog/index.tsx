@@ -53,7 +53,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { currentUser } = useStore();
+  const { currentUser, setUploadProgress, uploadProgress } = useStore();
   const [isOpen, setOpen] = useState(open);
   const [loading, setLoading] = useState(false);
   const [fileSelected, setFileSelected] = useState<File>();
@@ -118,12 +118,25 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         }
         return;
       }
+      setOpen(false);
+      setUploadProgress(true);
+      const uploadToast = toast.loading("Đang upload tệp tin !", {
+        type: toast.TYPE.WARNING,
+        theme: "dark",
+      });
       const res = await axiosClient.post("/AudioFileSource", formData);
+
       if (res) {
-        onSuccess?.();
+        setUploadProgress(false);
         handleCloseDialog();
-        toast.dark("Tạo tệp tin thành công !", {
+        onSuccess?.();
+        toast.update(uploadToast, {
+          render: "Tạo tệp tin thành công !",
           type: toast.TYPE.SUCCESS,
+          theme: "dark",
+          isLoading: false,
+          autoClose: 4000,
+          closeOnClick: true,
         });
       }
     } catch (err: any) {
@@ -138,6 +151,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
+            handleCloseDialog();
             toast.dark("Cập nhật tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
             });
@@ -154,6 +168,8 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
+            setUploadProgress(false);
+            handleCloseDialog();
             toast.dark("Tạo tệp tin không thành công !", {
               type: toast.TYPE.ERROR,
             });
@@ -182,65 +198,81 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
           <DialogHeader
             title={editField ? "Chỉnh sửa tệp tin" : "Thêm tệp tin"}
           />
-          <Formik
-            initialValues={initialValues}
-            enableReinitialize
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {formik => {
-              return (
-                <Form onSubmit={formik.handleSubmit}>
-                  <Input
-                    name="displayName"
-                    label="Tên tệp tin"
-                    placeholder="Nhập tên tệp tin"
-                    type="text"
-                    required
-                  />
-
-                  {!editField && (
-                    <SingleFileUploader
-                      name="file"
-                      label="Tệp tin"
-                      subLabel="(Định dạng file .mp3, .m4a, .wav, .ogg)"
-                      file={initialValues?.file}
-                      onChange={(file, _, base64AudioFile) => {
-                        setFileSelected(file);
-                        setFileUrl(base64AudioFile);
-                      }}
+          {uploadProgress && !editField ? (
+            <div className="flex flex-col gap-2">
+              <div>
+                Hiện tại có tệp tin đang được tải, vui lòng thử lại sau!
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleCloseDialog}
+                className="self-end"
+              >
+                Hủy
+              </Button>
+            </div>
+          ) : (
+            <Formik
+              initialValues={initialValues}
+              enableReinitialize
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {formik => {
+                return (
+                  <Form onSubmit={formik.handleSubmit}>
+                    <Input
+                      name="displayName"
+                      label="Tên tệp tin"
+                      placeholder="Nhập tên tệp tin"
+                      type="text"
                       required
                     />
-                  )}
 
-                  {fileUrl && !formik?.errors?.file && (
-                    <div className="custom-audio-player">
-                      <AudioPlayer
-                        elevation={1}
-                        width="100%"
-                        variation="primary"
-                        debug={false}
-                        src={fileUrl}
+                    {!editField && (
+                      <SingleFileUploader
+                        name="file"
+                        label="Tệp tin"
+                        subLabel="(Định dạng file .mp3, .m4a, .wav, .ogg)"
+                        file={initialValues?.file}
+                        onChange={(file, _, base64AudioFile) => {
+                          setFileSelected(file);
+                          setFileUrl(base64AudioFile);
+                        }}
+                        required
                       />
-                    </div>
-                  )}
+                    )}
 
-                  <ButtonWrapper>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleCloseDialog}
-                    >
-                      Hủy
-                    </Button>
-                    <Button loading={loading} type="submit">
-                      Lưu
-                    </Button>
-                  </ButtonWrapper>
-                </Form>
-              );
-            }}
-          </Formik>
+                    {fileUrl && !formik?.errors?.file && (
+                      <div className="custom-audio-player">
+                        <AudioPlayer
+                          elevation={1}
+                          width="100%"
+                          variation="primary"
+                          debug={false}
+                          src={fileUrl}
+                        />
+                      </div>
+                    )}
+
+                    <ButtonWrapper>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleCloseDialog}
+                      >
+                        Hủy
+                      </Button>
+                      <Button loading={loading} type="submit">
+                        Lưu
+                      </Button>
+                    </ButtonWrapper>
+                  </Form>
+                );
+              }}
+            </Formik>
+          )}
         </UserDialogContainer>
       </Dialog>
     </>

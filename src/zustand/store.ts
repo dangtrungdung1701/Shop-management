@@ -7,6 +7,7 @@ import commonSlice from "./slice/commonSlice";
 import configSlice from "./slice/configSlice";
 import userSlice from "./slice/userSlice";
 import duplicateSlice from "./slice/duplicateSlice";
+import uploadSlice from "./slice/uploadSlice";
 
 const { persist, purge } = configurePersist({
   storage: localStorage, // use `AsyncStorage` in react native
@@ -19,6 +20,7 @@ const combinedStore = (set: any, get: any) => ({
   ...configSlice(set, get),
   ...userSlice(set, get),
   ...duplicateSlice(set, get),
+  ...uploadSlice(set, get),
 });
 
 const useStore = createStore(
