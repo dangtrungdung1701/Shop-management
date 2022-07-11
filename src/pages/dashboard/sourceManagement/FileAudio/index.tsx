@@ -32,7 +32,7 @@ const DELETE_DATA = "DELETE_DATA";
 interface IRegionProps extends RouteComponentProps {}
 
 const FileAudio: React.FC<IRegionProps> = ({ location }) => {
-  const { setCurrentUser, currentUser } = useStore();
+  const { setCurrentUser, currentUser, uploadProgress } = useStore();
 
   const [page, setPage] = usePage(getQueryFromLocation(location)?.page);
   const [sizePerPage, setSizePerPage] = useState<number>(10);

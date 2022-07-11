@@ -22,7 +22,7 @@ import {
 
 const AdminLayout: React.FC = props => {
   const { children } = props;
-  const { isExtendDrawer } = useStore();
+  const { isExtendDrawer, uploadProgress } = useStore();
   const { logout } = useAuth();
 
   useEffect(() => {
@@ -46,6 +46,23 @@ const AdminLayout: React.FC = props => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    let listener: EventListener;
+    if (uploadProgress) {
+      listener = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        const message =
+          "Tệp tin vẫn đang được tải lên, bạn có chắc chắn muốn thoát trang ?";
+        console.log(e);
+        return (e.returnValue = message);
+      };
+      window.addEventListener("beforeunload", listener);
+    }
+    return () => {
+      window.removeEventListener("beforeunload", listener);
+    };
+  }, [uploadProgress]);
 
   return (
     <DashboardContainer>
