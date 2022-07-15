@@ -538,7 +538,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
         const res = await axiosClient.put(`/Schedule/${params.id}`, input);
         if (res) {
           handleBack();
-          toast.dark("Chỉnh sửa lịch phát thành công !", {
+          toast.dark("Chỉnh sửa lịch phát thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -546,7 +546,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
         const res = await axiosClient.post("/Schedule", input);
         if (res) {
           handleBack();
-          toast.dark("Tạo mới lịch phát thành công !", {
+          toast.dark("Tạo mới lịch phát thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -555,7 +555,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       if (error?.response?.status === 409) {
         setListConflictedSchedule(error?.response?.data?.schedules);
         toast.dark(
-          "Thời gian lịch phát bị xung đột, vui lòng điều chỉnh lại thời gian phát !",
+          "Thời gian lịch phát bị xung đột, vui lòng điều chỉnh lại thời gian phát!",
           {
             type: toast.TYPE.ERROR,
           },

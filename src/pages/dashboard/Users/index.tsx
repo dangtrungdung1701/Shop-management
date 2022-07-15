@@ -192,14 +192,14 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
                   startLoading(DELETE_DATA);
                   const res = await axiosClient.delete(`/User/${record?.id}`);
                   if (res) {
-                    toast.dark("Xóa người dùng thành công !", {
+                    toast.dark("Xóa người dùng thành công!", {
                       type: toast.TYPE.SUCCESS,
                     });
                     getAllUserService();
                   }
                 } catch (error) {
                   console.log(error);
-                  toast.dark("Xóa người dùng không thành công !", {
+                  toast.dark("Xóa người dùng không thành công!", {
                     type: toast.TYPE.ERROR,
                   });
                 } finally {

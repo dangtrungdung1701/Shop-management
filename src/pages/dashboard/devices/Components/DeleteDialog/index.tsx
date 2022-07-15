@@ -81,14 +81,14 @@ const DeleteDialog: React.FC<IDialogProps> = ({
         onSuccess?.();
         setLoading(false);
         handleCloseDialog();
-        toast.dark("Xóa thiết bị thành công !", {
+        toast.dark("Xóa thiết bị thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
     } catch (err) {
       setLoading(false);
       handleCloseDialog();
-      toast.dark("Xóa thiết bị không thành công !", {
+      toast.dark("Xóa thiết bị không thành công!", {
         type: toast.TYPE.ERROR,
       });
     }

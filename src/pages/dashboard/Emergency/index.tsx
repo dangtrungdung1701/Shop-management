@@ -226,12 +226,12 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                   await axiosClient.put(
                     `/EmergencyProgram/${record?.id}/Cancel`,
                   );
-                  toast.dark("Hủy phát thành công !", {
+                  toast.dark("Hủy phát thành công!", {
                     type: toast.TYPE.SUCCESS,
                   });
                 } catch (error) {
                   console.log(error);
-                  toast.dark("Hủy phát không thành công !", {
+                  toast.dark("Hủy phát không thành công!", {
                     type: toast.TYPE.ERROR,
                   });
                 } finally {

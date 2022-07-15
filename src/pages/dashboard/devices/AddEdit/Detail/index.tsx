@@ -257,13 +257,13 @@ const Details: React.FC<IDetailsProps> = props => {
       };
       const res = await axiosClient.put(`/Device/${editField?.id}`, payload);
       if (res) {
-        toast.dark("Cập nhật thiết bị thành công !", {
+        toast.dark("Cập nhật thiết bị thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
     } catch (error) {
       console.log(error);
-      toast.dark("Cập nhật thiết bị không thành công !", {
+      toast.dark("Cập nhật thiết bị không thành công!", {
         type: toast.TYPE.ERROR,
       });
     } finally {

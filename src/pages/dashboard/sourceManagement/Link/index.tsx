@@ -125,14 +125,14 @@ const Link: React.FC<IRegionProps> = ({ location }) => {
                   `/AudioLinkSource/${record?.id}`,
                 );
                 if (res) {
-                  toast.dark("Xóa link tiếp sóng thành công !", {
+                  toast.dark("Xóa link tiếp sóng thành công!", {
                     type: toast.TYPE.SUCCESS,
                   });
                   getAllLinkService();
                 }
               } catch (error) {
                 console.log(error);
-                toast.dark("Xóa link tiếp sóng không thành công !", {
+                toast.dark("Xóa link tiếp sóng không thành công!", {
                   type: toast.TYPE.ERROR,
                 });
               } finally {

@@ -192,14 +192,14 @@ const Schedule: React.FC<IScheduleProps> = ({ location }) => {
                     `/Schedule/${record?.id}`,
                   );
                   if (res) {
-                    toast.dark("Xóa lịch phát thành công !", {
+                    toast.dark("Xóa lịch phát thành công!", {
                       type: toast.TYPE.SUCCESS,
                     });
                     getAllScheduleService();
                   }
                 } catch (error) {
                   console.log(error);
-                  toast.dark("Xóa lịch phát không thành công !", {
+                  toast.dark("Xóa lịch phát không thành công!", {
                     type: toast.TYPE.ERROR,
                   });
                 } finally {

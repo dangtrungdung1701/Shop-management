@@ -100,7 +100,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
         if (res) {
           onSuccess?.();
           handleCloseDialog();
-          toast.dark("Cập nhật link tiếp sóng thành công !", {
+          toast.dark("Cập nhật link tiếp sóng thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -116,7 +116,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
       if (res) {
         onSuccess?.();
         handleCloseDialog();
-        toast.dark("Tạo link tiếp sóng thành công !", {
+        toast.dark("Tạo link tiếp sóng thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
@@ -132,7 +132,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
-            toast.dark("Cập nhật link tiếp sóng không thành công !", {
+            toast.dark("Cập nhật link tiếp sóng không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;
@@ -148,7 +148,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
             );
             break;
           default:
-            toast.dark("Tạo link tiếp sóng không thành công !", {
+            toast.dark("Tạo link tiếp sóng không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;

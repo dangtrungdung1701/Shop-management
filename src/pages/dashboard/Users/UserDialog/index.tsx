@@ -296,7 +296,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
         if (res) {
           onSuccess?.();
           handleCloseDialog();
-          toast.dark("Cập nhật người dùng thành công !", {
+          toast.dark("Cập nhật người dùng thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -309,18 +309,18 @@ const NormalDialog: React.FC<IDialogProps> = ({
       if (res) {
         onSuccess?.();
         handleCloseDialog();
-        toast.dark("Tạo người dùng thành công !", {
+        toast.dark("Tạo người dùng thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
     } catch (err) {
       handleCloseDialog();
       if (editField) {
-        toast.dark("Cập nhật người dùng không thành công !", {
+        toast.dark("Cập nhật người dùng không thành công!", {
           type: toast.TYPE.ERROR,
         });
       } else {
-        toast.dark("Tạo người dùng không thành công !", {
+        toast.dark("Tạo người dùng không thành công!", {
           type: toast.TYPE.ERROR,
         });
       }

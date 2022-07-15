@@ -133,14 +133,14 @@ const FileAudio: React.FC<IRegionProps> = ({ location }) => {
                   `/AudioFileSource/${record?.id}`,
                 );
                 if (res) {
-                  toast.dark("Xóa tệp tin thành công !", {
+                  toast.dark("Xóa tệp tin thành công!", {
                     type: toast.TYPE.SUCCESS,
                   });
                   getAllFileAudioService();
                 }
               } catch (error) {
                 console.log(error);
-                toast.dark("Xóa tệp tin không thành công !", {
+                toast.dark("Xóa tệp tin không thành công!", {
                   type: toast.TYPE.ERROR,
                 });
               } finally {

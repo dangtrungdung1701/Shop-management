@@ -79,13 +79,13 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
         });
         onSuccess && onSuccess();
       } else {
-        toast.dark("Xảy ra lỗi khi cập nhật !", {
+        toast.dark("Xảy ra lỗi khi cập nhật!", {
           type: toast.TYPE.ERROR,
         });
       }
     } catch (err) {
       console.error(err);
-      toast.dark("Xảy ra lỗi khi cập nhật !", {
+      toast.dark("Xảy ra lỗi khi cập nhật!", {
         type: toast.TYPE.ERROR,
       });
     } finally {

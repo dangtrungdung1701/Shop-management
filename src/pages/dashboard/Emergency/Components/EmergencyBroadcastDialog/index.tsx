@@ -405,7 +405,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
       setLoading(true);
       const res = await axiosClient.post("/EmergencyProgram", input);
       if (res) {
-        toast.dark("Phát khẩn cấp thành công !", {
+        toast.dark("Phát khẩn cấp thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
@@ -420,7 +420,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
         setDuplicateDialog(true);
         setDuplicateList(err?.response.data.emergencyPrograms);
       } else {
-        toast.dark("Phát khẩn cấp không thành công !", {
+        toast.dark("Phát khẩn cấp không thành công!", {
           type: toast.TYPE.ERROR,
         });
       }

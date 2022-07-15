@@ -85,17 +85,17 @@ const UserDialog: React.FC<IUserDialogProps> = props => {
       );
 
       if (response) {
-        toast.dark("Cập nhật mật khẩu thành công !", {
+        toast.dark("Cập nhật mật khẩu thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       } else {
-        toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại !", {
+        toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại!", {
           type: toast.TYPE.ERROR,
         });
       }
     } catch (err) {
       console.error(err);
-      toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại !", {
+      toast.dark("Cập nhật mật khẩu không thành công, vui lòng thử lại!", {
         type: toast.TYPE.ERROR,
       });
     } finally {
