@@ -205,8 +205,8 @@ const Details: React.FC<IDetailsProps> = props => {
       name: yup.string().required("Vui lòng nhập tên hiển thị").trim(),
       class: yup.string().required("Vui lòng chọn phân cấp"),
       province: yup.string().required("Vui lòng chọn tỉnh/ thành phố"),
-      district: yup.string().required("Vui lòng chọn quận/ huyện/ thị xã"),
-      ward: yup.string().required("Vui lòng chọn phường/ xã/ thị trấn"),
+      district: yup.string().required("Vui lòng chọn quận/huyện/thị xã"),
+      ward: yup.string().required("Vui lòng chọn phường/xã/thị trấn"),
       endDay: yup
         .date()
         .when(
@@ -257,13 +257,13 @@ const Details: React.FC<IDetailsProps> = props => {
       };
       const res = await axiosClient.put(`/Device/${editField?.id}`, payload);
       if (res) {
-        toast.dark("Cập nhật thiết bị thành công !", {
+        toast.dark("Cập nhật thiết bị thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
     } catch (error) {
       console.log(error);
-      toast.dark("Cập nhật thiết bị không thành công !", {
+      toast.dark("Cập nhật thiết bị không thành công!", {
         type: toast.TYPE.ERROR,
       });
     } finally {
@@ -465,7 +465,7 @@ const Details: React.FC<IDetailsProps> = props => {
                   {selectedClass?.id === PROVINCE_ID && selectedProvince && (
                     <Select
                       name="province"
-                      label="Tên tỉnh/ thành phố"
+                      label="Tên tỉnh/thành phố"
                       optionSelected={selectedProvince}
                       options={provinceList}
                       onSelect={value => setSelectedProvince(value)}
@@ -480,7 +480,7 @@ const Details: React.FC<IDetailsProps> = props => {
                       {selectedProvince && (
                         <Select
                           name="province"
-                          label="Tên tỉnh/ thành phố"
+                          label="Tên tỉnh/thành phố"
                           optionSelected={selectedProvince}
                           options={provinceList}
                           onSelect={value => setSelectedProvince(value)}
@@ -492,11 +492,11 @@ const Details: React.FC<IDetailsProps> = props => {
                       )}
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => setSelectedDistrict(value)}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           currentUser?.userInfo?.region?.levelId > PROVINCE_ID
                             ? true
@@ -512,11 +512,11 @@ const Details: React.FC<IDetailsProps> = props => {
                       {selectedProvince && (
                         <Select
                           name="province"
-                          label="Tên tỉnh/ thành phố"
+                          label="Tên tỉnh/thành phố"
                           optionSelected={selectedProvince}
                           options={provinceList}
                           onSelect={value => setSelectedProvince(value)}
-                          placeholder="Chọn tỉnh/ thành phố"
+                          placeholder="Chọn tỉnh/thành phố"
                           required
                           optionTarget="displayName"
                           disabled
@@ -524,7 +524,7 @@ const Details: React.FC<IDetailsProps> = props => {
                       )}
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => {
@@ -532,7 +532,7 @@ const Details: React.FC<IDetailsProps> = props => {
                           setSelectedWard(null);
                           setSelectedDistrict(value);
                         }}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           currentUser?.userInfo?.region?.levelId > PROVINCE_ID
                             ? true
@@ -543,11 +543,11 @@ const Details: React.FC<IDetailsProps> = props => {
                       />
                       <Select
                         name="ward"
-                        label="Tên phường/ xã/ thị trấn"
+                        label="Tên phường/xã/thị trấn"
                         optionSelected={selectedWard}
                         options={wardList}
                         onSelect={value => setSelectedWard(value)}
-                        placeholder="Chọn phường/ xã/ thị trấn"
+                        placeholder="Chọn phường/xã/thị trấn"
                         disabled={
                           currentUser?.userInfo?.region?.levelId === WARD_ID
                             ? true

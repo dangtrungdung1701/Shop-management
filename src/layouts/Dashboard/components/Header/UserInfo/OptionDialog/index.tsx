@@ -67,7 +67,7 @@ const OptionDialog: React.FC<IOptionDialogProps> = props => {
     //   onSuccess?.();
     // } catch (err) {
     //   console.error(err);
-    //   toast.dark("Update fail !", {
+    //   toast.dark("Update fail!", {
     //     type: toast.TYPE.ERROR,
     //   });
     // } finally {

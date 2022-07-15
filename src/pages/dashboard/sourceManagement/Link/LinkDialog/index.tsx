@@ -76,12 +76,12 @@ const LinkDialog: React.FC<IDialogProps> = ({
   const validationSchema = yup
     .object()
     .shape<{ [key in keyof IFormValue]: any }>({
-      name: yup.string().required("Vui lòng nhập tên tệp tin").trim(),
+      name: yup.string().required("Vui lòng nhập tên link tiếp sóng!").trim(),
       url: yup
         .string()
-        .required("Vui lòng nhập đường dẫn!")
-        .trim("asdasd")
-        .matches(URL, "Đường dẫn chưa đúng định dạng, vui lòng thử lại!"),
+        .required("Vui lòng nhập link tiếp sóng!")
+        .trim()
+        .matches(URL, "Link tiếp sóng chưa đúng định dạng, vui lòng thử lại!"),
     });
 
   const handleSubmit = async (value: FormikValues) => {
@@ -100,7 +100,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
         if (res) {
           onSuccess?.();
           handleCloseDialog();
-          toast.dark("Cập nhật link tiếp sóng thành công !", {
+          toast.dark("Cập nhật link tiếp sóng thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -116,7 +116,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
       if (res) {
         onSuccess?.();
         handleCloseDialog();
-        toast.dark("Tạo link tiếp sóng thành công !", {
+        toast.dark("Tạo link tiếp sóng thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
@@ -125,14 +125,14 @@ const LinkDialog: React.FC<IDialogProps> = ({
         switch (err.response.status) {
           case 409:
             toast.dark(
-              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               {
                 type: toast.TYPE.ERROR,
               },
             );
             break;
           default:
-            toast.dark("Cập nhật link tiếp sóng không thành công !", {
+            toast.dark("Cập nhật link tiếp sóng không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;
@@ -141,14 +141,14 @@ const LinkDialog: React.FC<IDialogProps> = ({
         switch (err.response.status) {
           case 409:
             toast.dark(
-              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              "Tên hiển thị link tiếp sóng đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               {
                 type: toast.TYPE.ERROR,
               },
             );
             break;
           default:
-            toast.dark("Tạo link tiếp sóng không thành công !", {
+            toast.dark("Tạo link tiếp sóng không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;
@@ -194,8 +194,8 @@ const LinkDialog: React.FC<IDialogProps> = ({
 
                   <Input
                     name="url"
-                    label="Đường dẫn link tiếp sóng"
-                    placeholder="Nhập đường dẫn link tiếp sóng"
+                    label="Link tiếp sóng"
+                    placeholder="Nhập link tiếp sóng"
                     type="text"
                     required
                     onChangeValue={value => {

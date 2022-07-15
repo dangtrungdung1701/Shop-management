@@ -20,21 +20,21 @@ export const devicesRoute: IRoutes = {
   Icon: <DeviceIcon />,
   children: [
     {
-      name: "Cấp Tỉnh/TP",
+      name: "Cấp Tỉnh/Thành phố",
       path: PATH.DEVICE.PROVINCE,
       exact: true,
       Component: Province,
       isPrivate: true,
     },
     {
-      name: "Cấp Quận/Huyện/Thị Xã",
+      name: "Cấp Quận/Huyện/Thị xã",
       path: PATH.DEVICE.DISTRICT,
       exact: true,
       Component: District,
       isPrivate: true,
     },
     {
-      name: "Cấp Phường/Xã/Thị Trấn",
+      name: "Cấp Phường/Xã/Thị trấn",
       path: PATH.DEVICE.WARD,
       exact: true,
       Component: Ward,

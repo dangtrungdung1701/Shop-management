@@ -82,7 +82,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       href: "#",
     },
     {
-      name: "Cấp Phường/Xã/Thị Trấn",
+      name: "Cấp Phường/Xã/Thị trấn",
       href: PATH.DEVICE.WARD,
     },
   ]);
@@ -354,7 +354,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Thiết bị cấp Phường/Xã/Thị Trấn"
+      title="Thiết bị cấp Phường/Xã/Thị trấn"
       buttonMenu={
         <div className="flex flex-row items-end w-full gap-2 phone:flex-col tablet:flex-row phone:w-auto">
           <CSVLink
@@ -392,7 +392,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
               setDistrictSelected(value);
               setPage(1);
             }}
-            placeholder="Quận/Huyện/Thị Xã"
+            placeholder="Quận/Huyện/Thị xã"
             className="w-full phone:max-w-35"
             optionTarget="displayName"
           />
@@ -406,7 +406,7 @@ const WardDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
               setWardSelected(value);
               setPage(1);
             }}
-            placeholder="Phường/Xã/Thị Trấn"
+            placeholder="Phường/Xã/Thị trấn"
             disabled={
               currentUser?.userInfo?.region?.levelId === PROVINCE_ID
                 ? districtSelected

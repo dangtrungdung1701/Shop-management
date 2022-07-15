@@ -54,14 +54,14 @@ const VolumeDialog: React.FC<IDialogProps> = ({
         onSuccess?.();
         setLoading(false);
         handleCloseDialog();
-        toast.dark("Cập nhật âm lượng thành công !", {
+        toast.dark("Cập nhật âm lượng thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
     } catch (err) {
       setLoading(false);
       handleCloseDialog();
-      toast.dark("Cập nhật âm lượng không thành công !", {
+      toast.dark("Cập nhật âm lượng không thành công!", {
         type: toast.TYPE.ERROR,
       });
     }

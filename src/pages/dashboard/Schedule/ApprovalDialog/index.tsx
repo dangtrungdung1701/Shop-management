@@ -124,11 +124,11 @@ const ApprovalDialog: React.FC<IDialogProps> = ({
         setLoading(false);
         handleCloseDialog();
         if (approvalType === APPROVED_STATUS) {
-          toast.dark("Phê duyệt lịch phát thành công !", {
+          toast.dark("Phê duyệt lịch phát thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         } else {
-          toast.dark("Từ chối lịch phát thành công !", {
+          toast.dark("Từ chối lịch phát thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -137,11 +137,11 @@ const ApprovalDialog: React.FC<IDialogProps> = ({
       setLoading(false);
       handleCloseDialog();
       if (approvalType === APPROVED_STATUS) {
-        toast.dark("Phê duyệt lịch phát không thành công !", {
+        toast.dark("Phê duyệt lịch phát không thành công!", {
           type: toast.TYPE.ERROR,
         });
       } else {
-        toast.dark("Từ chối lịch phát không thành công !", {
+        toast.dark("Từ chối lịch phát không thành công!", {
           type: toast.TYPE.ERROR,
         });
       }

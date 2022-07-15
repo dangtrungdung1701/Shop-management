@@ -251,7 +251,7 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                   {selectedLevel?.id === PROVINCE_ID && (
                     <Select
                       name="province"
-                      label="Tên tỉnh/ thành phố"
+                      label="Tên tỉnh/thành phố"
                       optionSelected={selectedProvince}
                       options={provinceList}
                       placeholder="Chọn tỉnh/thành phố"
@@ -266,7 +266,7 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
                         placeholder="Chọn tỉnh/thành phố"
@@ -278,10 +278,10 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled
                         optionTarget="displayName"
                         onSelect={value => {
@@ -294,10 +294,10 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
-                        placeholder="Chọn tỉnh/ thành phố"
+                        placeholder="Chọn tỉnh/thành phố"
                         optionTarget="displayName"
                         disabled
                         onSelect={value => {
@@ -306,10 +306,10 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled
                         optionTarget="displayName"
                         onSelect={value => {
@@ -318,10 +318,10 @@ const Info: React.FC<IInfoProps> = ({ editField, type }) => {
                       />
                       <Select
                         name="ward"
-                        label="Tên phường/ xã/ thị trấn"
+                        label="Tên phường/xã/thị trấn"
                         optionSelected={selectedWard}
                         options={wardList}
-                        placeholder="Chọn phường/ xã/ thị trấn"
+                        placeholder="Chọn phường/xã/thị trấn"
                         optionTarget="displayName"
                         disabled
                         onSelect={value => {

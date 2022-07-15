@@ -137,7 +137,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
         if (res) {
           onSuccess?.();
           handleCloseDialog();
-          toast.dark("Cập nhật kênh FM thành công !", {
+          toast.dark("Cập nhật kênh FM thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -156,7 +156,7 @@ const LinkDialog: React.FC<IDialogProps> = ({
       if (res) {
         onSuccess?.();
         handleCloseDialog();
-        toast.dark("Tạo kênh FM thành công !", {
+        toast.dark("Tạo kênh FM thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
@@ -165,14 +165,14 @@ const LinkDialog: React.FC<IDialogProps> = ({
         switch (err.response.status) {
           case 409:
             toast.dark(
-              "Tên hiển thị kênh FM đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              "Tên hiển thị kênh FM đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               {
                 type: toast.TYPE.ERROR,
               },
             );
             break;
           default:
-            toast.dark("Cập nhật kênh FM không thành công !", {
+            toast.dark("Cập nhật kênh FM không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;
@@ -181,14 +181,14 @@ const LinkDialog: React.FC<IDialogProps> = ({
         switch (err.response.status) {
           case 409:
             toast.dark(
-              "Tên hiển thị kênh FM đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              "Tên hiển thị kênh FM đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               {
                 type: toast.TYPE.ERROR,
               },
             );
             break;
           default:
-            toast.dark("Tạo kênh FM không thành công !", {
+            toast.dark("Tạo kênh FM không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;

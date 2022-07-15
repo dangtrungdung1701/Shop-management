@@ -125,14 +125,14 @@ const FM: React.FC<IRegionProps> = ({ location }) => {
                   `/AudioFmSource/${record?.id}`,
                 );
                 if (res) {
-                  toast.dark("Xóa kênh FM thành công !", {
+                  toast.dark("Xóa kênh FM thành công!", {
                     type: toast.TYPE.SUCCESS,
                   });
                   getAllFMService();
                 }
               } catch (error) {
                 console.log(error);
-                toast.dark("Xóa kênh FM không thành công !", {
+                toast.dark("Xóa kênh FM không thành công!", {
                   type: toast.TYPE.ERROR,
                 });
               } finally {

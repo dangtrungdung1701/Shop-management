@@ -22,7 +22,7 @@ const useLogin = () => {
         data.userInfo.region.levelId === 1 ||
         data.userInfo.region.levelId === 0
       ) {
-        setError("Tài khoản không có quyền truy cập vào hệ thống !");
+        setError("Tài khoản không có quyền truy cập vào hệ thống!");
         return;
       }
       setCurrentUser(data);
@@ -35,7 +35,7 @@ const useLogin = () => {
       });
       redirect(PATH.DASHBOARD);
     } else {
-      setError("Sai tài khoản hoặc mật khẩu !");
+      setError("Sai tài khoản hoặc mật khẩu!");
     }
   };
   return { error, setError, login };

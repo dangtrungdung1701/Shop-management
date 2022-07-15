@@ -100,7 +100,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       formData.append("RegionId", currentUser?.userInfo?.region?.id);
       formData.append("DisplayName", value?.displayName);
     }
-    const uploadToast = toast.loading("Đang upload tệp tin !", {
+    const uploadToast = toast.loading("Đang upload tệp tin!", {
       type: toast.TYPE.WARNING,
       theme: "dark",
     });
@@ -116,7 +116,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         );
         if (res) {
           onSuccess?.();
-          toast.dark("Cập nhật tệp tin thành công !", {
+          toast.dark("Cập nhật tệp tin thành công!", {
             type: toast.TYPE.SUCCESS,
           });
         }
@@ -130,7 +130,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       if (res) {
         setActionSuccess();
         toast.update(uploadToast, {
-          render: "Tạo tệp tin thành công !",
+          render: "Tạo tệp tin thành công!",
           type: toast.TYPE.SUCCESS,
           theme: "dark",
           isLoading: false,
@@ -143,14 +143,14 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         switch (err.response.status) {
           case 409:
             toast.dark(
-              "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+              "Tên hiển thị tệp tin đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               {
                 type: toast.TYPE.ERROR,
               },
             );
             break;
           default:
-            toast.dark("Cập nhật tệp tin không thành công !", {
+            toast.dark("Cập nhật tệp tin không thành công!", {
               type: toast.TYPE.ERROR,
             });
             break;
@@ -160,7 +160,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
           case 409:
             toast.update(uploadToast, {
               render:
-                "Tên hiển thị tệp tin đã tồn tại trong khu vực này ! Vui lòng thay đổi tên hiển thị",
+                "Tên hiển thị tệp tin đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
               type: toast.TYPE.ERROR,
               theme: "dark",
               isLoading: false,
@@ -170,7 +170,7 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
             break;
           default:
             toast.update(uploadToast, {
-              render: "Tạo tệp tin không thành công !",
+              render: "Tạo tệp tin không thành công!",
               type: toast.TYPE.ERROR,
               theme: "dark",
               isLoading: false,

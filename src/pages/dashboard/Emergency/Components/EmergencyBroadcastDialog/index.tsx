@@ -405,7 +405,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
       setLoading(true);
       const res = await axiosClient.post("/EmergencyProgram", input);
       if (res) {
-        toast.dark("Phát khẩn cấp thành công !", {
+        toast.dark("Phát khẩn cấp thành công!", {
           type: toast.TYPE.SUCCESS,
         });
       }
@@ -420,7 +420,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
         setDuplicateDialog(true);
         setDuplicateList(err?.response.data.emergencyPrograms);
       } else {
-        toast.dark("Phát khẩn cấp không thành công !", {
+        toast.dark("Phát khẩn cấp không thành công!", {
           type: toast.TYPE.ERROR,
         });
       }
@@ -526,7 +526,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                   {selectedLevel?.id === PROVINCE_ID && (
                     <Select
                       name="province"
-                      label="Tên tỉnh/ thành phố"
+                      label="Tên tỉnh/thành phố"
                       optionSelected={selectedProvince}
                       options={provinceList}
                       onSelect={value => setSelectedProvince(value)}
@@ -540,7 +540,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
                         onSelect={value => {
@@ -555,13 +555,13 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => {
                           setSelectedDistrict(value);
                         }}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           currentUser?.userInfo?.region?.districtId === -1
                             ? false
@@ -576,7 +576,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
                         onSelect={value => {
@@ -585,14 +585,14 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                           setSelectedWard(null);
                           setSelectedProvince(value);
                         }}
-                        placeholder="Chọn tỉnh/ thành phố"
+                        placeholder="Chọn tỉnh/thành phố"
                         required
                         optionTarget="displayName"
                         disabled
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => {
@@ -600,7 +600,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                           setSelectedWard(null);
                           setSelectedDistrict(value);
                         }}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           currentUser?.userInfo?.region?.districtId === -1
                             ? false
@@ -611,11 +611,11 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                       />
                       <Select
                         name="ward"
-                        label="Tên phường/ xã/ thị trấn"
+                        label="Tên phường/xã/thị trấn"
                         optionSelected={selectedWard}
                         options={wardList}
                         onSelect={value => setSelectedWard(value)}
-                        placeholder="Chọn phường/ xã/ thị trấn"
+                        placeholder="Chọn phường/xã/thị trấn"
                         disabled={(() => {
                           if (currentUser?.userInfo?.region?.wardId !== -1) {
                             return true;
