@@ -151,7 +151,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
 
   useBreadcrumb([
     {
-      name: "Quản lý phát khẩn cấp",
+      name: "Quản lý khẩn cấp",
       href: "#",
     },
     {

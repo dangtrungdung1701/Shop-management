@@ -26,7 +26,7 @@ export const emergencyRoute: IRoutes = {
 };
 
 export const detailEmergencyRoute: IRoutes = {
-  name: "Chi tiết khẩn cấp",
+  name: "Chi tiết chương trình",
   path: PATH.EMERGENCY.DETAIL,
   exact: true,
   Component: ConfiguredEmergencyProgram,
