@@ -88,12 +88,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
 
   useBreadcrumb([
     {
-      name: "Khẩn cấp",
-    },
-
-    {
-      name: "Danh sách khẩn cấp",
-
+      name: "Quản lý khẩn cấp",
       href: PATH.EMERGENCY.SELF,
     },
   ]);
@@ -301,9 +296,9 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
   return (
     <>
       <TableLayout
-        title="Danh sách khẩn cấp"
+        title="Quản lý khẩn cấp"
         buttonMenu={
-          <div className="flex flex-row gap-2 w-full phone:w-auto">
+          <div className="flex flex-row w-full gap-2 phone:w-auto">
             <Link
               to={PATH.EMERGENCY.EMERGENCY_BROADCAST}
               className="w-full phone:w-auto"
@@ -332,7 +327,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                   <SearchBoxTable
                     onFetchData={handleFetchData}
                     placeholder="Tìm kiếm theo tên chương trình"
-                    className="w-full phone:w-35 mb-2"
+                    className="w-full mb-2 phone:w-35"
                   />
                   <SimpleSelect
                     options={optionSource}
@@ -367,7 +362,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                     minimumDate={new Date(formik.values.startDay || "")}
                   />
                 </div>
-                <div className="w-full flex flex-col gap-1">
+                <div className="flex flex-col w-full gap-1">
                   {currentUser?.userInfo?.region?.levelId === 2 && (
                     <>
                       <SimpleSelect
