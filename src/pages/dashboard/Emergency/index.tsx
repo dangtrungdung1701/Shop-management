@@ -381,7 +381,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                           setDistrictSelected(value);
                           setPage(1);
                         }}
-                        placeholder="Quận/Huyện/Thị Xã"
+                        placeholder="Quận/Huyện/Thị xã"
                         className="w-full phone:max-w-35"
                         optionTarget="displayName"
                       />
@@ -392,7 +392,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                           setWardSelected(value);
                           setPage(1);
                         }}
-                        placeholder="Phường/Xã/Thị Trấn"
+                        placeholder="Phường/Xã/Thị trấn"
                         disabled={districtSelected ? false : true}
                         className="w-full phone:max-w-35"
                         optionTarget="displayName"
@@ -407,7 +407,7 @@ const EmergencyConfigured: React.FC<IEmergencyProps> = ({ location }) => {
                         setWardSelected(value);
                         setPage(1);
                       }}
-                      placeholder="Phường/Xã/Thị Trấn"
+                      placeholder="Phường/Xã/Thị trấn"
                       className="w-full phone:max-w-35"
                       optionTarget="displayName"
                     />

@@ -250,10 +250,10 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
               return <div>Cấp Tỉnh/Thành phố</div>;
               break;
             case 3:
-              return <div>Cấp Quận/Huyện/Thị Xã</div>;
+              return <div>Cấp Quận/Huyện/Thị xã</div>;
               break;
             case 4:
-              return <div>Cấp Phường/Xã/Thị Trấn</div>;
+              return <div>Cấp Phường/Xã/Thị trấn</div>;
               break;
             default:
               return <></>;
@@ -315,7 +315,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
                 setDistrictSelected(value);
                 setPage(1);
               }}
-              placeholder="Quận/Huyện/Thị Xã"
+              placeholder="Quận/Huyện/Thị xã"
               className="w-full phone:max-w-35"
               optionTarget="displayName"
             />
@@ -326,7 +326,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
                 setWardSelected(value);
                 setPage(1);
               }}
-              placeholder="Phường/Xã/Thị Trấn"
+              placeholder="Phường/Xã/Thị trấn"
               disabled={districtSelected ? false : true}
               className="w-full phone:max-w-35"
               optionTarget="displayName"
@@ -341,7 +341,7 @@ const NormalUsers: React.FC<IAdminProps> = ({ location }) => {
               setWardSelected(value);
               setPage(1);
             }}
-            placeholder="Phường/Xã/Thị Trấn"
+            placeholder="Phường/Xã/Thị trấn"
             className="w-full phone:max-w-35"
             optionTarget="displayName"
           />

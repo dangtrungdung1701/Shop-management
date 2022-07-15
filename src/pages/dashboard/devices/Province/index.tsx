@@ -72,7 +72,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       href: "#",
     },
     {
-      name: "Cấp Tỉnh/TP",
+      name: "Cấp Tỉnh/Thành phố",
       href: PATH.DEVICE.PROVINCE,
     },
   ]);
@@ -296,7 +296,7 @@ const ProvinceDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Thiết bị cấp Tỉnh/TP"
+      title="Thiết bị cấp Tỉnh/Thành phố"
       buttonMenu={
         currentUser?.userInfo?.region?.levelId === PROVINCE_ID && (
           <div className="flex flex-row items-end w-full gap-2 phone:flex-col tablet:flex-row phone:w-auto">

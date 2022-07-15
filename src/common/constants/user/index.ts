@@ -10,11 +10,11 @@ export const CLASS_LIST: ILevelOption[] = [
   },
   {
     id: 3,
-    displayName: "Quận/Huyện/Thị Xã",
+    displayName: "Quận/Huyện/Thị xã",
   },
   {
     id: 4,
-    displayName: "Phường/Xã/Thị Trấn",
+    displayName: "Phường/Xã/Thị trấn",
   },
 ];
 
@@ -25,25 +25,25 @@ export const CLASS_LIST_OF_PROVINCE: ILevelOption[] = [
   },
   {
     id: 3,
-    displayName: "Quận/Huyện/Thị Xã",
+    displayName: "Quận/Huyện/Thị xã",
   },
 ];
 
 export const CLASS_LIST_OF_DISTRICT: ILevelOption[] = [
   {
     id: 3,
-    displayName: "Quận/Huyện/Thị Xã",
+    displayName: "Quận/Huyện/Thị xã",
   },
   {
     id: 4,
-    displayName: "Phường/Xã/Thị Trấn",
+    displayName: "Phường/Xã/Thị trấn",
   },
 ];
 
 export const CLASS_LIST_OF_WARD: ILevelOption[] = [
   {
     id: 4,
-    displayName: "Phường/Xã/Thị Trấn",
+    displayName: "Phường/Xã/Thị trấn",
   },
 ];
 

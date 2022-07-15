@@ -673,7 +673,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                   {selectedLevel?.id === 2 && (
                     <Select
                       name="province"
-                      label="Tên tỉnh/ thành phố"
+                      label="Tên tỉnh/thành phố"
                       optionSelected={selectedProvince}
                       options={provinceList}
                       onSelect={value => setSelectedProvince(value)}
@@ -687,7 +687,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
                         onSelect={value => {
@@ -702,13 +702,13 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => {
                           setSelectedDistrict(value);
                         }}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           disable ||
                           currentUser?.userInfo?.region?.districtId === -1
@@ -724,7 +724,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     <>
                       <Select
                         name="province"
-                        label="Tên tỉnh/ thành phố"
+                        label="Tên tỉnh/thành phố"
                         optionSelected={selectedProvince}
                         options={provinceList}
                         onSelect={value => {
@@ -733,14 +733,14 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                           setSelectedWard(null);
                           setSelectedProvince(value);
                         }}
-                        placeholder="Chọn tỉnh/ thành phố"
+                        placeholder="Chọn tỉnh/thành phố"
                         required
                         optionTarget="displayName"
                         disabled
                       />
                       <Select
                         name="district"
-                        label="Tên quận/ huyện/ thị xã"
+                        label="Tên quận/huyện/thị xã"
                         optionSelected={selectedDistrict}
                         options={districtList}
                         onSelect={value => {
@@ -748,7 +748,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                           setSelectedWard(null);
                           setSelectedDistrict(value);
                         }}
-                        placeholder="Chọn quận/ huyện/ thị xã"
+                        placeholder="Chọn quận/huyện/thị xã"
                         disabled={
                           disable ||
                           currentUser?.userInfo?.region?.districtId === -1
@@ -760,11 +760,11 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       />
                       <Select
                         name="ward"
-                        label="Tên phường/ xã/ thị trấn"
+                        label="Tên phường/xã/thị trấn"
                         optionSelected={selectedWard}
                         options={wardList}
                         onSelect={value => setSelectedWard(value)}
-                        placeholder="Chọn phường/ xã/ thị trấn"
+                        placeholder="Chọn phường/xã/thị trấn"
                         disabled={(() => {
                           if (disable) {
                             return true;

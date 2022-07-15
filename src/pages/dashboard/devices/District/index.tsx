@@ -79,7 +79,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
       href: "#",
     },
     {
-      name: "Cấp Quận/Huyện/Thị Xã",
+      name: "Cấp Quận/Huyện/Thị xã",
       href: PATH.DEVICE.DISTRICT,
     },
   ]);
@@ -331,7 +331,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
 
   return (
     <TableLayout
-      title="Thiết bị cấp Quận/Huyện/Thị Xã"
+      title="Thiết bị cấp Quận/Huyện/Thị xã"
       buttonMenu={
         currentUser?.userInfo?.region?.levelId <= DISTRICT_ID && (
           <div className="flex flex-row items-end w-full gap-2 phone:flex-col tablet:flex-row phone:w-auto">
@@ -369,7 +369,7 @@ const DistrictDevice: React.FC<IRegionDeviceProps> = ({ location }) => {
                   setDistrictSelected(value);
                   setPage(1);
                 }}
-                placeholder="Quận/Huyện/Thị Xã"
+                placeholder="Quận/Huyện/Thị xã"
                 className="w-full phone:max-w-35"
                 optionTarget="displayName"
               />

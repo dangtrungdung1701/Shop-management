@@ -226,8 +226,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
             "Mật khẩu phải trùng với mật khẩu đã nhập",
           ),
         province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
-        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị Xã"),
-        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị Trấn"),
+        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị xã"),
+        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị trấn"),
         permission: yup.string().required("Vui lòng chọn quyền hạn"),
         level: yup.string().required("Vui lòng chọn phân cấp"),
       });
@@ -257,8 +257,8 @@ const NormalDialog: React.FC<IDialogProps> = ({
             ),
         }),
         province: yup.string().required("Vui lòng chọn Tỉnh/Thành phố"),
-        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị Xã"),
-        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị Trấn"),
+        district: yup.string().required("Vui lòng chọn Quận/Huyện/Thị xã"),
+        ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị trấn"),
         permission: yup.string().required("Vui lòng chọn quyền hạn"),
         level: yup.string().required("Vui lòng chọn phân cấp"),
       });
@@ -466,7 +466,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                       {selectedLevel?.id === PROVINCE_ID && (
                         <Select
                           name="province"
-                          label="Tên tỉnh/ thành phố"
+                          label="Tên tỉnh/thành phố"
                           optionSelected={selectedProvince}
                           options={provinceList}
                           onSelect={value => setSelectedProvince(value)}
@@ -480,7 +480,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         <>
                           <Select
                             name="province"
-                            label="Tên tỉnh/ thành phố"
+                            label="Tên tỉnh/thành phố"
                             optionSelected={selectedProvince}
                             options={provinceList}
                             onSelect={value => {
@@ -495,13 +495,13 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           />
                           <Select
                             name="district"
-                            label="Tên quận/ huyện/ thị xã"
+                            label="Tên quận/huyện/thị xã"
                             optionSelected={selectedDistrict}
                             options={districtList}
                             onSelect={value => {
                               setSelectedDistrict(value);
                             }}
-                            placeholder="Chọn quận/ huyện/ thị xã"
+                            placeholder="Chọn quận/huyện/thị xã"
                             disabled={
                               currentUser?.userInfo?.region?.districtId ===
                               INVALID_LOCATION_ID
@@ -517,7 +517,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                         <>
                           <Select
                             name="province"
-                            label="Tên tỉnh/ thành phố"
+                            label="Tên tỉnh/thành phố"
                             optionSelected={selectedProvince}
                             options={provinceList}
                             onSelect={value => {
@@ -526,14 +526,14 @@ const NormalDialog: React.FC<IDialogProps> = ({
                               setSelectedWard(null);
                               setSelectedProvince(value);
                             }}
-                            placeholder="Chọn tỉnh/ thành phố"
+                            placeholder="Chọn tỉnh/thành phố"
                             required
                             optionTarget="displayName"
                             disabled
                           />
                           <Select
                             name="district"
-                            label="Tên quận/ huyện/ thị xã"
+                            label="Tên quận/huyện/thị xã"
                             optionSelected={selectedDistrict}
                             options={districtList}
                             onSelect={value => {
@@ -541,7 +541,7 @@ const NormalDialog: React.FC<IDialogProps> = ({
                               setSelectedWard(null);
                               setSelectedDistrict(value);
                             }}
-                            placeholder="Chọn quận/ huyện/ thị xã"
+                            placeholder="Chọn quận/huyện/thị xã"
                             disabled={
                               currentUser?.userInfo?.region?.districtId ===
                               INVALID_LOCATION_ID
@@ -553,11 +553,11 @@ const NormalDialog: React.FC<IDialogProps> = ({
                           />
                           <Select
                             name="ward"
-                            label="Tên phường/ xã/ thị trấn"
+                            label="Tên phường/xã/thị trấn"
                             optionSelected={selectedWard}
                             options={wardList}
                             onSelect={value => setSelectedWard(value)}
-                            placeholder="Chọn phường/ xã/ thị trấn"
+                            placeholder="Chọn phường/xã/thị trấn"
                             disabled={(() => {
                               if (
                                 currentUser?.userInfo?.region?.wardId !==
