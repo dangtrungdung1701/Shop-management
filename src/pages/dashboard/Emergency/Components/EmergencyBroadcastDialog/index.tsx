@@ -696,7 +696,7 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                     />
                   )}
 
-                  {sourceSelected && (
+                  {sourceSelected?.id === FILE_SOURCE_ID && (
                     <Input
                       name="repeatTime"
                       label="Số lần lặp lại tệp tin"
