@@ -60,9 +60,9 @@ const DatePicker: React.FC<IInput> = props => {
 
   useEffect(() => {
     if (dateData) {
-      setFieldValue(name, String(dateData));
+      setDate(new Date(dateData));
     } else {
-      setDate(dateData);
+      setDate(null);
       setFieldValue(name, "");
     }
   }, [dateData]);
