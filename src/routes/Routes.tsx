@@ -36,12 +36,12 @@ const dashboardRoutes: IRoutes[] = [
   devicesRoute,
   sourceManagementRoute,
   scheduleRoute,
-  usersRoute,
   createScheduleRoute,
   editScheduleRoute,
   emergencyRoute,
   detailEmergencyRoute,
   emergencyBroadcastRoute,
+  usersRoute,
 ];
 
 const otherRoutes: IRoutes[] = [
