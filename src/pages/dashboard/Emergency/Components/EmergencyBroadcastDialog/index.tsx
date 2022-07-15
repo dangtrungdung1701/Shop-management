@@ -725,9 +725,12 @@ const EmergencyBroadcastDialog: React.FC<IConfigureScheduleProps> = ({
                   />
                   <DatePicker
                     minimumDate={new Date(formik.values.startDay || "")}
+                    dateData={
+                      sourceSelected?.id === FILE_SOURCE_ID ? timeEnd : null
+                    }
                     label="Ngày kết thúc"
                     name="endDay"
-                    disabled={formik.values.startDay ? false : true}
+                    disabled={sourceSelected?.id === FILE_SOURCE_ID}
                     required
                   />
 

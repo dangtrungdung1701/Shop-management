@@ -27,7 +27,7 @@ interface IInput
   placeholder?: string;
   maximumDate?: Date;
   minimumDate?: Date;
-  dateData?: Date;
+  dateData?: Date | null;
   onDateChange?: (newDate: Date) => void;
   autoComplete?: "on" | "off";
   required?: boolean;
