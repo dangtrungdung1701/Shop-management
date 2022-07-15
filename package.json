@@ -34,7 +34,7 @@
     "@tailwindcss/postcss7-compat": "^2.2.14",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
-    "@testing-library/user-event": "^14.2.1",
+    "@testing-library/user-event": "^14.2.5",
     "autoprefixer": "^9",
     "awesome-debounce-promise": "^2.1.0",
     "axios": "^0.21.1",
