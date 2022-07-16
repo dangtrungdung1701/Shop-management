@@ -860,17 +860,14 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     />
                   )}
 
-                  {sourceSelected && (
+                  {sourceSelected?.id === FILE_SOURCE_ID && (
                     <Input
                       name="repeatTime"
                       label="Số lần lặp lại tệp tin"
                       placeholder="Nhập số lần lặp (tệp tin)"
                       type="number"
                       required
-                      disabled={
-                        disable ||
-                        (sourceSelected?.id === FILE_SOURCE_ID ? false : true)
-                      }
+                      disabled={disable}
                     />
                   )}
                 </FormLeftWrapper>
