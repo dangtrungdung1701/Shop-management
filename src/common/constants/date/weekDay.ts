@@ -5,6 +5,10 @@ export interface IDay {
 
 export const optionWeek: IDay[] = [
   {
+    id: 0,
+    displayName: "Chủ nhật",
+  },
+  {
     id: 1,
     displayName: "Thứ 2",
   },
@@ -27,9 +31,5 @@ export const optionWeek: IDay[] = [
   {
     id: 6,
     displayName: "Thứ 7",
-  },
-  {
-    id: 7,
-    displayName: "Chủ nhật",
-  },
+  }
 ];
