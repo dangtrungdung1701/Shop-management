@@ -100,12 +100,10 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
       formData.append("RegionId", currentUser?.userInfo?.region?.id);
       formData.append("DisplayName", value?.displayName);
     }
-    const uploadToast = toast.loading("Đang upload tệp tin!", {
-      type: toast.TYPE.WARNING,
-      theme: "dark",
-    });
     try {
       setLoading(true);
+
+      // Update
       if (editField) {
         const payload = {
           displayName: value?.displayName,
@@ -122,8 +120,14 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         }
         return;
       }
+
+      // Create
       setOpen(false);
       setUploadProgress(true);
+      const uploadToast = toast.loading("Đang upload tệp tin!", {
+        type: toast.TYPE.WARNING,
+        theme: "dark",
+      });
 
       const res = await axiosClient.post("/AudioFileSource", formData);
 
@@ -139,46 +143,34 @@ const FileAudioDialog: React.FC<IDialogProps> = ({
         });
       }
     } catch (err: any) {
-      if (editField) {
-        switch (err.response.status) {
-          case 409:
-            toast.dark(
-              "Tên hiển thị tệp tin đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
-              {
-                type: toast.TYPE.ERROR,
-              },
-            );
-            break;
-          default:
-            toast.dark("Cập nhật tệp tin không thành công!", {
+      // remove toast
+      toast.dismiss();
+      switch (err.response.status) {
+        case 400:
+          toast.dark("Định dạng tệp tin không hỗ trợ!", {
+            type: toast.TYPE.ERROR,
+          });
+          break;
+        case 409:
+          toast.dark("Tên hiển thị tệp tin đã tồn tại trong khu vực này!", {
+            type: toast.TYPE.ERROR,
+          });
+          break;
+        case 413:
+          toast.dark("Kích thước tệp tin quá lớn!", {
+            type: toast.TYPE.ERROR,
+          });
+          break;
+        default:
+          toast.dark(
+            editField
+              ? "Cập nhật tệp tin không thành công!"
+              : "Tạo tệp tin không thành công!",
+            {
               type: toast.TYPE.ERROR,
-            });
-            break;
-        }
-      } else {
-        switch (err.response.status) {
-          case 409:
-            toast.update(uploadToast, {
-              render:
-                "Tên hiển thị tệp tin đã tồn tại trong khu vực này! Vui lòng thay đổi tên hiển thị!",
-              type: toast.TYPE.ERROR,
-              theme: "dark",
-              isLoading: false,
-              autoClose: 3000,
-              closeOnClick: true,
-            });
-            break;
-          default:
-            toast.update(uploadToast, {
-              render: "Tạo tệp tin không thành công!",
-              type: toast.TYPE.ERROR,
-              theme: "dark",
-              isLoading: false,
-              autoClose: 3000,
-              closeOnClick: true,
-            });
-            break;
-        }
+            },
+          );
+          break;
       }
     } finally {
       handleCloseDialog();
