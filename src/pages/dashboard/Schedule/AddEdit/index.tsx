@@ -834,12 +834,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       setSourceSelected(value);
                       setFileSelected(null);
                       if (value?.id === FILE_SOURCE_ID) {
-                        params?.id
-                          ? formik?.setFieldValue("repeatTime", 0)
-                          : formik?.setFieldValue("repeatTime", undefined);
-                        return;
-                      }
+                        formik?.setFieldValue("repeatTime", "");
+                      } else {
                       formik?.setFieldValue("repeatTime", 1);
+                      }
                     }}
                     placeholder="Chọn nguồn phát"
                     required
