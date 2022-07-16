@@ -196,7 +196,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị trấn"),
       devices: yup.string().required("Vui lòng chọn thiết bị phát"),
       sources: yup.string().required("Vui lòng chọn nguồn phát"),
-      file: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
+      file: yup.string().when("source", {
+        is: () => sourceSelected?.id !== MIC_SOURCE_ID,
+        then: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
+      }),
       startDay: yup.date().required("Vui lòng chọn ngày bắt đầu"),
       endDay: yup
         .date()
