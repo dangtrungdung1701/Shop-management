@@ -852,7 +852,6 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       optionSelected={fileSelected}
                       options={options}
                       onSelect={value => {
-                        console.log(value);
                         setFileSelected(value);
                       }}
                       placeholder="Chọn Tệp tin/Link tiếp sóng/FM"
