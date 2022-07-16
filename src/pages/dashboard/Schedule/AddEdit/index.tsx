@@ -196,7 +196,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
       ward: yup.string().required("Vui lòng chọn Phường/Xã/Thị trấn"),
       devices: yup.string().required("Vui lòng chọn thiết bị phát"),
       sources: yup.string().required("Vui lòng chọn nguồn phát"),
-      file: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
+      file: yup.string().when("source", {
+        is: () => sourceSelected?.id !== MIC_SOURCE_ID,
+        then: yup.string().required("Vui lòng chọn nguồn phát tương ứng"),
+      }),
       startDay: yup.date().required("Vui lòng chọn ngày bắt đầu"),
       endDay: yup
         .date()
@@ -831,12 +834,10 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       setSourceSelected(value);
                       setFileSelected(null);
                       if (value?.id === FILE_SOURCE_ID) {
-                        params?.id
-                          ? formik?.setFieldValue("repeatTime", 0)
-                          : formik?.setFieldValue("repeatTime", undefined);
-                        return;
+                        formik?.setFieldValue("repeatTime", "");
+                      } else {
+                        formik?.setFieldValue("repeatTime", 1);
                       }
-                      formik?.setFieldValue("repeatTime", 1);
                     }}
                     placeholder="Chọn nguồn phát"
                     required
@@ -849,7 +850,6 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       optionSelected={fileSelected}
                       options={options}
                       onSelect={value => {
-                        console.log(value);
                         setFileSelected(value);
                       }}
                       placeholder="Chọn Tệp tin/Link tiếp sóng/FM"
@@ -858,21 +858,59 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     />
                   )}
 
-                  {sourceSelected && (
+                  {sourceSelected?.id === FILE_SOURCE_ID && (
                     <Input
                       name="repeatTime"
                       label="Số lần lặp lại tệp tin"
                       placeholder="Nhập số lần lặp (tệp tin)"
                       type="number"
                       required
-                      disabled={
-                        disable ||
-                        (sourceSelected?.id === FILE_SOURCE_ID ? false : true)
-                      }
+                      disabled={disable}
                     />
                   )}
                 </FormLeftWrapper>
                 <FormRightWrapper>
+                  <Select
+                    name="repeatType"
+                    label="Kiểu lịch"
+                    optionSelected={selectedRepeatType}
+                    options={repeatType}
+                    onSelect={value => {
+                      if (value.id === "once") {
+                        formik.setFieldValue("repeatDate", "SELECTED");
+                        if (formik.values.startDay) {
+                          const theNextDay = new Date(formik.values.startDay!);
+                          formik.setFieldValue(
+                            "endDay",
+                            String(getTheNextDay(theNextDay)),
+                          );
+                        } else {
+                          formik.setFieldValue("endDay", "");
+                        }
+                      }
+                      setSelectedRepeatDate([]);
+                      setSelectedRepeatType(value);
+                    }}
+                    placeholder="Chọn kiểu lịch"
+                    required
+                    disabled={disable}
+                  />
+                  {selectedRepeatType && selectedRepeatType.id !== "once" && (
+                    <MultipleSelect
+                      name="repeatDate"
+                      label="Ngày lặp lại"
+                      listOptionsSelected={selectedRepeatDate}
+                      options={
+                        selectedRepeatType.id === "weekly"
+                          ? optionWeek
+                          : optionMonth
+                      }
+                      onSelect={value => setSelectedRepeatDate(value)}
+                      placeholder="Chọn ngày lặp lại"
+                      required
+                      disabled={disable}
+                    />
+                  )}
                   <DatePicker
                     label="Ngày bắt đầu"
                     name="startDay"
@@ -904,8 +942,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 
                   {broadcastTime.map((item: any, index: number) => {
                     return (
-                      <div className="flex flex-row gap-1 items-end">
-                        <div className="flex flex-col tablet:flex-row laptop:flex-col desktop:flex-row gap-1 w-full">
+                      <div className="flex flex-row items-end gap-1">
+                        <div className="flex flex-col w-full gap-1 tablet:flex-row laptop:flex-col desktop:flex-row">
                           <TimePicker
                             name="startTime"
                             label="Thời điểm bắt đầu"
@@ -1087,47 +1125,6 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                     <SVG name="product/add-row" />
                     Thêm thời gian phát
                   </ButtonAddTime>
-                  <Select
-                    name="repeatType"
-                    label="Kiểu lịch"
-                    optionSelected={selectedRepeatType}
-                    options={repeatType}
-                    onSelect={value => {
-                      if (value.id === "once") {
-                        formik.setFieldValue("repeatDate", "SELECTED");
-                        if (formik.values.startDay) {
-                          const theNextDay = new Date(formik.values.startDay!);
-                          formik.setFieldValue(
-                            "endDay",
-                            String(getTheNextDay(theNextDay)),
-                          );
-                        } else {
-                          formik.setFieldValue("endDay", "");
-                        }
-                      }
-                      setSelectedRepeatDate([]);
-                      setSelectedRepeatType(value);
-                    }}
-                    placeholder="Chọn kiểu lịch"
-                    required
-                    disabled={disable}
-                  />
-                  {selectedRepeatType && selectedRepeatType.id !== "once" && (
-                    <MultipleSelect
-                      name="repeatDate"
-                      label="Ngày lặp lại"
-                      listOptionsSelected={selectedRepeatDate}
-                      options={
-                        selectedRepeatType.id === "weekly"
-                          ? optionWeek
-                          : optionMonth
-                      }
-                      onSelect={value => setSelectedRepeatDate(value)}
-                      placeholder="Chọn ngày lặp lại"
-                      required
-                      disabled={disable}
-                    />
-                  )}
                 </FormRightWrapper>
               </BottomWrapper>
               <AudioWrapper>
