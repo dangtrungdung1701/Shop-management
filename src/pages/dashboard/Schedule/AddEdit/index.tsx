@@ -836,7 +836,7 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
                       if (value?.id === FILE_SOURCE_ID) {
                         formik?.setFieldValue("repeatTime", "");
                       } else {
-                      formik?.setFieldValue("repeatTime", 1);
+                        formik?.setFieldValue("repeatTime", 1);
                       }
                     }}
                     placeholder="Chọn nguồn phát"
@@ -942,8 +942,8 @@ const ConfigureSchedule: React.FC<IConfigureScheduleProps> = ({ location }) => {
 
                   {broadcastTime.map((item: any, index: number) => {
                     return (
-                      <div className="flex flex-row gap-1 items-end">
-                        <div className="flex flex-col tablet:flex-row laptop:flex-col desktop:flex-row gap-1 w-full">
+                      <div className="flex flex-row items-end gap-1">
+                        <div className="flex flex-col w-full gap-1 tablet:flex-row laptop:flex-col desktop:flex-row">
                           <TimePicker
                             name="startTime"
                             label="Thời điểm bắt đầu"
