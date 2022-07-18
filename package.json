@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-react": "^5.0.2",
-    "@craco/craco": "^6.4.3",
+    "@craco/craco": "^6.4.5",
     "@deedmob/quill-image-resize-alt-module": "^4.0.0",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
