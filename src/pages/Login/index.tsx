@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
             name="username"
             id="username"
             type="text"
-            label="Tên tài khoản"
+            label="Tên tài khoản 1"
             placeholder="Nhập tên tài khoản"
             autoComplete="username"
           />

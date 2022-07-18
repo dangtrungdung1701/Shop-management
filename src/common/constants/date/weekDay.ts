@@ -31,5 +31,5 @@ export const optionWeek: IDay[] = [
   {
     id: 6,
     displayName: "Thứ 7",
-  }
+  },
 ];
